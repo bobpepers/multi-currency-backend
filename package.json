@@ -78,7 +78,7 @@
     "nodemailer": "^6.7.5",
     "otpauth": "^7.1.2",
     "p-queue": "^6.6.2",
-    "passport": "^0.5.3",
+    "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "qrcode": "^1.5.0",
     "rate-limiter-flexible": "^2.3.7",

@@ -32,17 +32,31 @@ export const initDatabaseRecords = async (
     });
   }
 
-  // Create Runebase Coin
+  // Create Pirate Coin
   const pirate = await db.coin.findOne({
     where: {
       name: 'pirate',
       ticker: `ARRR`,
     },
   });
-  if (!runebase) {
+  if (!pirate) {
     await db.coin.create({
       name: 'pirate',
       ticker: `ARRR`,
+    });
+  }
+
+  // Create Tokel Coin
+  const tokel = await db.coin.findOne({
+    where: {
+      name: 'tokel',
+      ticker: `TKL`,
+    },
+  });
+  if (!tokel) {
+    await db.coin.create({
+      name: 'tokel',
+      ticker: `TKL`,
     });
   }
 
