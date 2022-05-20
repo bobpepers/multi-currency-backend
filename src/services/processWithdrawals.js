@@ -3,7 +3,6 @@ import { config } from "dotenv";
 import db from '../models';
 import { processWithdrawal } from "./processWithdrawal";
 
-
 config();
 
 export const processWithdrawals = async (

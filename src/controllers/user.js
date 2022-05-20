@@ -7,10 +7,43 @@ export const fetchUser = async (
     next,
 ) => {
     res.locals.name = 'fetchUser';
-    res.locals.result = await db.dashboardUser.findOne({
+    res.locals.result = await db.user.findOne({
         where: {
             id: req.user.id,
         },
+        include: [
+            {
+                model: db.wallet,
+                as: 'wallets',
+                required: false,
+                attributes: [
+                    'id',
+                    'available',
+                    'locked',
+                    'spend',
+                    'earned',
+                ],
+                include: [
+                    {
+                        model: db.address,
+                        as: 'address',
+                        required: false,
+                        attributes: [
+                            'address',
+                        ],
+                    },
+                    {
+                        model: db.coin,
+                        as: 'coin',
+                        required: true,
+                        attributes: [
+                            'name',
+                            'ticker',
+                        ],
+                    },
+                ],
+            },
+        ],
         attributes: {
             exclude: [
                 'password',
@@ -25,6 +58,7 @@ export const fetchUser = async (
             ],
         },
     });
+    console.log('fetch user');
     next();
 };
 
@@ -36,7 +70,7 @@ export const updateLastSeen = async (
     await db.sequelize.transaction({
         isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
     }, async (t) => {
-        const user = await db.dashboardUser.findOne(
+        const user = await db.user.findOne(
             {
                 where: {
                     id: req.user.id,

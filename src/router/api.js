@@ -170,7 +170,7 @@ export const apiRouter = (
     '/api/authenticated',
     (req, res, next) => {
       if (req.isAuthenticated()) {
-        next();
+        return next();
       } else {
         res.json({
           result: {
@@ -303,7 +303,7 @@ export const apiRouter = (
   app.post(
     '/api/user',
     IsAuthenticated,
-    isAdmin,
+    //isAdmin,
     isDashboardUserBanned,
     insertIp,
     ensuretfa,
