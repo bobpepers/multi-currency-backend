@@ -9,4 +9,9 @@ module.exports = {
         rpc_password: '',
         rpc_port: 9432,        
     },
+    tokel: {
+        rpc_user: '',
+        rpc_password: '',
+        rpc_port: 9432,
+    },
 };

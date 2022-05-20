@@ -117,11 +117,11 @@ config();
   await startRunebaseSync(
     queue,
   );
-  await patchRunebaseDeposits();
+  // await patchRunebaseDeposits();
 
-  const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
-    patchRunebaseDeposits();
-  });
+  // const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+  //   patchRunebaseDeposits();
+  // });
 
   await startPirateSync(
     queue,

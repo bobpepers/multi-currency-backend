@@ -145,14 +145,14 @@ const syncTransactions = async (
                 lock: t.LOCK.UPDATE,
               });
 
-              const faucetSetting = await db.features.findOne({
-                where: {
-                  type: 'global',
-                  name: 'faucet',
-                },
-                transaction: t,
-                lock: t.LOCK.UPDATE,
-              });
+              // const faucetSetting = await db.features.findOne({
+              //   where: {
+              //     type: 'global',
+              //     name: 'faucet',
+              //   },
+              //   transaction: t,
+              //   lock: t.LOCK.UPDATE,
+              // });
 
               // const faucetWatered = await waterFaucet(
               //   t,
@@ -244,7 +244,7 @@ const insertBlock = async (startBlock) => {
     if (blockHash) {
       const block = getRunebaseInstance().getBlock(blockHash, 2);
       if (block) {
-        const dbBlock = await db.block.findOne({
+        const dbBlock = await db.runebaseBlock.findOne({
           where: {
             id: Number(startBlock),
           },
@@ -256,7 +256,7 @@ const insertBlock = async (startBlock) => {
           });
         }
         if (!dbBlock) {
-          await db.block.create({
+          await db.runebaseBlock.create({
             id: startBlock,
             blockTime: block.time,
           });
@@ -282,7 +282,7 @@ export const startRunebaseSync = async (
   const currentBlockCount = Math.max(0, await getRunebaseInstance().getBlockCount());
   let startBlock = Number(blockchainConfig.runebase.startSyncBlock);
 
-  const blocks = await db.block.findAll({
+  const blocks = await db.runebaseBlock.findAll({
     limit: 1,
     order: [['id', 'DESC']],
   });

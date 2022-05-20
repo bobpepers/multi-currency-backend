@@ -4,13 +4,11 @@
 import _ from "lodash";
 import { Transaction } from "sequelize";
 import db from '../models';
-import getCoinSettings from '../config/settings';
-import { getInstance } from "./rclient";
-import { waterFaucet } from "../helpers/waterFaucet";
-import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
+import blockchainConfig from '../config/blockchain_config';
+import { getTokelInstance } from "./rclient";
+//import { waterFaucet } from "../helpers/waterFaucet";
+//import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import logger from "../helpers/logger";
-
-const settings = getCoinSettings();
 
 const sequentialLoop = async (iterations, process, exit) => {
   let index = 0;
@@ -70,7 +68,7 @@ const syncTransactions = async (
   });
 
   for await (const trans of transactions) {
-    const transaction = await getInstance().getTransaction(trans.txid);
+    const transaction = await getTokelInstance().getTransaction(trans.txid);
 
     for await (const detail of transaction.details) {
       let isWithdrawalComplete = false;
@@ -113,7 +111,7 @@ const syncTransactions = async (
             lock: t.LOCK.UPDATE,
           });
 
-          if (transaction.confirmations < Number(settings.min.confirmations)) {
+          if (transaction.confirmations < Number(blockchainConfig.tokel.confirmations)) {
             updatedTransaction = await processTransaction.update({
               confirmations: transaction.confirmations,
             }, {
@@ -121,7 +119,7 @@ const syncTransactions = async (
               lock: t.LOCK.UPDATE,
             });
           }
-          if (transaction.confirmations >= Number(settings.min.confirmations)) {
+          if (transaction.confirmations >= Number(blockchainConfig.tokel.confirmations)) {
             if (
               detail.category === 'send'
               && processTransaction.type === 'send'
@@ -158,20 +156,20 @@ const syncTransactions = async (
                 lock: t.LOCK.UPDATE,
               });
 
-              const faucetSetting = await db.features.findOne({
-                where: {
-                  type: 'global',
-                  name: 'faucet',
-                },
-                transaction: t,
-                lock: t.LOCK.UPDATE,
-              });
+              // const faucetSetting = await db.features.findOne({
+              //   where: {
+              //     type: 'global',
+              //     name: 'faucet',
+              //   },
+              //   transaction: t,
+              //   lock: t.LOCK.UPDATE,
+              // });
 
-              const faucetWatered = await waterFaucet(
-                t,
-                Number(processTransaction.feeAmount),
-                faucetSetting,
-              );
+              // const faucetWatered = await waterFaucet(
+              //   t,
+              //   Number(processTransaction.feeAmount),
+              //   faucetSetting,
+              // );
 
               userToMessage = await db.user.findOne({
                 where: {
@@ -223,16 +221,16 @@ const syncTransactions = async (
         }
 
         t.afterCommit(async () => {
-          await isDepositOrWithdrawalCompleteMessageHandler(
-            isDepositComplete,
-            isWithdrawalComplete,
-            discordClient,
-            telegramClient,
-            matrixClient,
-            userToMessage,
-            trans,
-            detail.amount,
-          );
+          // await isDepositOrWithdrawalCompleteMessageHandler(
+          //   isDepositComplete,
+          //   isWithdrawalComplete,
+          //   discordClient,
+          //   telegramClient,
+          //   matrixClient,
+          //   userToMessage,
+          //   trans,
+          //   detail.amount,
+          // );
         });
       }).catch(async (err) => {
         try {
@@ -253,9 +251,9 @@ const syncTransactions = async (
 
 const insertBlock = async (startBlock) => {
   try {
-    const blockHash = await getInstance().getBlockHash(startBlock);
+    const blockHash = await getTokelInstance().getBlockHash(startBlock);
     if (blockHash) {
-      const block = getInstance().getBlock(blockHash, 2);
+      const block = getTokelInstance().getBlock(blockHash, 2);
       if (block) {
         const dbBlock = await db.block.findOne({
           where: {
@@ -283,13 +281,19 @@ const insertBlock = async (startBlock) => {
   }
 };
 
-export const startKomodoSync = async (
+export const startTokelSync = async (
   discordClient,
   telegramClient,
   matrixClient,
   queue,
 ) => {
-  const currentBlockCount = Math.max(0, await getInstance().getBlockCount());
+  try {
+    await getTokelInstance().getBlockchainInfo();
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+  const currentBlockCount = Math.max(0, await getTokelInstance().getBlockCount());
   let startBlock = Number(settings.startSyncBlock);
 
   const blocks = await db.block.findAll({

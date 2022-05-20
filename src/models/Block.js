@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-// 1: The model schema.
+  // 1: The model schema.
   const modelDefinition = {
     id: {
       type: DataTypes.BIGINT,
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   const BlockModel = sequelize.define('block', modelDefinition, modelOptions);
 
   BlockModel.associate = (model) => {
-    BlockModel.hasMany(model.transaction);
+    //BlockModel.hasMany(model.transaction);
   };
 
   return BlockModel;

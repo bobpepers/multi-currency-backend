@@ -149,14 +149,14 @@ const syncTransactions = async (
                   lock: t.LOCK.UPDATE,
                 });
 
-                const faucetSetting = await db.features.findOne({
-                  where: {
-                    type: 'global',
-                    name: 'faucet',
-                  },
-                  transaction: t,
-                  lock: t.LOCK.UPDATE,
-                });
+                // const faucetSetting = await db.features.findOne({
+                //   where: {
+                //     type: 'global',
+                //     name: 'faucet',
+                //   },
+                //   transaction: t,
+                //   lock: t.LOCK.UPDATE,
+                // });
 
                 // const faucetWatered = await waterFaucet(
                 //   t,

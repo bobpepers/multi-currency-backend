@@ -43,6 +43,7 @@ import {
   resetPasswordNew,
 } from '../controllers/resetPassword';
 
+import { createWalletsForUser } from '../controllers/wallet';
 import { verifyMyCaptcha } from '../controllers/recaptcha';
 
 
@@ -466,6 +467,7 @@ export const apiRouter = (
     requireSignin,
     isDashboardUserBanned,
     use(signin),
+    createWalletsForUser,
     respondResult,
   );
 

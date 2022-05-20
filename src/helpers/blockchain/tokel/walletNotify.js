@@ -9,7 +9,7 @@ import logger from "../../logger";
 /**
  * Notify New Transaction From Komodo Node
  */
-const walletNotifyKomodo = async (req, res, next) => {
+const walletNotifyTokel = async (req, res, next) => {
   res.locals.activity = [];
   const txId = req.body.payload;
   const transaction = await getInstance().getTransaction(txId);
@@ -105,4 +105,4 @@ const walletNotifyKomodo = async (req, res, next) => {
   });
 };
 
-export default walletNotifyKomodo;
+export default walletNotifyTokel;

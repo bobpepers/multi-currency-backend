@@ -85,20 +85,38 @@ npx sequelize-cli seed:generate --name demo-jackpot
 
 
 
-## Node Config
+## Runebase Node Config
 ```
 daemon=1
 rpcuser=runebaseinfo
 rpcpassword=runebaseinfo
-blocknotify=curl -X POST -d "{ \"payload\" : \"%s\"}" http://127.0.0.1:8080/api/chaininfo/block
-walletnotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\"}" http://127.0.0.1:8080/api/rpc/walletnotify
+blocknotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"RUNES\"}" http://127.0.0.1:8080/api/rpc/blocknotify
+walletnotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"RUNES\"}" http://127.0.0.1:8080/api/rpc/walletnotify
+server=1
+txindex=1
+logevents=1
+zmqpubrawblock=tcp://127.0.0.1:29000
+zmqpubrawtx=tcp://127.0.0.1:29000
+zmqpubhashtx=tcp://127.0.0.1:29000
+zmqpubhashblock=tcp://127.0.0.1:29000
+rpcworkqueue=128
+
+```
+
+
+## Pirate Node Config
+```
+daemon=1
+rpcuser=pirate
+rpcpassword=pirate
+blocknotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"ARRR\"}" http://127.0.0.1:8080/api/rpc/blocknotify
+walletnotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"ARRR\"}" http://127.0.0.1:8080/api/rpc/walletnotify
 server=1
 txindex=1
 zmqpubrawblock=tcp://127.0.0.1:29000
 zmqpubrawtx=tcp://127.0.0.1:29000
 zmqpubhashtx=tcp://127.0.0.1:29000
 zmqpubhashblock=tcp://127.0.0.1:29000
-
 rpcworkqueue=128
 
 ```
