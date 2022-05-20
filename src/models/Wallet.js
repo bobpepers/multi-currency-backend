@@ -28,22 +28,18 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
   };
 
-  // 3: Define the Wallet model.
   const WalletModel = sequelize.define('wallet', modelDefinition, modelOptions);
-
-  // 4: Wallet belongs to User
 
   WalletModel.associate = (model) => {
     WalletModel.belongsTo(model.user, { as: 'user' });
-    WalletModel.hasMany(model.address);
+    WalletModel.belongsTo(model.cryptocurrency, { as: 'cryptocurrency' });
+    //WalletModel.hasMany(model.address);
+    WalletModel.hasOne(model.address);
   };
-
-  // 5: Wallet has many addresses
 
   return WalletModel;
 };

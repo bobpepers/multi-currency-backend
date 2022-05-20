@@ -19,7 +19,7 @@ passport.serializeUser(async (user, done) => { // In serialize user you decide w
 });
 
 passport.deserializeUser(async (id, done) => { // Here you retrieve all the info of the user from the session storage using the user id stored in the session earlier using serialize user.
-  db.dashboardUser.findOne({
+  db.user.findOne({
     where: {
       [Op.or]: [
         { id },
@@ -38,7 +38,7 @@ const localLogin = new LocalStrategy(localOptions, async (
   password,
   done,
 ) => {
-  db.dashboardUser.findOne({
+  db.user.findOne({
     where: {
       [Op.or]: [
         {
@@ -61,6 +61,7 @@ const localLogin = new LocalStrategy(localOptions, async (
       if (user.role < 1) {
         console.log('email is not verified');
         req.authErr = 'EMAIL_NOT_VERIFIED';
+        //sendVerificationEmail(email.toLowerCase(), newUser.authtoken);
         return done('EMAIL_NOT_VERIFIED', false);
       }
       console.log('end locallogin');

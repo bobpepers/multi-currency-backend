@@ -42,7 +42,7 @@ export const signin = async (
   }
   if (req.authErr === 'EMAIL_NOT_VERIFIED') {
     res.locals.email = req.user_email;
-    const user = await db.dashboardUser.findOne({
+    const user = await db.user.findOne({
       where: {
         [Op.or]: [
           {
@@ -77,7 +77,7 @@ export const signin = async (
     throw new Error("LOGIN_ERROR");
   } else {
     const activity = await db.activity.create({
-      dashboardUserId: req.user.id,
+      earnerId: req.user.id,
       type: 'login_s',
       //  ipId: res.locals.ip[0].id,
     });
@@ -91,8 +91,8 @@ export const signin = async (
       ],
       include: [
         {
-          model: db.dashboardUser,
-          as: 'dashboardUser',
+          model: db.user,
+          as: 'earner',
           required: false,
           attributes: ['username'],
         },
@@ -110,7 +110,7 @@ export const destroySession = async (
 ) => {
   const activity = await db.activity.create(
     {
-      dashboardUserId: req.user.id,
+      userId: req.user.id,
       type: 'logout_s',
       //     ipId: res.locals.ip[0].id,
     },
@@ -125,8 +125,8 @@ export const destroySession = async (
     ],
     include: [
       {
-        model: db.dashboardUser,
-        as: 'dashboardUser',
+        model: db.user,
+        as: 'user',
         required: false,
         attributes: ['username'],
       },
@@ -150,18 +150,14 @@ export const signup = async (req, res, next) => {
 
   if (!email || !password || !username) {
     throw new Error("all fields are required");
-    // return res.status(422).send({ error: "all fields are required" });
   }
 
   const textCharacters = new RegExp("^[a-zA-Z0-9]*$");
   if (!textCharacters.test(username)) {
     throw new Error("USERNAME_NO_SPACES_OR_SPECIAL_CHARACTERS_ALLOWED");
-    // return res.status(401).send({
-    //   error: 'USERNAME_NO_SPACES_OR_SPECIAL_CHARACTERS_ALLOWED',
-    // });
   }
 
-  const User = await db.dashboardUser.findOne({
+  const User = await db.user.findOne({
     where: {
       [Op.or]: [
         {
@@ -185,7 +181,7 @@ export const signup = async (req, res, next) => {
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
     const verificationToken = await generateVerificationToken(24);
-    const newUser = await db.dashboardUser.create({
+    const newUser = await db.user.create({
       username,
       password,
       email: email.toLowerCase(),
@@ -217,7 +213,7 @@ export const resendVerification = async (
 ) => {
   console.log('resend verification');
   const { email } = req.body;
-  db.dashboardUser.findOne({
+  db.user.findOne({
     where: {
       [Op.or]: [
         {
@@ -259,7 +255,7 @@ export const verifyEmail = (
     token,
   } = req.body;
 
-  db.dashboardUser.findOne({
+  db.user.findOne({
     where: {
       [Op.or]: [
         {

@@ -103,7 +103,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   // 3: Define the User model.
-  const UserModel = sequelize.define('dashboardUser', modelDefinition, modelOptions);
+  const UserModel = sequelize.define('user', modelDefinition, modelOptions);
   UserModel.prototype.comparePassword = async function (candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.getDataValue('password'), (err, isMatch) => {
       if (err) return cb(err);

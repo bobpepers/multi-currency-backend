@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   // 3: Define the Domain model.
-  const IpUserModel = sequelize.define('user', modelDefinition, modelOptions);
+  const IpUserModel = sequelize.define('IpUser', modelDefinition, modelOptions);
 
   IpUserModel.associate = (model) => {
     IpUserModel.belongsTo(model.ip, {
@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'ipId',
     });
 
-    IpUserModel.belongsTo(model.dashboardUser, {
+    IpUserModel.belongsTo(model.user, {
       as: 'user',
       foreignKey: 'userId',
     });

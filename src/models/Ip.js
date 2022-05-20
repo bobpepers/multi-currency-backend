@@ -27,10 +27,10 @@ module.exports = (sequelize, DataTypes) => {
 
   IpModel.associate = (model) => {
     IpModel.belongsToMany(model.user, {
-      through: 'IpDashboardUser',
-      as: 'dashboardUsers',
+      through: 'IpUser',
+      as: 'users',
       foreignKey: 'ipId',
-      otherKey: 'dashboardUserId',
+      otherKey: 'userId',
     });
   };
 
