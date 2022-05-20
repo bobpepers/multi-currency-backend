@@ -1,17 +1,17 @@
-import { router } from './router';
-import { notifyRouter } from './notify';
+import { apiRouter } from './api';
+//import { notifyRouter } from './notify';
 
 export const router = (
   app,
   io,
   queue,
 ) => {
-  notifyRouter(
-    app,
-    io,
-    queue,
-  );
-  router(
+  // notifyRouter(
+  //   app,
+  //   io,
+  //   queue,
+  // );
+  apiRouter(
     app,
     io,
     queue,

@@ -3,13 +3,11 @@
 import _ from "lodash";
 import { Transaction } from "sequelize";
 import db from '../models';
-import getCoinSettings from '../config/settings';
-import { getInstance } from "./rclient";
-import { waterFaucet } from "../helpers/waterFaucet";
-import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
+import blockchainConfig from '../config/blockchain_config';
+import { getRunebaseInstance } from "./rclient";
+//import { waterFaucet } from "../helpers/waterFaucet";
+//import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import logger from "../helpers/logger";
-
-const settings = getCoinSettings();
 
 const sequentialLoop = async (
   iterations,
@@ -54,9 +52,6 @@ const sequentialLoop = async (
 };
 
 const syncTransactions = async (
-  discordClient,
-  telegramClient,
-  matrixClient,
 ) => {
   const transactions = await db.transaction.findAll({
     where: {
@@ -73,7 +68,7 @@ const syncTransactions = async (
   });
 
   for await (const trans of transactions) {
-    const transaction = await getInstance().getTransaction(trans.txid);
+    const transaction = await getRunebaseInstance().getTransaction(trans.txid);
 
     for await (const detail of transaction.details) {
       let isWithdrawalComplete = false;
@@ -108,7 +103,7 @@ const syncTransactions = async (
             lock: t.LOCK.UPDATE,
           });
 
-          if (transaction.confirmations < Number(settings.min.confirmations)) {
+          if (transaction.confirmations < Number(blockchainConfig.runebase.confirmations)) {
             updatedTransaction = await processTransaction.update({
               confirmations: transaction.confirmations,
             }, {
@@ -116,7 +111,7 @@ const syncTransactions = async (
               lock: t.LOCK.UPDATE,
             });
           }
-          if (transaction.confirmations >= Number(settings.min.confirmations)) {
+          if (transaction.confirmations >= Number(blockchainConfig.runebase.confirmations)) {
             if (
               detail.category === 'send'
               && processTransaction.type === 'send'
@@ -159,11 +154,11 @@ const syncTransactions = async (
                 lock: t.LOCK.UPDATE,
               });
 
-              const faucetWatered = await waterFaucet(
-                t,
-                Number(processTransaction.feeAmount),
-                faucetSetting,
-              );
+              // const faucetWatered = await waterFaucet(
+              //   t,
+              //   Number(processTransaction.feeAmount),
+              //   faucetSetting,
+              // );
 
               userToMessage = await db.user.findOne({
                 where: {
@@ -215,16 +210,16 @@ const syncTransactions = async (
         }
 
         t.afterCommit(async () => {
-          await isDepositOrWithdrawalCompleteMessageHandler(
-            isDepositComplete,
-            isWithdrawalComplete,
-            discordClient,
-            telegramClient,
-            matrixClient,
-            userToMessage,
-            trans,
-            detail.amount,
-          );
+          // await isDepositOrWithdrawalCompleteMessageHandler(
+          //   isDepositComplete,
+          //   isWithdrawalComplete,
+          //   discordClient,
+          //   telegramClient,
+          //   matrixClient,
+          //   userToMessage,
+          //   trans,
+          //   detail.amount,
+          // );
         });
       }).catch(async (err) => {
         try {
@@ -245,9 +240,9 @@ const syncTransactions = async (
 
 const insertBlock = async (startBlock) => {
   try {
-    const blockHash = await getInstance().getBlockHash(startBlock);
+    const blockHash = await getRunebaseInstance().getBlockHash(startBlock);
     if (blockHash) {
-      const block = getInstance().getBlock(blockHash, 2);
+      const block = getRunebaseInstance().getBlock(blockHash, 2);
       if (block) {
         const dbBlock = await db.block.findOne({
           where: {
@@ -276,13 +271,16 @@ const insertBlock = async (startBlock) => {
 };
 
 export const startRunebaseSync = async (
-  discordClient,
-  telegramClient,
-  matrixClient,
   queue,
 ) => {
-  const currentBlockCount = Math.max(0, await getInstance().getBlockCount());
-  let startBlock = Number(settings.startSyncBlock);
+  try {
+    await getRunebaseInstance().getBlockchainInfo();
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+  const currentBlockCount = Math.max(0, await getRunebaseInstance().getBlockCount());
+  let startBlock = Number(blockchainConfig.runebase.startSyncBlock);
 
   const blocks = await db.block.findAll({
     limit: 1,
@@ -302,9 +300,6 @@ export const startRunebaseSync = async (
 
       await queue.add(async () => {
         const task = await syncTransactions(
-          discordClient,
-          telegramClient,
-          matrixClient,
         );
       });
 

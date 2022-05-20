@@ -1,24 +1,12 @@
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import db from '../models';
-import {
-  discordWithdrawalAcceptedMessage,
-  discordUserWithdrawalRejectMessage,
-} from "../messages/discord";
-import {
-  withdrawalAcceptedAdminMessage,
-  withdrawalAcceptedMessage,
-} from "../messages/telegram";
-import { matrixWithdrawalAcceptedMessage } from "../messages/matrix";
 import { processWithdrawal } from "./processWithdrawal";
-import { findUserDirectMessageRoom } from '../helpers/client/matrix/directMessageRoom';
+
 
 config();
 
 export const processWithdrawals = async (
-  telegramClient,
-  discordClient,
-  matrixClient,
 ) => {
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
@@ -110,68 +98,68 @@ export const processWithdrawals = async (
     }
 
     t.afterCommit(async () => {
-      try {
-        if (transaction) {
-          if (transaction.address.wallet.user.user_id.startsWith('discord-')) {
-            const userDiscordId = transaction.address.wallet.user.user_id.replace('discord-', '');
-            const myClient = await discordClient.users.fetch(userDiscordId, false);
-            await myClient.send({ embeds: [discordWithdrawalAcceptedMessage(updatedTrans)] });
-          }
-          if (transaction.address.wallet.user.user_id.startsWith('telegram-')) {
-            const userTelegramId = transaction.address.wallet.user.user_id.replace('telegram-', '');
-            await telegramClient.telegram.sendMessage(
-              userTelegramId,
-              await withdrawalAcceptedMessage(
-                transaction,
-                updatedTrans,
-              ),
-              {
-                parse_mode: 'HTML',
-              },
-            );
-          }
-          if (transaction.address.wallet.user.user_id.startsWith('matrix-')) {
-            const userMatrixId = transaction.address.wallet.user.user_id.replace('matrix-', '');
-            const [
-              directUserMessageRoom,
-              isCurrentRoomDirectMessage,
-              userState,
-            ] = await findUserDirectMessageRoom(
-              matrixClient,
-              userMatrixId,
-            );
-            if (directUserMessageRoom) {
-              await matrixClient.sendEvent(
-                directUserMessageRoom.roomId,
-                "m.room.message",
-                matrixWithdrawalAcceptedMessage(updatedTrans),
-              );
-            }
-          }
-          await telegramClient.telegram.sendMessage(
-            Number(process.env.TELEGRAM_ADMIN_ID),
-            await withdrawalAcceptedAdminMessage(updatedTrans),
-            {
-              parse_mode: 'HTML',
-            },
-          );
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      // try {
+      //   if (transaction) {
+      //     if (transaction.address.wallet.user.user_id.startsWith('discord-')) {
+      //       const userDiscordId = transaction.address.wallet.user.user_id.replace('discord-', '');
+      //       const myClient = await discordClient.users.fetch(userDiscordId, false);
+      //       await myClient.send({ embeds: [discordWithdrawalAcceptedMessage(updatedTrans)] });
+      //     }
+      //     if (transaction.address.wallet.user.user_id.startsWith('telegram-')) {
+      //       const userTelegramId = transaction.address.wallet.user.user_id.replace('telegram-', '');
+      //       await telegramClient.telegram.sendMessage(
+      //         userTelegramId,
+      //         await withdrawalAcceptedMessage(
+      //           transaction,
+      //           updatedTrans,
+      //         ),
+      //         {
+      //           parse_mode: 'HTML',
+      //         },
+      //       );
+      //     }
+      //     if (transaction.address.wallet.user.user_id.startsWith('matrix-')) {
+      //       const userMatrixId = transaction.address.wallet.user.user_id.replace('matrix-', '');
+      //       const [
+      //         directUserMessageRoom,
+      //         isCurrentRoomDirectMessage,
+      //         userState,
+      //       ] = await findUserDirectMessageRoom(
+      //         matrixClient,
+      //         userMatrixId,
+      //       );
+      //       if (directUserMessageRoom) {
+      //         await matrixClient.sendEvent(
+      //           directUserMessageRoom.roomId,
+      //           "m.room.message",
+      //           matrixWithdrawalAcceptedMessage(updatedTrans),
+      //         );
+      //       }
+      //     }
+      //     await telegramClient.telegram.sendMessage(
+      //       Number(process.env.TELEGRAM_ADMIN_ID),
+      //       await withdrawalAcceptedAdminMessage(updatedTrans),
+      //       {
+      //         parse_mode: 'HTML',
+      //       },
+      //     );
+      //   }
+      // } catch (e) {
+      //   console.log(e);
+      // }
     });
   }).catch(async (err) => {
     console.log(err);
-    try {
-      await telegramClient.telegram.sendMessage(
-        Number(process.env.TELEGRAM_ADMIN_ID),
-        `Something went wrong with withdrawals`,
-        {
-          parse_mode: 'HTML',
-        },
-      );
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   await telegramClient.telegram.sendMessage(
+    //     Number(process.env.TELEGRAM_ADMIN_ID),
+    //     `Something went wrong with withdrawals`,
+    //     {
+    //       parse_mode: 'HTML',
+    //     },
+    //   );
+    // } catch (error) {
+    //   console.log(error);
+    // }
   });
 };

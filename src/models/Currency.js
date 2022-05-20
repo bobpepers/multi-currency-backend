@@ -28,11 +28,6 @@ module.exports = (sequelize, DataTypes) => {
         'cryptocurrency',
       ],
     },
-    price: {
-      type: DataTypes.STRING,
-      defaultValue: '0',
-      allowNull: true,
-    },
   };
 
   // 2: The model options.

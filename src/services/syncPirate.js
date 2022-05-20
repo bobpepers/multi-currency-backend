@@ -4,14 +4,12 @@ import _ from "lodash";
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import db from '../models';
-import { getInstance } from "./rclient";
-import { waterFaucet } from "../helpers/waterFaucet";
-import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
-import getCoinSettings from '../config/settings';
+import { getPirateInstance } from "./rclient";
+//import { waterFaucet } from "../helpers/waterFaucet";
+//import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
+import blockchainConfig from '../config/blockchain_config';
 
 config();
-
-const settings = getCoinSettings();
 
 const sequentialLoop = async (iterations, process, exit) => {
   let index = 0;
@@ -72,7 +70,7 @@ const syncTransactions = async (
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const trans of transactions) {
-    const transaction = await getInstance().getTransaction(trans.txid);
+    const transaction = await getPirateInstance().getTransaction(trans.txid);
     console.log(transaction);
     if (
       transaction.sent
@@ -81,7 +79,7 @@ const syncTransactions = async (
     ) {
       for await (const detail of transaction.sent) {
         if (
-          detail.address !== process.env.PIRATE_MAIN_ADDRESS
+          detail.address !== blockchainConfig.pirate.consolidationAddress
         ) {
           let isWithdrawalComplete = false;
           const isDepositComplete = false;
@@ -114,7 +112,7 @@ const syncTransactions = async (
                 lock: t.LOCK.UPDATE,
               });
 
-              if (transaction.confirmations < Number(settings.min.confirmations)) {
+              if (transaction.confirmations < Number(blockchainConfig.pirate.confirmations)) {
                 updatedTransaction = await processTransaction.update({
                   confirmations: transaction.confirmations,
                 }, {
@@ -123,7 +121,7 @@ const syncTransactions = async (
                 });
               }
 
-              if (transaction.confirmations >= Number(settings.min.confirmations)) {
+              if (transaction.confirmations >= Number(blockchainConfig.pirate.confirmations)) {
                 const prepareLockedAmount = ((detail.value * 1e8) + Number(processTransaction.feeAmount));
                 const removeLockedAmount = Math.abs(prepareLockedAmount);
 
@@ -160,11 +158,11 @@ const syncTransactions = async (
                   lock: t.LOCK.UPDATE,
                 });
 
-                const faucetWatered = await waterFaucet(
-                  t,
-                  Number(processTransaction.feeAmount),
-                  faucetSetting,
-                );
+                // const faucetWatered = await waterFaucet(
+                //   t,
+                //   Number(processTransaction.feeAmount),
+                //   faucetSetting,
+                // );
 
                 userToMessage = await db.user.findOne({
                   where: {
@@ -178,16 +176,16 @@ const syncTransactions = async (
             }
 
             t.afterCommit(async () => {
-              await isDepositOrWithdrawalCompleteMessageHandler(
-                isDepositComplete,
-                isWithdrawalComplete,
-                discordClient,
-                telegramClient,
-                matrixClient,
-                userToMessage,
-                trans,
-                detail.value,
-              );
+              // await isDepositOrWithdrawalCompleteMessageHandler(
+              //   isDepositComplete,
+              //   isWithdrawalComplete,
+              //   discordClient,
+              //   telegramClient,
+              //   matrixClient,
+              //   userToMessage,
+              //   trans,
+              //   detail.value,
+              // );
             });
           });
         }
@@ -234,7 +232,7 @@ const syncTransactions = async (
                 lock: t.LOCK.UPDATE,
               });
 
-              if (transaction.confirmations < Number(settings.min.confirmations)) {
+              if (transaction.confirmations < Number(blockchainConfig.pirate.confirmations)) {
                 updatedTransaction = await processTransaction.update({
                   confirmations: transaction.confirmations,
                 }, {
@@ -242,7 +240,7 @@ const syncTransactions = async (
                   lock: t.LOCK.UPDATE,
                 });
               }
-              if (transaction.confirmations >= Number(settings.min.confirmations)) {
+              if (transaction.confirmations >= Number(blockchainConfig.pirate.confirmations)) {
                 console.log('updating balance');
                 updatedWallet = await wallet.update({
                   available: wallet.available + (detail.value * 1e8),
@@ -279,16 +277,16 @@ const syncTransactions = async (
             }
 
             t.afterCommit(async () => {
-              await isDepositOrWithdrawalCompleteMessageHandler(
-                isDepositComplete,
-                isWithdrawalComplete,
-                discordClient,
-                telegramClient,
-                matrixClient,
-                userToMessage,
-                trans,
-                detail.value,
-              );
+              // await isDepositOrWithdrawalCompleteMessageHandler(
+              //   isDepositComplete,
+              //   isWithdrawalComplete,
+              //   discordClient,
+              //   telegramClient,
+              //   matrixClient,
+              //   userToMessage,
+              //   trans,
+              //   detail.value,
+              // );
             });
           });
         }
@@ -300,9 +298,9 @@ const syncTransactions = async (
 
 const insertBlock = async (startBlock) => {
   try {
-    const blockHash = await getInstance().getBlockHash(startBlock);
+    const blockHash = await getPirateInstance().getBlockHash(startBlock);
     if (blockHash) {
-      const block = getInstance().getBlock(blockHash, 2);
+      const block = getPirateInstance().getBlock(blockHash, 2);
       if (block) {
         const dbBlock = await db.block.findOne({
           where: {
@@ -331,13 +329,16 @@ const insertBlock = async (startBlock) => {
 };
 
 export const startPirateSync = async (
-  discordClient,
-  telegramClient,
-  matrixClient,
   queue,
 ) => {
-  const currentBlockCount = Math.max(0, await getInstance().getBlockCount());
-  let startBlock = Number(settings.startSyncBlock);
+  try {
+    await getPirateInstance().getBlockchainInfo();
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+  const currentBlockCount = Math.max(0, await getPirateInstance().getBlockCount());
+  let startBlock = Number(blockchainConfig.pirate.startSyncBlock);
   const blocks = await db.block.findAll({
     limit: 1,
     order: [['id', 'DESC']],
@@ -356,9 +357,6 @@ export const startPirateSync = async (
 
       await queue.add(async () => {
         const task = await syncTransactions(
-          discordClient,
-          telegramClient,
-          matrixClient,
         );
       });
 

@@ -2,12 +2,18 @@
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import db from '../../../models';
-import { getInstance } from "../../../services/rclient";
+import { getPirateInstance } from "../../../services/rclient";
 
 config();
 
 export async function patchPirateDeposits() {
-  const transactions = await getInstance().listTransactions(500);
+  try {
+    await getPirateInstance().getBlockchainInfo();
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+  const transactions = await getPirateInstance().listTransactions(500);
 
   for await (const trans of transactions) {
     if (

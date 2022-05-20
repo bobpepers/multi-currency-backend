@@ -22,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
   const ActiveModel = sequelize.define('active', modelDefinition, modelOptions);
 
   ActiveModel.associate = (model) => {
-    ActiveModel.belongsTo(model.group);
     ActiveModel.belongsTo(model.user);
   };
 

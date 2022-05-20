@@ -2,9 +2,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { config } from "dotenv";
 import db from '../../models';
-import getCoinSettings from '../../config/settings';
 
-const settings = getCoinSettings();
 config();
 
 export const updateConversionRatesFiat = async () => {

@@ -17,17 +17,17 @@ import cookieParser from 'cookie-parser';
 import { createClient as createRedisClient } from 'redis';
 import socketIo from 'socket.io';
 import { router } from "./router";
-import { updatePrice } from "./helpers/price/updatePrice";
+//import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
 import { initDatabaseRecords } from "./helpers/initDatabaseRecords";
 import db from "./models";
-import { startKomodoSync } from "./services/syncKomodo";
+//import { startKomodoSync } from "./services/syncKomodo";
 import { startRunebaseSync } from "./services/syncRunebase";
 import { startPirateSync } from "./services/syncPirate";
 import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
-import { patchKomodoDeposits } from "./helpers/blockchain/komodo/patcher";
-import { processWithdrawals } from "./services/processWithdrawals";
+//import { patchKomodoDeposits } from "./helpers/blockchain/komodo/patcher";
+//import { processWithdrawals } from "./services/processWithdrawals";
 
 
 config();
@@ -100,8 +100,8 @@ config();
     const userId = socket.request.session.passport ? socket.request.session.passport.user : '';
     if (
       socket.request.user
-    && (socket.request.user.role === 4
-      || socket.request.user.role === 8)
+      && (socket.request.user.role === 4
+        || socket.request.user.role === 8)
     ) {
       socket.join('admin');
       sockets[parseInt(userId, 10)] = socket;
@@ -112,48 +112,41 @@ config();
     });
   });
 
-  await initDatabaseRecords();
+  //await initDatabaseRecords();
 
-
+  try {
     await startRunebaseSync(
-      discordClient,
-      telegramClient,
-      matrixClient,
       queue,
     );
-
     await patchRunebaseDeposits();
+  } catch (e) {
+    console.log(e)
+  }
 
-    const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
-      patchRunebaseDeposits();
-    });
+  const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+    patchRunebaseDeposits();
+  });
 
-    await startPirateSync(
-      discordClient,
-      telegramClient,
-      matrixClient,
-      queue,
-    );
+  await startPirateSync(
+    queue,
+  );
 
-    await patchPirateDeposits();
+  await patchPirateDeposits();
 
-    const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
-      patchPirateDeposits();
-    });
+  const schedulePatchPirateDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+    patchPirateDeposits();
+  });
 
-    await startKomodoSync(
-      discordClient,
-      telegramClient,
-      matrixClient,
-      queue,
-    );
+  // await startKomodoSync(
+  //   queue,
+  // );
 
-    await patchKomodoDeposits();
+  // await patchKomodoDeposits();
 
-    const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
-      patchKomodoDeposits();
-    });
-  
+  // const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+  //   patchKomodoDeposits();
+  // });
+
   router(
     app,
     io,
@@ -169,25 +162,22 @@ config();
     updateConversionRatesCrypto();
   });
 
-  updatePrice();
-  const schedulePriceUpdate = schedule.scheduleJob('*/5 * * * *', () => { // Update price every 5 minutes
-    updatePrice();
-  });
+  // updatePrice();
+  // const schedulePriceUpdate = schedule.scheduleJob('*/5 * * * *', () => { // Update price every 5 minutes
+  //   updatePrice();
+  // });
 
-  const scheduleWithdrawal = schedule.scheduleJob('*/8 * * * *', async () => { // Process a withdrawal every 8 minutes
-    const autoWithdrawalSetting = await db.features.findOne({
-      where: {
-        name: 'autoWithdrawal',
-      },
-    });
-    if (autoWithdrawalSetting.enabled) {
-      processWithdrawals(
-        telegramClient,
-        discordClient,
-        matrixClient,
-      );
-    }
-  });
+  // const scheduleWithdrawal = schedule.scheduleJob('*/8 * * * *', async () => { // Process a withdrawal every 8 minutes
+  //   const autoWithdrawalSetting = await db.features.findOne({
+  //     where: {
+  //       name: 'autoWithdrawal',
+  //     },
+  //   });
+  //   if (autoWithdrawalSetting.enabled) {
+  //     processWithdrawals(
+  //     );
+  //   }
+  // });
 
   app.use((err, req, res, next) => {
     res.status(500).send({

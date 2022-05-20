@@ -1,30 +1,32 @@
-import { config } from "dotenv";
 import Runebase from "./rpc/runebase";
 import Pirate from "./rpc/pirate";
 import Komodo from "./rpc/komodo";
 
-import getCoinSettings from '../config/settings';
+import rpcConfig from '../config/rpc_config';
 
-const settings = getCoinSettings();
-config();
+let runebaseInstance;
+let pirateInstance;
 
-let instance;
+export function createRunebaseInstance() {
+  return new Runebase(`http://${rpcConfig.runebase.rpc_user}:${rpcConfig.runebase.rpc_password}@localhost:${rpcConfig.runebase.rpc_port}`);
 
-export function createInstance() {
-  if (settings.coin.setting === 'Runebase') {
-    return new Runebase(`http://${process.env.RPC_USER}:${process.env.RPC_PASS}@localhost:${process.env.RPC_PORT}`);
-  }
-  if (settings.coin.setting === 'Pirate') {
-    return new Pirate(`http://${process.env.RPC_USER}:${process.env.RPC_PASS}@localhost:${process.env.RPC_PORT}`);
-  }
-  if (settings.coin.setting === 'Komodo') {
-    return new Komodo(`http://${process.env.RPC_USER}:${process.env.RPC_PASS}@localhost:${process.env.RPC_PORT}`);
-  }
 }
 
-export function getInstance() {
-  if (!instance) {
-    instance = createInstance();
+export function createPirateInstance() {
+  return new Pirate(`http://${rpcConfig.pirate.rpc_user}:${rpcConfig.pirate.rpc_password}@localhost:${rpcConfig.pirate.rpc_port}`);
+
+}
+
+export function getRunebaseInstance() {
+  if (!runebaseInstance) {
+    runebaseInstance = createRunebaseInstance();
   }
-  return instance;
+  return runebaseInstance;
+}
+
+export function getPirateInstance() {
+  if (!pirateInstance) {
+    pirateInstance = createPirateInstance();
+  }
+  return pirateInstance;
 }

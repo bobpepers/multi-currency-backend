@@ -1,0 +1,11 @@
+module.exports = {
+    runebase: {
+        startSyncBlock: 1690401,
+        confirmations: 6,
+    },
+    pirate: {
+        startSyncBlock: 1690401,
+        confirmations: 6,
+        consolidationAddress: 'zs1gk4gus9ya7f4rr3jr2v2rjsqrh8n67534u5dtnu3cjvcqw867ft3ewfeqg6fsakeh8vyqe2xyrg'
+    },
+};

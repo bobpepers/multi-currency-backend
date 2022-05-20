@@ -6,89 +6,79 @@ import {
   resendVerification,
   destroySession,
   isDashboardUserBanned,
-} from './controllers/auth';
+} from '../controllers/auth';
 
-import { isAdmin } from './controllers/admin';
-import { fetchUserInfo } from './controllers/userInfo';
-import { fetchLiability } from './controllers/liability';
-import { fetchBalance } from './controllers/balance';
-import { healthCheck } from './controllers/health';
+import { isAdmin } from '../controllers/admin';
+import { fetchUserInfo } from '../controllers/userInfo';
+import { fetchLiability } from '../controllers/liability';
+import { fetchBalance } from '../controllers/balance';
+import { healthCheck } from '../controllers/health';
 
-import { insertIp } from './controllers/ip';
-
-import {
-  fetchServers,
-  banServer,
-} from './controllers/servers';
+import { insertIp } from '../controllers/ip';
 
 import {
   fetchErrors,
-} from './controllers/errors';
+} from '../controllers/errors';
 
-import { fetchNodeStatus } from './controllers/status';
-
-import {
-  fetchWithdrawals,
-  acceptWithdrawal,
-  declineWithdrawal,
-} from './controllers/withdrawals';
+import { fetchNodeStatus } from '../controllers/status';
 
 import {
   fetchWithdrawalAddress,
   fetchWithdrawalAddresses,
-} from './controllers/withdrawalAddresses';
-import { fetchActivity } from './controllers/activity';
+} from '../controllers/withdrawalAddresses';
 
-import {
-  fetchPriceCurrencies,
-  addPriceCurrency,
-  removePriceCurrency,
-  updatePriceCurrency,
-  updatePriceCurrencyPrices,
-} from './controllers/priceCurrencies';
+import { fetchActivity } from '../controllers/activity';
+
+// import {
+//   fetchPriceCurrencies,
+//   addPriceCurrency,
+//   removePriceCurrency,
+//   updatePriceCurrency,
+//   updatePriceCurrencyPrices,
+// } from '../controllers/priceCurrencies';
 
 import {
   resetPassword,
   verifyResetPassword,
   resetPasswordNew,
-} from './controllers/resetPassword';
+} from '../controllers/resetPassword';
 
-import { verifyMyCaptcha } from './controllers/recaptcha';
+import { verifyMyCaptcha } from '../controllers/recaptcha';
 
 
-import {
-  fetchDashboardUsers,
-} from './controllers/dashboardUsers';
+// import {
+//   fetchDashboardUsers,
+// } from '../controllers/dashboardUsers';
 
-import {
-  fetchDeposits,
-  patchDeposits,
-} from './controllers/deposits';
+// import {
+//   fetchDeposits,
+//   patchDeposits,
+// } from '../controllers/deposits';
 
-import {
-  fetchBlockNumber,
-} from './controllers/blockNumber';
+// import {
+//   fetchBlockNumber,
+// } from '../controllers/blockNumber';
 
-import {
-  startSyncBlocks,
-} from './controllers/sync';
+// import {
+//   startSyncBlocks,
+// } from '../controllers/sync';
 
-import {
-  fetchUsers,
-  banUser,
-} from './controllers/users';
-import passportService from './services/passport';
+// import {
+//   fetchUsers,
+//   banUser,
+// } from './controllers/users';
+import passportService from '../services/passport';
 import {
   disabletfa,
   enabletfa,
   ensuretfa,
   unlocktfa,
   istfa,
-} from './controllers/tfa';
+} from '../controllers/tfa';
 
 import {
   fetchUser,
-} from './controllers/user';
+} from '../controllers/user';
 
 
 // import storeIp from './helpers/storeIp';
@@ -164,20 +154,11 @@ const respondResult = (req, res) => {
   }
 };
 
-export const dashboardRouter = (
+export const apiRouter = (
   app,
   io,
-  discordClient,
-  telegramClient,
-  matrixClient,
+  queue,
 ) => {
-  const attachResLocalsClients = (req, res, next) => {
-    res.locals.discordClient = discordClient;
-    res.locals.telegramClient = telegramClient;
-    res.locals.matrixClient = matrixClient;
-    next();
-  };
-
   app.get(
     '/api/health',
     use(healthCheck),
@@ -208,117 +189,93 @@ export const dashboardRouter = (
     signup,
   );
 
-  app.post(
-    '/api/functions/withdrawal/accept',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    ensuretfa,
-    insertIp,
-    attachResLocalsClients,
-    acceptWithdrawal,
-    respondResult,
-  );
+  // app.post(
+  //   '/api/management/user/ban',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(banUser),
+  //   respondResult,
+  // );
 
-  app.post(
-    '/api/functions/withdrawal/decline',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    ensuretfa,
-    insertIp,
-    attachResLocalsClients,
-    declineWithdrawal,
-    respondResult,
-  );
+  // app.post(
+  //   '/api/management/pricecurrencies',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(fetchPriceCurrencies),
+  //   respondCountAndResult,
+  // );
 
-  app.post(
-    '/api/management/user/ban',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(banUser),
-    respondResult,
-  );
+  // app.post(
+  //   '/api/management/pricecurrencies/remove',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(removePriceCurrency),
+  //   respondResult,
+  // );
 
-  app.post(
-    '/api/management/pricecurrencies',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchPriceCurrencies),
-    respondCountAndResult,
-  );
+  // app.post(
+  //   '/api/management/pricecurrencies/update',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(updatePriceCurrency),
+  //   respondResult,
+  // );
 
-  app.post(
-    '/api/management/pricecurrencies/remove',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(removePriceCurrency),
-    respondResult,
-  );
+  // app.post(
+  //   '/api/management/pricecurrencies/add',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(addPriceCurrency),
+  //   respondResult,
+  // );
 
-  app.post(
-    '/api/management/pricecurrencies/update',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(updatePriceCurrency),
-    respondResult,
-  );
+  // app.post(
+  //   '/api/management/pricecurrencies/updateprice',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(updatePriceCurrencyPrices),
+  //   respondResult,
+  // );
 
-  app.post(
-    '/api/management/pricecurrencies/add',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(addPriceCurrency),
-    respondResult,
-  );
+  // app.get(
+  //   '/api/sync/blocks',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(startSyncBlocks),
+  //   respondResult,
+  // );
 
-  app.post(
-    '/api/management/pricecurrencies/updateprice',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(updatePriceCurrencyPrices),
-    respondResult,
-  );
-
-  app.get(
-    '/api/sync/blocks',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(startSyncBlocks),
-    respondResult,
-  );
-
-  app.get(
-    '/api/blocknumber',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchBlockNumber),
-    respondResult,
-  );
+  // app.get(
+  //   '/api/blocknumber',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(fetchBlockNumber),
+  //   respondResult,
+  // );
 
   app.post(
     '/api/activity',
@@ -331,16 +288,16 @@ export const dashboardRouter = (
     respondCountAndResult,
   );
 
-  app.post(
-    '/api/deposits/patch',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(patchDeposits),
-    respondResult,
-  );
+  // app.post(
+  //   '/api/deposits/patch',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(patchDeposits),
+  //   respondResult,
+  // );
 
   app.post(
     '/api/user',
@@ -353,38 +310,27 @@ export const dashboardRouter = (
     respondResult,
   );
 
-  app.post(
-    '/api/management/users',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchUsers),
-    respondCountAndResult,
-  );
+  // app.post(
+  //   '/api/management/users',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(fetchUsers),
+  //   respondCountAndResult,
+  // );
 
-  app.post(
-    '/api/functions/withdrawals',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchWithdrawals),
-    respondCountAndResult,
-  );
-
-  app.post(
-    '/api/functions/deposits',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchDeposits),
-    respondCountAndResult,
-  );
+  // app.post(
+  //   '/api/functions/deposits',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(fetchDeposits),
+  //   respondCountAndResult,
+  // );
 
   app.post(
     '/api/functions/errors',
@@ -419,27 +365,16 @@ export const dashboardRouter = (
     respondResult,
   );
 
-  app.post(
-    '/api/management/dashboardusers',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchDashboardUsers),
-    respondCountAndResult,
-  );
-
-  app.post(
-    '/api/management/servers',
-    IsAuthenticated,
-    isAdmin,
-    isDashboardUserBanned,
-    insertIp,
-    ensuretfa,
-    use(fetchServers),
-    respondCountAndResult,
-  );
+  // app.post(
+  //   '/api/management/dashboardusers',
+  //   IsAuthenticated,
+  //   isAdmin,
+  //   isDashboardUserBanned,
+  //   insertIp,
+  //   ensuretfa,
+  //   use(fetchDashboardUsers),
+  //   respondCountAndResult,
+  // );
 
   app.post(
     '/api/management/userinfo',

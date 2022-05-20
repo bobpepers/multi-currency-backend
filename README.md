@@ -8,10 +8,6 @@
 ##Create .env
 
 ```
-#RPC
-RPC_USER=runebaseinfo
-RPC_PASS=runebaseinfo
-RPC_PORT=9432
 
 #DATABASE
 DB_NAME=runestip
@@ -19,20 +15,6 @@ DB_USER=newuser
 DB_PASS=@123TestDBFo
 DB_HOST=localhost
 DB_PORT=3306
-
-## Telegrambot
-TELEGRAM_BOT_TOKEN=xx
-TELEGRAM_RUNES_GROUP=-xx
-TELEGRAM_ADMIN_ID=xx
-TELEGRAM_API_ID=xx
-TELEGRAM_API_HASH=xx
-
-## DISCORD
-DISCORD_CLIENT_TOKEN=xx
-
-## MATRIX
-MATRIX_USER=xx
-MATRIX_PASS=xx
 
 
 #OPEN EXHANGE RATES KEY APP KEY()
@@ -53,9 +35,6 @@ RECAPTCHA_SECRET_KEY=xx
 
 #ROOT_URL
 ROOT_URL=localhost
-
-#CONFIG (RUNEBASE / PIRATE)
-CONFIG_FILE=PIRATE
 
 #PIRATE ONLY (has to be the same address used for consolidating pirate on node config)
 PIRATE_MAIN_ADDRESS=zs1gk4gus9ya7f4rr3jr2v2rjsqrh8n67534u5dtnu3cjvcqw867ft3ewfeqg6fsakeh8vyqe2xyrg

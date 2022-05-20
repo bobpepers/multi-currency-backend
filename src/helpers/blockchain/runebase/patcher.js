@@ -2,10 +2,16 @@
 import { Transaction } from "sequelize";
 import db from '../../../models';
 
-import { getInstance } from "../../../services/rclient";
+import { getRunebaseInstance } from "../../../services/rclient";
 
 export async function patchRunebaseDeposits() {
-  const transactions = await getInstance().listTransactions(1000);
+  try {
+    await getRunebaseInstance().getBlockchainInfo();
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+  const transactions = await getRunebaseInstance().listTransactions(1000);
 
   for await (const trans of transactions) {
     if (trans.category === 'receive') {

@@ -2,7 +2,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import { Op } from 'sequelize';
 import { config } from "dotenv";
-import db from '../../models';
+import db from '../models';
 
 // import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 // import { sendVerificationEmail } from '../helpers/email';

@@ -17,3 +17,5 @@ logs/app.log
 .env.production.pirate
 .env.development.dust
 .env.production.dust
+src/config/blockchain_config.js
+src/config/rpc_config.js

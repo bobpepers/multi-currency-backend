@@ -1,0 +1,12 @@
+module.exports = {
+    runebase: {
+        rpc_user: '',
+        rpc_password: '',
+        rpc_port: 9432,
+    },
+    pirate: {
+        rpc_user: '',
+        rpc_password: '',
+        rpc_port: 9432,        
+    },
+};
