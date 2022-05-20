@@ -14,8 +14,6 @@ const localhostOnly = (
   res,
   next,
 ) => {
-  console.log(req.headers.host);
-  console.log('check local host');
   const hostmachine = req.headers.host.split(':')[0];
   if (
     hostmachine !== 'localhost'
@@ -35,9 +33,7 @@ export const notifyRouter = (
     '/api/rpc/blocknotify',
     localhostOnly,
     (req, res) => {
-      console.log('1133');
       console.log(req.body);
-      console.log('blockNotify');
       if (req.body.ticker === 'RUNES') {
         startRunebaseSync(
           queue,
@@ -47,7 +43,7 @@ export const notifyRouter = (
           queue,
         );
       } else if (req.body.ticker === 'TKL') {
-        walletNotifyTokel(
+        startTokelSync(
           queue,
         );
       }
@@ -58,22 +54,16 @@ export const notifyRouter = (
   app.post(
     '/api/rpc/walletnotify',
     localhostOnly,
-    async (req, res) => {
+    async (req, res, next) => {
       if (req.body.ticker === 'RUNES') {
-        return res.redirect('/api/rpc/walletnotify/runebase');
+        walletNotifyRunebase(req, res, next)
       } else if (req.body.ticker === 'ARRR') {
-        return res.redirect('/api/rpc/walletnotify/pirate');
+        walletNotifyPirate(req, res, next)
       } else if (req.body.ticker === 'TKL') {
-        return res.redirect('/api/rpc/walletnotify/tokel');
+        walletNotifyTokel(req, res, next)
       }
       res.sendStatus(200);
     },
-  );
-
-  app.post(
-    '/api/rpc/walletnotify/runebase',
-    localhostOnly,
-    walletNotifyRunebase,
     async (req, res) => {
       if (res.locals.error) {
         console.log(res.locals.error);
@@ -103,76 +93,4 @@ export const notifyRouter = (
       }
     },
   );
-
-  app.post(
-    '/api/rpc/walletnotify/pirate',
-    localhostOnly,
-    walletNotifyPirate,
-    async (req, res) => {
-      if (res.locals.error) {
-        console.log(res.locals.error);
-      } else if (!res.locals.error
-        && res.locals.detail
-        && res.locals.detail.length > 0
-      ) {
-        for await (const detail of res.locals.detail) {
-          if (detail.amount) {
-            // await incomingDepositMessageHandler(
-            //   discordClient,
-            //   telegramClient,
-            //   matrixClient,
-            //   detail,
-            // );
-          }
-        }
-      }
-      if (res.locals.activity) {
-        try {
-          io.to('admin').emit('updateActivity', {
-            activity: res.locals.activity,
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    },
-  );
-
-  app.post(
-    '/api/rpc/walletnotify/tokel',
-    localhostOnly,
-    walletNotifyTokel,
-    async (req, res) => {
-      if (res.locals.error) {
-        console.log(res.locals.error);
-      } else if (!res.locals.error
-        && res.locals.detail
-        && res.locals.detail.length > 0
-      ) {
-        for await (const detail of res.locals.detail) {
-          if (detail.amount) {
-            // await incomingDepositMessageHandler(
-            //   discordClient,
-            //   telegramClient,
-            //   matrixClient,
-            //   detail,
-            // );
-          }
-        }
-      }
-      if (res.locals.activity) {
-        try {
-          io.to('admin').emit('updateActivity', {
-            activity: res.locals.activity,
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      res.sendStatus(200);
-    },
-  );
-
-
-
 };

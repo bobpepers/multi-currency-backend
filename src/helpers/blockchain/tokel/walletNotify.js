@@ -1,18 +1,22 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
-import { getInstance } from '../../../services/rclient';
+import { getTokelInstance } from '../../../services/rclient';
 
 import db from '../../../models';
 
 import logger from "../../logger";
 
 /**
- * Notify New Transaction From Komodo Node
+ * Notify New Transaction From Tokel Node
  */
-const walletNotifyTokel = async (req, res, next) => {
+const walletNotifyTokel = async (
+  req,
+  res,
+  next
+) => {
   res.locals.activity = [];
   const txId = req.body.payload;
-  const transaction = await getInstance().getTransaction(txId);
+  const transaction = await getTokelInstance().getTransaction(txId);
 
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,

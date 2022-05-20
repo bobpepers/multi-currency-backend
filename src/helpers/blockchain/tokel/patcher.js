@@ -2,10 +2,10 @@
 import { Transaction } from "sequelize";
 import db from '../../../models';
 
-import { getInstance } from "../../../services/rclient";
+import { getTokelInstance } from "../../../services/rclient";
 
-export async function patchKomodoDeposits() {
-  const transactions = await getInstance().listTransactions(1000);
+export async function patchTokelDeposits() {
+  const transactions = await getTokelInstance().listTransactions(1000);
 
   for await (const trans of transactions) {
     if (trans.category === 'receive') {

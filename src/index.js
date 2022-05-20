@@ -21,12 +21,12 @@ import { router } from "./router";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
 import { initDatabaseRecords } from "./helpers/initDatabaseRecords";
 import db from "./models";
-//import { startKomodoSync } from "./services/syncKomodo";
+import { startTokelSync } from "./services/syncTokel";
 import { startRunebaseSync } from "./services/syncRunebase";
 import { startPirateSync } from "./services/syncPirate";
 import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
-//import { patchKomodoDeposits } from "./helpers/blockchain/komodo/patcher";
+import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
 //import { processWithdrawals } from "./services/processWithdrawals";
 
 
@@ -117,11 +117,11 @@ config();
   await startRunebaseSync(
     queue,
   );
-  // await patchRunebaseDeposits();
+  await patchRunebaseDeposits();
 
-  // const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
-  //   patchRunebaseDeposits();
-  // });
+  const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+    patchRunebaseDeposits();
+  });
 
   await startPirateSync(
     queue,
@@ -133,15 +133,15 @@ config();
     patchPirateDeposits();
   });
 
-  // await startKomodoSync(
-  //   queue,
-  // );
+  await startTokelSync(
+    queue,
+  );
 
-  // await patchKomodoDeposits();
+  await patchTokelDeposits();
 
-  // const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
-  //   patchKomodoDeposits();
-  // });
+  const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+    patchTokelDeposits();
+  });
 
   router(
     app,

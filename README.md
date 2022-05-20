@@ -1,7 +1,7 @@
-## SUPPORTED .ENV CURRENCY_NAME LIST (Case sensitive, default fallback is Runebase config)
+## SUPPORTED
 - Runebase
 - Pirate
-- Dust
+- Tokel
 
 # SETUP
 
@@ -10,7 +10,7 @@
 ```
 
 #DATABASE
-DB_NAME=runestip
+DB_NAME=runebaseGames
 DB_USER=newuser
 DB_PASS=@123TestDBFo
 DB_HOST=localhost
@@ -36,15 +36,12 @@ RECAPTCHA_SECRET_KEY=xx
 #ROOT_URL
 ROOT_URL=localhost
 
-#PIRATE ONLY (has to be the same address used for consolidating pirate on node config)
-PIRATE_MAIN_ADDRESS=zs1gk4gus9ya7f4rr3jr2v2rjsqrh8n67534u5dtnu3cjvcqw867ft3ewfeqg6fsakeh8vyqe2xyrg
-
 ```
 ## Create database mysql terminal
 ```
-CREATE DATABASE runestip;
+CREATE DATABASE runebaseGames;
 
-GRANT ALL ON runestip.* TO 'newuser'@'localhost';
+GRANT ALL ON runebaseGames.* TO 'newuser'@'localhost';
 
 FLUSH PRIVILEGES;
 ```
@@ -106,18 +103,42 @@ rpcworkqueue=128
 
 ## Pirate Node Config
 ```
-daemon=1
-rpcuser=pirate
-rpcpassword=pirate
-blocknotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"ARRR\"}" http://127.0.0.1:8080/api/rpc/blocknotify
-walletnotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"ARRR\"}" http://127.0.0.1:8080/api/rpc/walletnotify
+rpcuser=xx
+rpcpassword=xx
+rpcport=45453
 server=1
 txindex=1
-zmqpubrawblock=tcp://127.0.0.1:29000
-zmqpubrawtx=tcp://127.0.0.1:29000
-zmqpubhashtx=tcp://127.0.0.1:29000
-zmqpubhashblock=tcp://127.0.0.1:29000
-rpcworkqueue=128
+rpcworkqueue=256
+rpcallowip=127.0.0.1
+rpcbind=127.0.0.1
+blocknotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"ARRR\"}" http://127.0.0.1:8080/api/rpc/blocknotify
+walletnotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"ARRR\"}" http://127.0.0.1:8080/api/rpc/walletnotify
+daemon=1
+
+consolidation=1
+consolidationtxfee=10000
+consolidationsaplingaddress=xx
+sweep=1
+sweeptxfee=10000
+sweepsaplingaddress=xx
+deletetx=1
+deleteinterval=10000
+
+```
+
+## Tokel Node Config
+```
+rpcuser=xx
+rpcpassword=xx
+rpcport=29405
+server=1
+txindex=1
+rpcworkqueue=256
+rpcallowip=127.0.0.1
+rpcbind=127.0.0.1
+blocknotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"TKL\"}" http://127.0.0.1:8080/api/rpc/blocknotify
+walletnotify=curl --header "Content-Type: application/json" --request POST --data "{ \"payload\" : \"%s\", \"ticker\" : \"TKL\"}" http://127.0.0.1:8080/api/rpc/walletnotify
+daemon=1
 
 ```
 

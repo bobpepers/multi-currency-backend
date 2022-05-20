@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
-import { getInstance } from '../../../services/rclient';
+import { getRunebaseInstance } from '../../../services/rclient';
 
 import db from '../../../models';
 
@@ -16,7 +16,7 @@ const walletNotifyRunebase = async (
 ) => {
   res.locals.activity = [];
   const txId = req.body.payload;
-  const transaction = await getInstance().getTransaction(txId);
+  const transaction = await getRunebaseInstance().getTransaction(txId);
 
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,

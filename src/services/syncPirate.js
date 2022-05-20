@@ -302,7 +302,7 @@ const insertBlock = async (startBlock) => {
     if (blockHash) {
       const block = getPirateInstance().getBlock(blockHash, 2);
       if (block) {
-        const dbBlock = await db.block.findOne({
+        const dbBlock = await db.pirateBlock.findOne({
           where: {
             id: Number(startBlock),
           },
@@ -314,7 +314,7 @@ const insertBlock = async (startBlock) => {
           });
         }
         if (!dbBlock) {
-          await db.block.create({
+          await db.pirateBlock.create({
             id: startBlock,
             blockTime: block.time,
           });
@@ -339,7 +339,7 @@ export const startPirateSync = async (
   }
   const currentBlockCount = Math.max(0, await getPirateInstance().getBlockCount());
   let startBlock = Number(blockchainConfig.pirate.startSyncBlock);
-  const blocks = await db.block.findAll({
+  const blocks = await db.pirateBlock.findAll({
     limit: 1,
     order: [['id', 'DESC']],
   });

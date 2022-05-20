@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
-import { getInstance } from '../../../services/rclient';
+import { getPirateInstance } from '../../../services/rclient';
 import db from '../../../models';
 import logger from "../../logger";
 
@@ -23,7 +23,7 @@ const walletNotifyPirate = async (
   }, async (t) => {
     let i = 0;
     res.locals.detail = [];
-    const transaction = await getInstance().getTransaction(txId);
+    const transaction = await getPirateInstance().getTransaction(txId);
     if (transaction.received && transaction.received.length > 0) {
       for await (const detail of transaction.received) {
         if (detail.address !== process.env.PIRATE_MAIN_ADDRESS) {

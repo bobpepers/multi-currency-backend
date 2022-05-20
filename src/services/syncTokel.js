@@ -49,9 +49,6 @@ const sequentialLoop = async (iterations, process, exit) => {
 };
 
 const syncTransactions = async (
-  discordClient,
-  telegramClient,
-  matrixClient,
 ) => {
   const transactions = await db.transaction.findAll({
     where: {
@@ -255,7 +252,7 @@ const insertBlock = async (startBlock) => {
     if (blockHash) {
       const block = getTokelInstance().getBlock(blockHash, 2);
       if (block) {
-        const dbBlock = await db.block.findOne({
+        const dbBlock = await db.tokelBlock.findOne({
           where: {
             id: Number(startBlock),
           },
@@ -267,7 +264,7 @@ const insertBlock = async (startBlock) => {
           });
         }
         if (!dbBlock) {
-          await db.block.create({
+          await db.tokelBlock.create({
             id: startBlock,
             blockTime: block.time,
           });
@@ -282,9 +279,6 @@ const insertBlock = async (startBlock) => {
 };
 
 export const startTokelSync = async (
-  discordClient,
-  telegramClient,
-  matrixClient,
   queue,
 ) => {
   try {
@@ -294,9 +288,9 @@ export const startTokelSync = async (
     return;
   }
   const currentBlockCount = Math.max(0, await getTokelInstance().getBlockCount());
-  let startBlock = Number(settings.startSyncBlock);
+  let startBlock = Number(blockchainConfig.tokel.startSyncBlock);
 
-  const blocks = await db.block.findAll({
+  const blocks = await db.tokelBlock.findAll({
     limit: 1,
     order: [['id', 'DESC']],
   });
@@ -314,9 +308,6 @@ export const startTokelSync = async (
 
       await queue.add(async () => {
         const task = await syncTransactions(
-          discordClient,
-          telegramClient,
-          matrixClient,
         );
       });
 
