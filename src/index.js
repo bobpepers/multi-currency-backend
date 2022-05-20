@@ -112,16 +112,12 @@ config();
     });
   });
 
-  //await initDatabaseRecords();
+  await initDatabaseRecords();
 
-  try {
-    await startRunebaseSync(
-      queue,
-    );
-    await patchRunebaseDeposits();
-  } catch (e) {
-    console.log(e)
-  }
+  await startRunebaseSync(
+    queue,
+  );
+  await patchRunebaseDeposits();
 
   const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
     patchRunebaseDeposits();

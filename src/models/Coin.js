@@ -27,13 +27,13 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     // 3: Define the Domain model.
-    const CryptoCurrencyModel = sequelize.define('cryptocurrency', modelDefinition, modelOptions);
+    const CoinModel = sequelize.define('coin', modelDefinition, modelOptions);
 
-    CryptoCurrencyModel.associate = (model) => {
-        CryptoCurrencyModel.hasMany(model.wallet, {
+    CoinModel.associate = (model) => {
+        CoinModel.hasMany(model.wallet, {
             as: 'wallet',
         });
     };
 
-    return CryptoCurrencyModel;
+    return CoinModel;
 };
