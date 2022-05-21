@@ -5,6 +5,13 @@ import db from '../../../models';
 import { getTokelInstance } from "../../../services/rclient";
 
 export async function patchTokelDeposits() {
+  try {
+    await getTokelInstance().getBlockchainInfo();
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+
   const transactions = await getTokelInstance().listTransactions(1000);
 
   for await (const trans of transactions) {
@@ -39,6 +46,7 @@ export async function patchTokelDeposits() {
                 type: trans.category,
                 amount: trans.amount * 1e8,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               transaction: t,
               lock: t.LOCK.UPDATE,

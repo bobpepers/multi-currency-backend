@@ -17,18 +17,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// transporter.sendMail({
-//   from: process.env.MAIL_USER,
-//   to: 'bagostra@gmail.com',
-//   subject: 'Nodejs application restarted',
-//   html: 'test',
-// }).then(() => {
-//   console.log('Email sent successfully');
-// }).catch((err) => {
-//   console.log('Failed to send email');
-//   console.error(err);
-// });
-
 const sendEmail = (
   from,
   to,

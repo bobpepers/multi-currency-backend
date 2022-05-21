@@ -44,12 +44,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
   };
 
-  // 3: Define the Domain model.
   const ActivityModel = sequelize.define('activity', modelDefinition, modelOptions);
 
   ActivityModel.associate = (model) => {

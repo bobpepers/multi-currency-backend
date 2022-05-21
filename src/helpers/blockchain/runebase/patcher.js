@@ -45,6 +45,7 @@ export async function patchRunebaseDeposits() {
                 type: trans.category,
                 amount: trans.amount * 1e8,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               transaction: t,
               lock: t.LOCK.UPDATE,

@@ -7,7 +7,7 @@ import { startRunebaseSync } from "../services/syncRunebase";
 import { startPirateSync } from "../services/syncPirate";
 import { startTokelSync } from "../services/syncTokel";
 
-//import { incomingDepositMessageHandler } from '../helpers/messageHandlers';
+// import { incomingDepositMessageHandler } from '../helpers/messageHandlers';
 
 const localhostOnly = (
   req,
@@ -56,11 +56,11 @@ export const notifyRouter = (
     localhostOnly,
     async (req, res, next) => {
       if (req.body.ticker === 'RUNES') {
-        walletNotifyRunebase(req, res, next)
+        walletNotifyRunebase(req, res, next);
       } else if (req.body.ticker === 'ARRR') {
-        walletNotifyPirate(req, res, next)
+        walletNotifyPirate(req, res, next);
       } else if (req.body.ticker === 'TKL') {
-        walletNotifyTokel(req, res, next)
+        walletNotifyTokel(req, res, next);
       }
       res.sendStatus(200);
     },

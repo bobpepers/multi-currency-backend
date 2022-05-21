@@ -12,7 +12,7 @@ import logger from "../../logger";
 const walletNotifyTokel = async (
   req,
   res,
-  next
+  next,
 ) => {
   res.locals.activity = [];
   const txId = req.body.payload;
@@ -73,6 +73,7 @@ const walletNotifyTokel = async (
                 type: detail.category,
                 amount: detail.amount * 1e8,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               transaction: t,
               lock: t.LOCK.UPDATE,

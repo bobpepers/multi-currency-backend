@@ -17,7 +17,7 @@ import cookieParser from 'cookie-parser';
 import { createClient as createRedisClient } from 'redis';
 import socketIo from 'socket.io';
 import { router } from "./router";
-//import { updatePrice } from "./helpers/price/updatePrice";
+// import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
 import { initDatabaseRecords } from "./helpers/initDatabaseRecords";
 import db from "./models";
@@ -27,8 +27,7 @@ import { startPirateSync } from "./services/syncPirate";
 import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
 import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
-//import { processWithdrawals } from "./services/processWithdrawals";
-
+// import { processWithdrawals } from "./services/processWithdrawals";
 
 config();
 
@@ -117,6 +116,7 @@ config();
   await startRunebaseSync(
     queue,
   );
+
   await patchRunebaseDeposits();
 
   const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
@@ -176,9 +176,23 @@ config();
   // });
 
   app.use((err, req, res, next) => {
-    res.status(500).send({
-      error: err.message,
-    });
+    if (err.message && err.message === "EMAIL_NOT_VERIFIED") {
+      res.status(401).send({
+        error: err.message,
+        email: err.email,
+      });
+    } else if (
+      (err.message && err === 'LOGIN_FAIL')
+      || (err.message && err === 'AUTH_TOKEN_USED')
+    ) {
+      res.status(401).send({
+        error: err.message,
+      });
+    } else {
+      res.status(500).send({
+        error: err.message,
+      });
+    }
   });
 
   server.listen(port);

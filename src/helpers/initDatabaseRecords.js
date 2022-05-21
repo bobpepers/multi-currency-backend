@@ -59,5 +59,4 @@ export const initDatabaseRecords = async (
       ticker: `TKL`,
     });
   }
-
 };

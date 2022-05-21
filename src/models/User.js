@@ -27,7 +27,6 @@ function hashPassword(user, options) {
 }
 
 module.exports = (sequelize, DataTypes) => {
-  // 1: The model schema.
   const modelDefinition = {
     id: {
       type: DataTypes.BIGINT,
@@ -94,7 +93,6 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
     hooks: {
@@ -102,7 +100,6 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 3: Define the User model.
   const UserModel = sequelize.define('user', modelDefinition, modelOptions);
   UserModel.prototype.comparePassword = async function (candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.getDataValue('password'), (err, isMatch) => {

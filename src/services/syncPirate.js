@@ -5,8 +5,8 @@ import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import db from '../models';
 import { getPirateInstance } from "./rclient";
-//import { waterFaucet } from "../helpers/waterFaucet";
-//import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
+// import { waterFaucet } from "../helpers/waterFaucet";
+// import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import blockchainConfig from '../config/blockchain_config';
 
 config();
@@ -356,8 +356,7 @@ export const startPirateSync = async (
       const endBlock = Math.min((startBlock + 1) - 1, currentBlockCount);
 
       await queue.add(async () => {
-        const task = await syncTransactions(
-        );
+        const task = await syncTransactions();
       });
 
       await queue.add(async () => {

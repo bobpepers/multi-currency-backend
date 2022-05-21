@@ -30,12 +30,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
   };
 
-  // 3: Define the Domain model.
   const CurrencyModel = sequelize.define('currency', modelDefinition, modelOptions);
 
   CurrencyModel.associate = (model) => {

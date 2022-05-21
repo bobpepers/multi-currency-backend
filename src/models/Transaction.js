@@ -61,9 +61,11 @@ module.exports = (sequelize, DataTypes) => {
   TransactionModel.associate = (model) => {
     TransactionModel.hasMany(model.activity, { as: 'transaction' });
     TransactionModel.belongsTo(model.address, { as: 'address' });
+    //TransactionModel.belongsTo(model.coin, { as: 'coin' });
     //TransactionModel.belongsTo(model.block, { as: 'block' });
     TransactionModel.belongsTo(model.addressExternal, { as: 'addressExternal' });
     TransactionModel.belongsTo(model.user);
+    TransactionModel.belongsTo(model.wallet);
   };
 
   return TransactionModel;

@@ -16,12 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
   };
 
-  // 3: Define the Domain model.
   const IpUserModel = sequelize.define('IpUser', modelDefinition, modelOptions);
 
   IpUserModel.associate = (model) => {

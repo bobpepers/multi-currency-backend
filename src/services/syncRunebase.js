@@ -5,8 +5,8 @@ import { Transaction } from "sequelize";
 import db from '../models';
 import blockchainConfig from '../config/blockchain_config';
 import { getRunebaseInstance } from "./rclient";
-//import { waterFaucet } from "../helpers/waterFaucet";
-//import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
+// import { waterFaucet } from "../helpers/waterFaucet";
+// import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import logger from "../helpers/logger";
 
 const sequentialLoop = async (
@@ -51,8 +51,7 @@ const sequentialLoop = async (
   return loop;
 };
 
-const syncTransactions = async (
-) => {
+const syncTransactions = async () => {
   const transactions = await db.transaction.findAll({
     where: {
       phase: 'confirming',
@@ -299,8 +298,7 @@ export const startRunebaseSync = async (
       const endBlock = Math.min((startBlock + 1) - 1, currentBlockCount);
 
       await queue.add(async () => {
-        const task = await syncTransactions(
-        );
+        const task = await syncTransactions();
       });
 
       await queue.add(async () => {

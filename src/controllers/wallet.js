@@ -1,5 +1,7 @@
-import db from '../models';
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 import { Transaction } from 'sequelize';
+import db from '../models';
 import {
   getRunebaseInstance,
   getPirateInstance,

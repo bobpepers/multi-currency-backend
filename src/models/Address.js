@@ -12,12 +12,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
   };
 
-  // 3: Define the Wallet model.
   const AddressModel = sequelize.define('address', modelDefinition, modelOptions);
 
   AddressModel.associate = (model) => {

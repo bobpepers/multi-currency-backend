@@ -5,8 +5,7 @@ import { processWithdrawal } from "./processWithdrawal";
 
 config();
 
-export const processWithdrawals = async (
-) => {
+export const processWithdrawals = async () => {
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {

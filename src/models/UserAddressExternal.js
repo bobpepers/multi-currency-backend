@@ -8,12 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  // 2: The model options.
   const modelOptions = {
     freezeTableName: true,
   };
 
-  // 3: Define the Wallet model.
   const AddressExternalModel = sequelize.define('UserAddressExternal', modelDefinition, modelOptions);
 
   AddressExternalModel.associate = (model) => {

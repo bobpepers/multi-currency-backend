@@ -35,72 +35,34 @@ export const signin = async (
   res,
   next,
 ) => {
+  // req.session.tfa = req.user.tfa;
+  console.log(req.session);
   const ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  let activity;
-  if (req.authErr === 'USER_NOT_EXIST') {
-    throw new Error("User doesn't exist");
-  }
-  if (req.authErr === 'EMAIL_NOT_VERIFIED') {
-    res.locals.email = req.user_email;
-    const user = await db.user.findOne({
-      where: {
-        [Op.or]: [
-          {
-            email: req.user_email.toLowerCase(),
-          },
-        ],
+  const activity = await db.activity.create({
+    earnerId: req.user.id,
+    type: 'login_s',
+    //  ipId: res.locals.ip[0].id,
+  });
+  res.locals.activity = await db.activity.findOne({
+    where: {
+      id: activity.id,
+    },
+    attributes: [
+      'createdAt',
+      'type',
+    ],
+    include: [
+      {
+        model: db.user,
+        as: 'earner',
+        required: false,
+        attributes: ['username'],
       },
-    });
-    if (user) {
-      const verificationToken = await generateVerificationToken(24);
-      if (user.authused === true) {
-        throw new Error("Authentication token already used");
-      }
-      const updatedUser = await user.update({
-        authexpires: verificationToken.tomorrow,
-        authtoken: verificationToken.authtoken,
-      });
-      const {
-        email,
-        authtoken,
-      } = updatedUser;
-      sendVerificationEmail(email, authtoken);
-      req.session.destroy();
-      res.status(401).send({
-        error: req.authErr,
-        email: res.locals.email,
-      });
-      throw new Error(req.authErr);
-    }
-  } else if (req.authErr) {
-    req.session.destroy();
-    throw new Error("LOGIN_ERROR");
-  } else {
-    const activity = await db.activity.create({
-      earnerId: req.user.id,
-      type: 'login_s',
-      //  ipId: res.locals.ip[0].id,
-    });
-    res.locals.activity = await db.activity.findOne({
-      where: {
-        id: activity.id,
-      },
-      attributes: [
-        'createdAt',
-        'type',
-      ],
-      include: [
-        {
-          model: db.user,
-          as: 'earner',
-          required: false,
-          attributes: ['username'],
-        },
-      ],
-    });
-    res.locals.result = req.user.username;
-    return next();
-  }
+    ],
+  });
+  res.locals.result = req.user.username;
+
+  return next();
 };
 
 export const destroySession = async (
@@ -110,7 +72,7 @@ export const destroySession = async (
 ) => {
   const activity = await db.activity.create(
     {
-      userId: req.user.id,
+      earnerId: req.user.id,
       type: 'logout_s',
       //     ipId: res.locals.ip[0].id,
     },
@@ -126,16 +88,16 @@ export const destroySession = async (
     include: [
       {
         model: db.user,
-        as: 'user',
+        as: 'earner',
         required: false,
         attributes: ['username'],
       },
     ],
   });
-  req.logOut();
-  req.session.destroy();
-  res.redirect("/");
-  next();
+  // req.logOut();
+  req.session.destroy((err) => {
+    res.redirect('/');
+  });
 };
 
 /**

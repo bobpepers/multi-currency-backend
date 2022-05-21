@@ -46,7 +46,6 @@ import {
 import { createWalletsForUser } from '../controllers/wallet';
 import { verifyMyCaptcha } from '../controllers/recaptcha';
 
-
 // import {
 //   fetchDashboardUsers,
 // } from '../controllers/dashboardUsers';
@@ -80,7 +79,6 @@ import {
 import {
   fetchUser,
 } from '../controllers/user';
-
 
 // import storeIp from './helpers/storeIp';
 
@@ -170,7 +168,7 @@ export const apiRouter = (
     '/api/authenticated',
     (req, res, next) => {
       if (req.isAuthenticated()) {
-        return next();
+        next();
       } else {
         res.json({
           result: {
@@ -303,7 +301,7 @@ export const apiRouter = (
   app.post(
     '/api/user',
     IsAuthenticated,
-    //isAdmin,
+    // isAdmin,
     isDashboardUserBanned,
     insertIp,
     ensuretfa,
