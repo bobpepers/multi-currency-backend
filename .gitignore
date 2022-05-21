@@ -2,8 +2,6 @@
 /.idea
 .DS_Store
 npm-debug.log
-.env
-.env_backup
 logs
 logs/app.log
 logs/error.log
@@ -11,11 +9,11 @@ logs/error.log
 /logs/app.log
 /logs/error.log
 logs/app.log
+.env
+.env_backup
 .env.development.runebase
 .env.development.pirate
 .env.production.runebase
 .env.production.pirate
 .env.development.dust
 .env.production.dust
-src/config/blockchain_config.js
-src/config/rpc_config.js

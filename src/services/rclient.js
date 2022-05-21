@@ -1,23 +1,24 @@
+import { config } from "dotenv";
 import Runebase from "./rpc/runebase";
 import Pirate from "./rpc/pirate";
 import Tokel from "./rpc/tokel";
 
-import rpcConfig from '../config/rpc_config';
+config();
 
 let runebaseInstance;
 let pirateInstance;
 let tokelInstance;
 
 export function createRunebaseInstance() {
-  return new Runebase(`http://${rpcConfig.runebase.rpc_user}:${rpcConfig.runebase.rpc_password}@localhost:${rpcConfig.runebase.rpc_port}`);
+  return new Runebase(`http://${process.env.RUNEBASE_RPC_USER}:${process.env.RUNEBASE_RPC_PASS}@localhost:${process.env.RUNEBASE_RPC_PORT}`);
 }
 
 export function createPirateInstance() {
-  return new Pirate(`http://${rpcConfig.pirate.rpc_user}:${rpcConfig.pirate.rpc_password}@localhost:${rpcConfig.pirate.rpc_port}`);
+  return new Pirate(`http://${process.env.PIRATE_RPC_USER}:${process.env.PIRATE_RPC_PASS}@localhost:${process.env.PIRATE_RPC_PORT}`);
 }
 
 export function createTokelInstance() {
-  return new Tokel(`http://${rpcConfig.tokel.rpc_user}:${rpcConfig.tokel.rpc_password}@localhost:${rpcConfig.tokel.rpc_port}`);
+  return new Tokel(`http://${process.env.TOKEL_RPC_USER}:${process.env.TOKEL_RPC_PASS}@localhost:${process.env.TOKEL_RPC_PORT}`);
 }
 
 export function getRunebaseInstance() {

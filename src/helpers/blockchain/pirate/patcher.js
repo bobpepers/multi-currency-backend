@@ -22,7 +22,7 @@ export async function patchPirateDeposits() {
     ) {
       for await (const detail of trans.received) {
         if (detail.address) {
-          if (detail.address !== process.env.PIRATE_MAIN_ADDRESS) {
+          if (detail.address !== process.env.PIRATE_CONSOLIDATION_ADDRESS) {
             const address = await db.address.findOne({
               where: {
                 address: detail.address,

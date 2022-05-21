@@ -26,7 +26,7 @@ const walletNotifyPirate = async (
     const transaction = await getPirateInstance().getTransaction(txId);
     if (transaction.received && transaction.received.length > 0) {
       for await (const detail of transaction.received) {
-        if (detail.address !== process.env.PIRATE_MAIN_ADDRESS) {
+        if (detail.address !== process.env.PIRATE_CONSOLIDATION_ADDRESS) {
           const address = await db.address.findOne({
             where: {
               address: detail.address,
@@ -48,19 +48,7 @@ const walletNotifyPirate = async (
           });
           if (address) {
             res.locals.detail[parseInt(i, 10)] = {};
-            if (address.wallet.user.user_id.startsWith('discord')) {
-              res.locals.detail[parseInt(i, 10)].platform = 'discord';
-              res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.user_id.replace('discord-', '');
-            }
-            if (address.wallet.user.user_id.startsWith('telegram')) {
-              res.locals.detail[parseInt(i, 10)].platform = 'telegram';
-              res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.user_id.replace('telegram-', '');
-            }
-            if (address.wallet.user.user_id.startsWith('matrix')) {
-              res.locals.detail[parseInt(i, 10)].platform = 'matrix';
-              res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.user_id.replace('matrix-', '');
-            }
-
+            res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.id;
             res.locals.detail[parseInt(i, 10)].transaction = await db.transaction.findOrCreate({
               where: {
                 txid: transaction.txid,

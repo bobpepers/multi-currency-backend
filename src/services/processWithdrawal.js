@@ -31,7 +31,7 @@ export const processWithdrawal = async (transaction) => {
     try {
       const hexMemo = await fromUtf8ToHex(transaction.memo);
       const preResponse = await getInstance().zSendMany(
-        process.env.PIRATE_MAIN_ADDRESS,
+        process.env.PIRATE_CONSOLIDATION_ADDRESS,
         [{
           address: transaction.to_from,
           amount: amount.toFixed(8),

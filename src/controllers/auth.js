@@ -8,19 +8,18 @@ import { generateVerificationToken } from '../helpers/generate';
 import timingSafeEqual from '../helpers/timingSafeEqual';
 
 /**
- * Is Dashboard User Banned?
+ * Is User Banned?
  */
-export const isDashboardUserBanned = async (
+export const isUserBanned = async (
   req,
   res,
   next,
 ) => {
   if (req.user.banned) {
-    console.log('user is banned');
-    req.logOut();
-    req.session.destroy();
-    res.status(401).send({
-      error: 'USER_BANNED',
+    req.session.destroy((err) => {
+      res.status(401).send({
+        error: 'USER_BANNED',
+      });
     });
   } else {
     next();

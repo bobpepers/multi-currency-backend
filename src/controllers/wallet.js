@@ -5,6 +5,7 @@ import db from '../models';
 import {
   getRunebaseInstance,
   getPirateInstance,
+  getTokelInstance,
 } from '../services/rclient';
 
 export const createWalletsForUser = async (
@@ -79,6 +80,34 @@ export const createWalletsForUser = async (
             let newAddress;
             try {
               newAddress = await getPirateInstance().getNewAddress();
+            } catch (e) {
+              console.log(e);
+            }
+            if (newAddress) {
+              const addressAlreadyExist = await db.address.findOne(
+                {
+                  where: {
+                    address: newAddress,
+                  },
+                  transaction: t,
+                  lock: t.LOCK.UPDATE,
+                },
+              );
+              if (!addressAlreadyExist) {
+                address = await db.address.create({
+                  address: newAddress,
+                  walletId: wallet.id,
+                }, {
+                  transaction: t,
+                  lock: t.LOCK.UPDATE,
+                });
+              }
+            }
+          }
+          if (coin.ticker === 'TKL') {
+            let newAddress;
+            try {
+              newAddress = await getTokelInstance().getNewAddress();
             } catch (e) {
               console.log(e);
             }

@@ -79,7 +79,7 @@ const syncTransactions = async (
     ) {
       for await (const detail of transaction.sent) {
         if (
-          detail.address !== blockchainConfig.pirate.consolidationAddress
+          detail.address !== process.env.PIRATE_CONSOLIDATION_ADDRESS
         ) {
           let isWithdrawalComplete = false;
           const isDepositComplete = false;
@@ -198,7 +198,7 @@ const syncTransactions = async (
     ) {
       for await (const detail of transaction.received) {
         if (
-          detail.address !== process.env.PIRATE_MAIN_ADDRESS
+          detail.address !== process.env.PIRATE_CONSOLIDATION_ADDRESS
           && detail.address === trans.address.address
         ) {
           const isWithdrawalComplete = false;
