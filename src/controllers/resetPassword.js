@@ -16,7 +16,9 @@ export const resetPassword = async (req, res, next) => {
   const user = await db.user.findOne({
     where: {
       [Op.or]: [
-        { email },
+        {
+          email: email.toLowerCase(),
+        },
       ],
     },
   });
@@ -31,7 +33,7 @@ export const resetPassword = async (req, res, next) => {
       resetpassused: false,
     });
     const successSend = await sendResetPassword(
-      email,
+      updatedUser.email,
       updatedUser.username,
       updatedUser.resetpasstoken,
     );

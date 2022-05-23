@@ -49,23 +49,28 @@ const sequentialLoop = async (iterations, process, exit) => {
   return loop;
 };
 
-const syncTransactions = async (
-  discordClient,
-  telegramClient,
-  matrixClient,
-) => {
+const syncTransactions = async () => {
   const transactions = await db.transaction.findAll({
     where: {
       phase: 'confirming',
     },
-    include: [{
-      model: db.address,
-      as: 'address',
-      include: [{
+    include: [
+      {
         model: db.wallet,
         as: 'wallet',
-      }],
-    }],
+        include: [{
+          model: db.coin,
+          as: 'coin',
+          where: {
+            ticker: 'ARRR',
+          },
+        }],
+      },
+      {
+        model: db.address,
+        as: 'address',
+      },
+    ],
   });
 
   // eslint-disable-next-line no-restricted-syntax
@@ -94,19 +99,28 @@ const syncTransactions = async (
                 phase: 'confirming',
                 id: trans.id,
               },
-              include: [{
-                model: db.address,
-                as: 'address',
-                include: [{
+              include: [
+                {
                   model: db.wallet,
                   as: 'wallet',
-                }],
-              }],
+                  include: [{
+                    model: db.coin,
+                    as: 'coin',
+                    where: {
+                      ticker: 'ARRR',
+                    },
+                  }],
+                },
+                {
+                  model: db.address,
+                  as: 'address',
+                },
+              ],
             });
             if (processTransaction) {
               const wallet = await db.wallet.findOne({
                 where: {
-                  userId: processTransaction.address.wallet.userId,
+                  userId: processTransaction.wallet.userId,
                 },
                 transaction: t,
                 lock: t.LOCK.UPDATE,
@@ -214,19 +228,28 @@ const syncTransactions = async (
                 phase: 'confirming',
                 id: trans.id,
               },
-              include: [{
-                model: db.address,
-                as: 'address',
-                include: [{
+              include: [
+                {
                   model: db.wallet,
                   as: 'wallet',
-                }],
-              }],
+                  include: [{
+                    model: db.coin,
+                    as: 'coin',
+                    where: {
+                      ticker: 'ARRR',
+                    },
+                  }],
+                },
+                {
+                  model: db.address,
+                  as: 'address',
+                },
+              ],
             });
             if (processTransaction) {
               const wallet = await db.wallet.findOne({
                 where: {
-                  userId: processTransaction.address.wallet.userId,
+                  userId: processTransaction.wallet.userId,
                 },
                 transaction: t,
                 lock: t.LOCK.UPDATE,

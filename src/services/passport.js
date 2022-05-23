@@ -81,10 +81,15 @@ const localLogin = new LocalStrategy(localOptions, async (
           authtoken: verificationToken.authtoken,
         });
         const {
+          username,
           email,
           authtoken,
         } = updatedUser;
-        sendVerificationEmail(email, authtoken);
+        sendVerificationEmail(
+          username,
+          email,
+          authtoken,
+        );
         req.session.destroy();
         return done(
           {
@@ -94,6 +99,7 @@ const localLogin = new LocalStrategy(localOptions, async (
           false,
         );
       }
+      // req.session.tfa NOT ADOPTED INTO SESSION? possible solution: move to first line in signin function
       req.session.tfa = user.tfa;
       console.log(req.session);
       done(null, user);

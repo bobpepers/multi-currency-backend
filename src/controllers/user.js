@@ -41,6 +41,29 @@ export const fetchUser = async (
               'ticker',
             ],
           },
+          {
+            model: db.WalletAddressExternal,
+            as: 'WalletAddressExternals',
+            required: false,
+            where: {
+              enabled: true,
+            },
+            attributes: [
+              'id',
+              'confirmed',
+              'tokenExpires',
+            ],
+            include: [
+              {
+                model: db.addressExternal,
+                as: 'addressExternal',
+                required: false,
+                attributes: [
+                  'address',
+                ],
+              },
+            ],
+          },
         ],
       },
     ],

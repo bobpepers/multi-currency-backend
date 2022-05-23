@@ -31,6 +31,9 @@ module.exports = (sequelize, DataTypes) => {
     CoinModel.hasMany(model.wallet, {
       as: 'wallet',
     });
+    CoinModel.hasMany(model.addressExternal, {
+      as: 'addressExternal',
+    });
   };
 
   return CoinModel;

@@ -20,9 +20,11 @@ module.exports = (sequelize, DataTypes) => {
 
   AddressExternalModel.associate = (model) => {
     AddressExternalModel.hasMany(model.transaction);
+    AddressExternalModel.hasMany(model.WalletAddressExternal);
+    AddressExternalModel.belongsTo(model.coin, { as: 'coin' });
     AddressExternalModel.belongsToMany(
-      model.user,
-      { through: 'UserAddressExternal' },
+      model.wallet,
+      { through: 'WalletAddressExternal' },
     );
   };
 

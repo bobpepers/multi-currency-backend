@@ -1,22 +1,21 @@
-import db from '../../models';
-import { getInstance } from '../../services/rclient';
-import getCoinSettings from '../../config/settings';
-
-const settings = getCoinSettings();
+import {
+  getRunebaseInstance,
+  getPirateInstance,
+  getTokelInstance,
+} from '../../services/rclient';
 
 export const validateWithdrawalAddress = async (
+  ticker,
   address,
-  user,
-  t,
 ) => {
   let failWithdrawalActivity;
   let getAddressInfo;
   let isInvalidAddress = false;
   let isNodeOffline = false;
 
-  if (settings.coin.setting === 'Runebase') {
+  if (ticker === 'RUNES') {
     try {
-      getAddressInfo = await getInstance().validateAddress(address);
+      getAddressInfo = await getRunebaseInstance().validateAddress(address);
       console.log(getAddressInfo);
       if (getAddressInfo && !getAddressInfo.isvalid) {
         isInvalidAddress = true;
@@ -27,9 +26,9 @@ export const validateWithdrawalAddress = async (
     } catch (e) {
       isNodeOffline = true;
     }
-  } else if (settings.coin.setting === 'Pirate') {
+  } else if (ticker === 'ARRR') {
     try {
-      getAddressInfo = await getInstance().zValidateAddress(address);
+      getAddressInfo = await getPirateInstance().zValidateAddress(address);
       if (getAddressInfo && !getAddressInfo.isvalid) {
         isInvalidAddress = true;
       }
@@ -39,22 +38,9 @@ export const validateWithdrawalAddress = async (
     } catch (e) {
       isNodeOffline = true;
     }
-  } else if (settings.coin.setting === 'Komodo') {
+  } else if (ticker === 'TKL') {
     try {
-      getAddressInfo = await getInstance().validateAddress(address);
-      console.log(getAddressInfo);
-      if (getAddressInfo && !getAddressInfo.isvalid) {
-        isInvalidAddress = true;
-      }
-      if (getAddressInfo && getAddressInfo.isvalid) {
-        isInvalidAddress = false;
-      }
-    } catch (e) {
-      isNodeOffline = true;
-    }
-  } else {
-    try {
-      getAddressInfo = await getInstance().validateAddress(address);
+      getAddressInfo = await getTokelInstance().validateAddress(address);
       console.log(getAddressInfo);
       if (getAddressInfo && !getAddressInfo.isvalid) {
         isInvalidAddress = true;
@@ -71,19 +57,8 @@ export const validateWithdrawalAddress = async (
     isInvalidAddress = true;
   }
 
-  if (isInvalidAddress || isNodeOffline) {
-    failWithdrawalActivity = await db.activity.create({
-      type: `withdraw_f`,
-      spenderId: user.id,
-    }, {
-      lock: t.LOCK.UPDATE,
-      transaction: t,
-    });
-  }
-
   return [
     isInvalidAddress,
     isNodeOffline,
-    failWithdrawalActivity,
   ];
 };

@@ -121,10 +121,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'active',
     });
-    UserModel.belongsToMany(
-      model.addressExternal,
-      { through: 'UserAddressExternal' },
-    );
   };
 
   return UserModel;

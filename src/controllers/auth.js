@@ -155,7 +155,11 @@ export const signup = async (req, res, next) => {
     });
 
     t.afterCommit(() => {
-      sendVerificationEmail(email.toLowerCase(), newUser.authtoken);
+      sendVerificationEmail(
+        username,
+        email.toLowerCase(),
+        newUser.authtoken,
+      );
       return res.json({
         email: email.toLowerCase(),
       });
@@ -192,9 +196,19 @@ export const resendVerification = async (
       authexpires: verificationToken.expires,
       authtoken: verificationToken.token,
     }).then((updatedUser) => {
-      const { email, authtoken } = updatedUser;
-      sendVerificationEmail(email.toLowerCase(), authtoken);
-      res.json({ success: true });
+      const {
+        username,
+        email,
+        authtoken,
+      } = updatedUser;
+      sendVerificationEmail(
+        username,
+        email,
+        authtoken,
+      );
+      res.json({
+        success: true,
+      });
     }).catch((err) => {
       next(err);
     });

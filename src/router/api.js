@@ -8,26 +8,33 @@ import {
   isUserBanned,
 } from '../controllers/auth';
 
+import {
+  disabletfa,
+  enabletfa,
+  ensuretfa,
+  unlocktfa,
+  istfa,
+} from '../controllers/tfa';
+
 import { isAdmin } from '../controllers/admin';
 import { fetchUserInfo } from '../controllers/userInfo';
 import { fetchLiability } from '../controllers/liability';
 import { fetchBalance } from '../controllers/balance';
 import { healthCheck } from '../controllers/health';
-
 import { insertIp } from '../controllers/ip';
-
-import {
-  fetchErrors,
-} from '../controllers/errors';
-
+import { fetchErrors } from '../controllers/errors';
 import { fetchNodeStatus } from '../controllers/status';
+import { fetchActivity } from '../controllers/activity';
+import { addNewWithdrawalAddress } from '../controllers/user/newWithdrawalAddress';
+import { createWalletsForUser } from '../controllers/wallet';
+import { verifyMyCaptcha } from '../controllers/recaptcha';
+import { fetchTransactions } from '../controllers/transactions';
+import { fetchUser } from '../controllers/user';
 
 import {
   fetchWithdrawalAddress,
   fetchWithdrawalAddresses,
 } from '../controllers/withdrawalAddresses';
-
-import { fetchActivity } from '../controllers/activity';
 
 // import {
 //   fetchPriceCurrencies,
@@ -42,9 +49,6 @@ import {
   verifyResetPassword,
   resetPasswordNew,
 } from '../controllers/resetPassword';
-
-import { createWalletsForUser } from '../controllers/wallet';
-import { verifyMyCaptcha } from '../controllers/recaptcha';
 
 // import {
 //   fetchDashboardUsers,
@@ -68,19 +72,8 @@ import { verifyMyCaptcha } from '../controllers/recaptcha';
 //   banUser,
 // } from './controllers/users';
 import passportService from '../services/passport';
-import {
-  disabletfa,
-  enabletfa,
-  ensuretfa,
-  unlocktfa,
-  istfa,
-} from '../controllers/tfa';
 
-import {
-  fetchUser,
-} from '../controllers/user';
-
-// import storeIp from './helpers/storeIp';
+// import use(insertIp) from './helpers/use(insertIp)';
 
 const requireSignin = passport.authenticate('local', {
   session: true,
@@ -158,6 +151,10 @@ export const apiRouter = (
   io,
   queue,
 ) => {
+  const attachResIoClient = (req, res, next) => {
+    res.locals.io = io;
+    next();
+  };
   app.get(
     '/api/health',
     use(healthCheck),
@@ -184,7 +181,7 @@ export const apiRouter = (
   app.post(
     '/api/signup',
     verifyMyCaptcha,
-    insertIp,
+    use(insertIp),
     signup,
   );
 
@@ -193,7 +190,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(banUser),
   //   respondResult,
@@ -204,7 +201,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(fetchPriceCurrencies),
   //   respondCountAndResult,
@@ -215,7 +212,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(removePriceCurrency),
   //   respondResult,
@@ -226,7 +223,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(updatePriceCurrency),
   //   respondResult,
@@ -237,7 +234,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(addPriceCurrency),
   //   respondResult,
@@ -248,7 +245,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(updatePriceCurrencyPrices),
   //   respondResult,
@@ -259,7 +256,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(startSyncBlocks),
   //   respondResult,
@@ -270,7 +267,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(fetchBlockNumber),
   //   respondResult,
@@ -281,7 +278,7 @@ export const apiRouter = (
     IsAuthenticated,
     isAdmin,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchActivity),
     respondCountAndResult,
@@ -292,7 +289,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(patchDeposits),
   //   respondResult,
@@ -302,9 +299,20 @@ export const apiRouter = (
     '/api/user',
     IsAuthenticated,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchUser),
+    respondResult,
+  );
+
+  app.post(
+    '/api/withdraw/address/new',
+    IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    attachResIoClient,
+    use(addNewWithdrawalAddress),
     respondResult,
   );
 
@@ -313,7 +321,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(fetchUsers),
   //   respondCountAndResult,
@@ -324,18 +332,28 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(fetchDeposits),
   //   respondCountAndResult,
   // );
 
   app.post(
+    '/api/transactions',
+    IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchTransactions),
+    respondCountAndResult,
+  );
+
+  app.post(
     '/api/functions/errors',
     IsAuthenticated,
     isAdmin,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchErrors),
     respondCountAndResult,
@@ -346,7 +364,7 @@ export const apiRouter = (
     IsAuthenticated,
     isAdmin,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchWithdrawalAddresses),
     respondCountAndResult,
@@ -357,7 +375,7 @@ export const apiRouter = (
     IsAuthenticated,
     isAdmin,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchWithdrawalAddress),
     respondResult,
@@ -368,7 +386,7 @@ export const apiRouter = (
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
-  //   insertIp,
+  //   use(insertIp),
   //   ensuretfa,
   //   use(fetchDashboardUsers),
   //   respondCountAndResult,
@@ -379,7 +397,7 @@ export const apiRouter = (
     IsAuthenticated,
     isAdmin,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchUserInfo),
     respondResult,
@@ -390,7 +408,7 @@ export const apiRouter = (
     IsAuthenticated,
     isAdmin,
     isUserBanned,
-    insertIp,
+    use(insertIp),
     ensuretfa,
     use(fetchNodeStatus),
     respondResult,
@@ -418,7 +436,7 @@ export const apiRouter = (
 
   app.post(
     '/api/signup/verify-email',
-    insertIp,
+    use(insertIp),
     use(verifyEmail),
     (req, res) => {
       console.log(res.locals.error);
@@ -450,7 +468,7 @@ export const apiRouter = (
   app.post(
     '/api/resend-verify-code',
     // IsAuthenticated,
-    insertIp,
+    use(insertIp),
     // rateLimiterMiddlewarePhone,
     // ensuretfa,
     // updateLastSeen,
@@ -460,7 +478,7 @@ export const apiRouter = (
   app.post(
     '/api/signin',
     verifyMyCaptcha,
-    // insertIp,
+    // use(insertIp),
     requireSignin,
     isUserBanned,
     use(signin),
@@ -491,7 +509,7 @@ export const apiRouter = (
     '/api/2fa/enable',
     IsAuthenticated,
     isUserBanned,
-    // storeIp,
+    // use(insertIp),
     ensuretfa,
     // updateLastSeen,
     use(enabletfa),
@@ -501,7 +519,7 @@ export const apiRouter = (
   app.post(
     '/api/2fa/disable',
     IsAuthenticated,
-    // storeIp,
+    use(insertIp),
     ensuretfa,
     // updateLastSeen,
     use(disabletfa),
@@ -512,15 +530,14 @@ export const apiRouter = (
     '/api/2fa/unlock',
     IsAuthenticated,
     isUserBanned,
-    // storeIp,
+    use(insertIp),
     use(unlocktfa),
     respondResult,
   );
 
   app.get(
     '/api/logout',
-    insertIp,
-    // storeIp,
+    use(insertIp),
     use(destroySession),
   );
 };
