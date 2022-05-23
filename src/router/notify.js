@@ -27,6 +27,7 @@ const localhostOnly = (
 export const notifyRouter = (
   app,
   io,
+  sockets,
   queue,
 ) => {
   app.post(

@@ -27,6 +27,15 @@ export const addNewWithdrawalAddress = async (
   if (!wallet) {
     throw new Error("Wallet not found");
   }
+  const findAllWalletAddressExternals = await db.WalletAddressExternal.findAll({
+    where: {
+      walletId: wallet.id,
+      enabled: true,
+    },
+  });
+  if (findAllWalletAddressExternals.length >= 5) {
+    throw new Error("Maximum 5 withdrawal addresses");
+  }
   let addressExternal = await db.addressExternal.findOne({
     where: {
       address: req.body.address,
@@ -92,13 +101,22 @@ export const addNewWithdrawalAddress = async (
     where: {
       id: walletAddressExternal.id,
     },
+    attributes: [
+      'id',
+      'walletId',
+      'confirmed',
+      'tokenExpires',
+    ],
     include: [
       {
         model: db.addressExternal,
         as: 'addressExternal',
+        attributes: [
+          'address',
+        ],
       },
     ],
   });
-  console.log('added');
+  // res.locals.sockets[req.user.id.toString()].emit('insertNewWithdrawalAddress', { result: res.locals.result });
   next();
 };

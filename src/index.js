@@ -103,6 +103,10 @@ config();
         || socket.request.user.role === 8)
     ) {
       socket.join('admin');
+    }
+    console.log('userSocketId');
+    console.log(userId);
+    if (userId !== '') {
       sockets[parseInt(userId, 10)] = socket;
     }
     // console.log(Object.keys(sockets).length);
@@ -146,6 +150,7 @@ config();
   router(
     app,
     io,
+    sockets,
     queue,
   );
 

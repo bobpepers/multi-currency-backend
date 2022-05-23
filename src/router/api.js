@@ -26,6 +26,7 @@ import { fetchErrors } from '../controllers/errors';
 import { fetchNodeStatus } from '../controllers/status';
 import { fetchActivity } from '../controllers/activity';
 import { addNewWithdrawalAddress } from '../controllers/user/newWithdrawalAddress';
+import { removeWithdrawalAddress } from '../controllers/user/removeWithdrawalAddress';
 import { createWalletsForUser } from '../controllers/wallet';
 import { verifyMyCaptcha } from '../controllers/recaptcha';
 import { fetchTransactions } from '../controllers/transactions';
@@ -149,10 +150,15 @@ const respondResult = (req, res) => {
 export const apiRouter = (
   app,
   io,
+  sockets,
   queue,
 ) => {
   const attachResIoClient = (req, res, next) => {
     res.locals.io = io;
+    next();
+  };
+  const attachResSocketsClient = (req, res, next) => {
+    res.locals.sockets = sockets;
     next();
   };
   app.get(
@@ -306,13 +312,24 @@ export const apiRouter = (
   );
 
   app.post(
-    '/api/withdraw/address/new',
+    '/api/withdraw/address/add',
     IsAuthenticated,
     isUserBanned,
     use(insertIp),
     ensuretfa,
-    attachResIoClient,
+    attachResSocketsClient,
     use(addNewWithdrawalAddress),
+    respondResult,
+  );
+
+  app.post(
+    '/api/withdraw/address/remove',
+    IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    attachResSocketsClient,
+    use(removeWithdrawalAddress),
     respondResult,
   );
 
