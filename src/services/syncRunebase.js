@@ -56,14 +56,23 @@ const syncTransactions = async () => {
     where: {
       phase: 'confirming',
     },
-    include: [{
-      model: db.address,
-      as: 'address',
-      include: [{
+    include: [
+      {
         model: db.wallet,
         as: 'wallet',
-      }],
-    }],
+        include: [{
+          model: db.coin,
+          as: 'coin',
+          where: {
+            ticker: 'RUNES',
+          },
+        }],
+      },
+      {
+        model: db.address,
+        as: 'address',
+      },
+    ],
   });
 
   for await (const trans of transactions) {
@@ -84,19 +93,28 @@ const syncTransactions = async () => {
             phase: 'confirming',
             id: trans.id,
           },
-          include: [{
-            model: db.address,
-            as: 'address',
-            include: [{
+          include: [
+            {
               model: db.wallet,
               as: 'wallet',
-            }],
-          }],
+              include: [{
+                model: db.coin,
+                as: 'coin',
+                where: {
+                  ticker: 'RUNES',
+                },
+              }],
+            },
+            {
+              model: db.address,
+              as: 'address',
+            },
+          ],
         });
         if (processTransaction) {
           const wallet = await db.wallet.findOne({
             where: {
-              userId: processTransaction.address.wallet.userId,
+              userId: processTransaction.wallet.userId,
             },
             transaction: t,
             lock: t.LOCK.UPDATE,
