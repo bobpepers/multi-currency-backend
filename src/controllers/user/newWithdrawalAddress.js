@@ -22,6 +22,10 @@ export const addNewWithdrawalAddress = async (
         model: db.coin,
         as: 'coin',
       },
+      {
+        model: db.user,
+        as: 'user',
+      },
     ],
   });
   if (!wallet) {
@@ -74,7 +78,6 @@ export const addNewWithdrawalAddress = async (
 
   const verificationToken = await generateVerificationToken(24);
 
-  let addWalletAddressExternal;
   if (walletAddressExternal && !walletAddressExternal.enabled) {
     walletAddressExternal = await walletAddressExternal.update({
       token: verificationToken.token,
@@ -95,6 +98,15 @@ export const addNewWithdrawalAddress = async (
       walletId: wallet.id,
     });
   }
+
+  sendVerifyAddressEmail(
+    wallet.user.email,
+    wallet.user.username,
+    verificationToken.token,
+    wallet.coin.name,
+    wallet.coin.ticker,
+    addressExternal.address,
+  );
 
   res.locals.name = 'addWalletAddressExternal';
   res.locals.result = await db.WalletAddressExternal.findOne({

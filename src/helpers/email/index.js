@@ -20,10 +20,10 @@ const transporter = nodemailer.createTransport({
 
 const handlebarOptions = {
   viewEngine: {
-    partialsDir: path.resolve('./views/'),
+    partialsDir: path.resolve(__dirname, 'views/'),
     defaultLayout: false,
   },
-  viewPath: path.resolve('./views/'),
+  viewPath: path.resolve(__dirname, 'views/'),
 };
 
 transporter.use('compile', hbs(handlebarOptions));
@@ -122,6 +122,7 @@ export const sendVerifyAddressEmail = async (
   token,
   coin,
   ticker,
+  address,
 ) => {
   const waitForVerify = await verifySend();
   if (!waitForVerify) {
@@ -139,6 +140,7 @@ export const sendVerifyAddressEmail = async (
       coin,
       ticker,
       token,
+      address,
     },
   );
   return waitForEmail;

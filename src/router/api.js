@@ -333,6 +333,12 @@ export const apiRouter = (
     respondResult,
   );
 
+  app.post(
+    '/api/withdraw/address/verify',
+    // use(verifyWithdrawalAddress),
+    respondResult,
+  );
+
   // app.post(
   //   '/api/management/users',
   //   IsAuthenticated,
