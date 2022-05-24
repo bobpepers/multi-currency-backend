@@ -141,6 +141,7 @@ export const sendVerifyAddressEmail = async (
       ticker,
       token,
       address,
+      email,
     },
   );
   return waitForEmail;

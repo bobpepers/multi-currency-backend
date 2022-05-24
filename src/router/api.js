@@ -31,6 +31,8 @@ import { createWalletsForUser } from '../controllers/wallet';
 import { verifyMyCaptcha } from '../controllers/recaptcha';
 import { fetchTransactions } from '../controllers/transactions';
 import { fetchUser } from '../controllers/user';
+import { verifyNewWithdrawalAddress } from '../controllers/user/verifyNewWithdrawalAddress';
+import { resendWithdrawalAddressVerification } from '../controllers/user/resendWithdrawalAddressVerification';
 
 import {
   fetchWithdrawalAddress,
@@ -72,9 +74,8 @@ import {
 //   fetchUsers,
 //   banUser,
 // } from './controllers/users';
-import passportService from '../services/passport';
 
-// import use(insertIp) from './helpers/use(insertIp)';
+import passportService from '../services/passport';
 
 const requireSignin = passport.authenticate('local', {
   session: true,
@@ -334,8 +335,19 @@ export const apiRouter = (
   );
 
   app.post(
+    '/api/withdraw/address/verify/resend',
+    IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(resendWithdrawalAddressVerification),
+    respondResult,
+  );
+
+  app.post(
     '/api/withdraw/address/verify',
-    // use(verifyWithdrawalAddress),
+    attachResIoClient,
+    use(verifyNewWithdrawalAddress),
     respondResult,
   );
 
@@ -532,7 +544,7 @@ export const apiRouter = (
     '/api/2fa/enable',
     IsAuthenticated,
     isUserBanned,
-    // use(insertIp),
+    use(insertIp),
     ensuretfa,
     // updateLastSeen,
     use(enabletfa),

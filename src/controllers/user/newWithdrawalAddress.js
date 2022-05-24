@@ -11,7 +11,6 @@ export const addNewWithdrawalAddress = async (
   res,
   next,
 ) => {
-  console.log(req.body);
   const wallet = await db.wallet.findOne({
     where: {
       id: req.body.walletId,

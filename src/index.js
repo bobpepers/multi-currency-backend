@@ -107,11 +107,12 @@ config();
     console.log('userSocketId');
     console.log(userId);
     if (userId !== '') {
-      sockets[parseInt(userId, 10)] = socket;
+      socket.join(parseInt(userId, 10));
+      // sockets[parseInt(userId, 10)] = socket;
     }
     // console.log(Object.keys(sockets).length);
     socket.on("disconnect", () => {
-      delete sockets[parseInt(userId, 10)];
+      // delete sockets[parseInt(userId, 10)];
     });
   });
 
