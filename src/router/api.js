@@ -16,21 +16,21 @@ import {
   istfa,
 } from '../controllers/tfa';
 
-import { isAdmin } from '../controllers/admin';
-import { fetchUserInfo } from '../controllers/userInfo';
-import { fetchLiability } from '../controllers/liability';
-import { fetchBalance } from '../controllers/balance';
+import { isAdmin } from '../controllers/admin/admin';
+import { fetchUserInfo } from '../controllers/admin/userInfo';
+import { fetchLiability } from '../controllers/admin/liability';
+import { fetchBalance } from '../controllers/admin/balance';
 import { healthCheck } from '../controllers/health';
 import { insertIp } from '../controllers/ip';
-import { fetchErrors } from '../controllers/errors';
-import { fetchNodeStatus } from '../controllers/status';
-import { fetchActivity } from '../controllers/activity';
+import { fetchErrors } from '../controllers/admin/errors';
+import { fetchNodeStatus } from '../controllers/admin/status';
+import { fetchActivity } from '../controllers/user/activity';
 import { addNewWithdrawalAddress } from '../controllers/user/newWithdrawalAddress';
 import { removeWithdrawalAddress } from '../controllers/user/removeWithdrawalAddress';
-import { createWalletsForUser } from '../controllers/wallet';
+import { createWalletsForUser } from '../controllers/user/wallet';
 import { verifyMyCaptcha } from '../controllers/recaptcha';
-import { fetchTransactions } from '../controllers/transactions';
-import { fetchUser } from '../controllers/user';
+import { fetchTransactions } from '../controllers/user/transactions';
+import { fetchUser } from '../controllers/user/user';
 import { verifyNewWithdrawalAddress } from '../controllers/user/verifyNewWithdrawalAddress';
 import { resendWithdrawalAddressVerification } from '../controllers/user/resendWithdrawalAddressVerification';
 import { createWithdrawal } from '../controllers/user/createWithdrawal';
@@ -38,7 +38,7 @@ import { createWithdrawal } from '../controllers/user/createWithdrawal';
 import {
   fetchWithdrawalAddress,
   fetchWithdrawalAddresses,
-} from '../controllers/withdrawalAddresses';
+} from '../controllers/admin/withdrawalAddresses';
 
 // import {
 //   fetchPriceCurrencies,
@@ -53,10 +53,6 @@ import {
   verifyResetPassword,
   resetPasswordNew,
 } from '../controllers/resetPassword';
-
-// import {
-//   fetchDashboardUsers,
-// } from '../controllers/dashboardUsers';
 
 // import {
 //   fetchDeposits,
@@ -159,10 +155,12 @@ export const apiRouter = (
     res.locals.io = io;
     next();
   };
+
   const attachQueue = (req, res, next) => {
     res.locals.queue = queue;
     next();
   };
+
   app.get(
     '/api/health',
     use(healthCheck),
@@ -372,7 +370,7 @@ export const apiRouter = (
   // );
 
   // app.post(
-  //   '/api/functions/deposits',
+  //   '/api/admin/deposits',
   //   IsAuthenticated,
   //   isAdmin,
   //   isUserBanned,
@@ -393,7 +391,7 @@ export const apiRouter = (
   );
 
   app.post(
-    '/api/functions/errors',
+    '/api/admin/errors',
     IsAuthenticated,
     isAdmin,
     isUserBanned,
@@ -424,17 +422,6 @@ export const apiRouter = (
     use(fetchWithdrawalAddress),
     respondResult,
   );
-
-  // app.post(
-  //   '/api/management/dashboardusers',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(fetchDashboardUsers),
-  //   respondCountAndResult,
-  // );
 
   app.post(
     '/api/management/userinfo',

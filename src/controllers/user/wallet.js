@@ -1,12 +1,12 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from 'sequelize';
-import db from '../models';
+import db from '../../models';
 import {
   getRunebaseInstance,
   getPirateInstance,
   getTokelInstance,
-} from '../services/rclient';
+} from '../../services/rclient';
 
 export const createWalletsForUser = async (
   req,

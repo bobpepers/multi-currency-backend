@@ -2,8 +2,8 @@ import {
   Sequelize,
   Op,
 } from 'sequelize';
-import db from '../models';
-import { getInstance } from '../services/rclient';
+import db from '../../models';
+import { getInstance } from '../../services/rclient';
 
 export const fetchAdminLiability = async (
   req,

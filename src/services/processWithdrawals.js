@@ -6,7 +6,9 @@ import { getPirateInstance } from "./rclient";
 
 config();
 
-export const processWithdrawals = async () => {
+export const processWithdrawals = async (
+  io,
+) => {
   console.log('proc1');
   const transaction = await db.transaction.findOne({
     where: {
@@ -16,11 +18,8 @@ export const processWithdrawals = async () => {
       {
         model: db.wallet,
         as: 'wallet',
+        attributes: [],
         include: [
-          {
-            model: db.user,
-            as: 'user',
-          },
           {
             model: db.coin,
             as: 'coin',
@@ -67,7 +66,7 @@ export const processWithdrawals = async () => {
         );
         const activityF = await db.activity.create(
           {
-            spenderId: transaction.address.wallet.userId,
+            spenderId: transaction.userId,
             type: 'withdraw_f',
             transactionId: transaction.id,
           },
@@ -93,7 +92,7 @@ export const processWithdrawals = async () => {
         );
         const activity = await db.activity.create(
           {
-            spenderId: transaction.wallet.userId,
+            spenderId: transaction.userId,
             type: 'withdrawAccepted',
             transactionId: transaction.id,
           },
@@ -106,7 +105,14 @@ export const processWithdrawals = async () => {
     }
 
     t.afterCommit(async () => {
-      console.log('withdraw function complete');
+      if (transaction) {
+        io.to(transaction.userId).emit(
+          'updateTransaction',
+          {
+            result: transaction,
+          },
+        );
+      }
     });
   }).catch(async (err) => {
     console.log(err);

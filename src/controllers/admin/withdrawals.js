@@ -1,7 +1,7 @@
 import { Transaction, Op } from "sequelize";
-import db from '../models';
+import db from '../../models';
 
-import { processWithdrawal } from '../services/processWithdrawal';
+import { processWithdrawal } from '../../services/processWithdrawal';
 
 export const acceptWithdrawal = async (
   req,

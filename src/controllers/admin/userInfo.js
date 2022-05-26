@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import db from '../models';
+import db from '../../models';
 
 export const fetchUserInfo = async (
   req,

@@ -1,6 +1,6 @@
 // import { parseDomain } from "parse-domain";
 // import { Op } from 'sequelize';
-import db from '../models';
+import db from '../../models';
 
 export const fetchTransactions = async (
   req,

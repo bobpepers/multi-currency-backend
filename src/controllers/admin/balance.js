@@ -1,7 +1,7 @@
 import {
   getRunebaseInstance,
   getPirateInstance,
-} from '../services/rclient';
+} from '../../services/rclient';
 
 export const fetchBalance = async (
   req,

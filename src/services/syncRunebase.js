@@ -82,9 +82,6 @@ const syncTransactions = async (io) => {
     const transaction = await getRunebaseInstance().getTransaction(trans.txid);
 
     for await (const detail of transaction.details) {
-      let isWithdrawalComplete = false;
-      let isDepositComplete = false;
-      let userToMessage;
       let updatedTransaction;
       let updatedWallet;
 
@@ -181,15 +178,6 @@ const syncTransactions = async (io) => {
               //   Number(processTransaction.feeAmount),
               //   faucetSetting,
               // );
-
-              userToMessage = await db.user.findOne({
-                where: {
-                  id: updatedWallet.userId,
-                },
-                transaction: t,
-                lock: t.LOCK.UPDATE,
-              });
-              isWithdrawalComplete = true;
             }
             if (
               detail.category === 'receive'
@@ -219,14 +207,6 @@ const syncTransactions = async (io) => {
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               });
-              userToMessage = await db.user.findOne({
-                where: {
-                  id: updatedWallet.userId,
-                },
-                transaction: t,
-                lock: t.LOCK.UPDATE,
-              });
-              isDepositComplete = true;
             }
           }
         }

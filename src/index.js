@@ -179,7 +179,7 @@ config();
     //     },
     //   });
     //   if (autoWithdrawalSetting.enabled) {
-    processWithdrawals();
+    processWithdrawals(io);
     //   }
   });
 

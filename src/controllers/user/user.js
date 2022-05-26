@@ -1,5 +1,5 @@
 import { Transaction } from 'sequelize';
-import db from '../models';
+import db from '../../models';
 
 export const fetchUser = async (
   req,

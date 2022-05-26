@@ -2,7 +2,7 @@ import {
   Sequelize,
   Op,
 } from 'sequelize';
-import db from '../models';
+import db from '../../models';
 
 export const fetchLiability = async (
   req,

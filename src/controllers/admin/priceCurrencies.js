@@ -1,9 +1,9 @@
-import db from '../models';
-import { updatePrice } from "../helpers/price/updatePrice";
+import db from '../../models';
+import { updatePrice } from "../../helpers/price/updatePrice";
 import {
   updateConversionRatesFiat,
   updateConversionRatesCrypto,
-} from "../helpers/price/updateConversionRates";
+} from "../../helpers/price/updateConversionRates";
 
 export const updatePriceCurrency = async (
   req,
