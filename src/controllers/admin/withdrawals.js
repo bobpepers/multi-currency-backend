@@ -25,10 +25,12 @@ export const acceptWithdrawal = async (
             {
               model: db.wallet,
               as: 'wallet',
-              include: [{
-                model: db.user,
-                as: 'user',
-              }],
+              include: [
+                {
+                  model: db.user,
+                  as: 'user',
+                },
+              ],
             },
           ],
         },

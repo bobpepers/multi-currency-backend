@@ -54,10 +54,10 @@ import {
   resetPasswordNew,
 } from '../controllers/resetPassword';
 
-// import {
-//   fetchDeposits,
-//   patchDeposits,
-// } from '../controllers/deposits';
+import {
+  fetchDeposits,
+  patchDeposits,
+} from '../controllers/admin/deposits';
 
 // import {
 //   fetchBlockNumber,
@@ -73,6 +73,7 @@ import {
 // } from './controllers/users';
 
 import passportService from '../services/passport';
+import { fetchWithdrawals } from '../controllers/admin/withdrawals';
 
 const requireSignin = passport.authenticate('local', {
   session: true,
@@ -369,16 +370,27 @@ export const apiRouter = (
   //   respondCountAndResult,
   // );
 
-  // app.post(
-  //   '/api/admin/deposits',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(fetchDeposits),
-  //   respondCountAndResult,
-  // );
+  app.post(
+    '/api/admin/withdrawals',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchWithdrawals),
+    respondCountAndResult,
+  );
+
+  app.post(
+    '/api/admin/deposits',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchDeposits),
+    respondCountAndResult,
+  );
 
   app.post(
     '/api/transactions',
