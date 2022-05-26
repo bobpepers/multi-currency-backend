@@ -51,7 +51,8 @@ const sequentialLoop = async (
   return loop;
 };
 
-const syncTransactions = async () => {
+const syncTransactions = async (io) => {
+  console.log('syncRunebaseTransactions1');
   const transactions = await db.transaction.findAll({
     where: {
       phase: 'confirming',
@@ -60,9 +61,11 @@ const syncTransactions = async () => {
       {
         model: db.wallet,
         as: 'wallet',
+        required: true,
         include: [{
           model: db.coin,
           as: 'coin',
+          required: true,
           where: {
             ticker: 'RUNES',
           },
@@ -108,6 +111,7 @@ const syncTransactions = async () => {
             {
               model: db.address,
               as: 'address',
+              required: false,
             },
           ],
         });
@@ -288,6 +292,7 @@ const insertBlock = async (startBlock) => {
 };
 
 export const startRunebaseSync = async (
+  io,
   queue,
 ) => {
   try {
@@ -316,7 +321,7 @@ export const startRunebaseSync = async (
       const endBlock = Math.min((startBlock + 1) - 1, currentBlockCount);
 
       await queue.add(async () => {
-        const task = await syncTransactions();
+        const task = await syncTransactions(io);
       });
 
       await queue.add(async () => {

@@ -66,17 +66,6 @@ export const verifyNewWithdrawalAddress = async (
     },
   );
 
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-  console.log('after socket send');
-
   res.locals.name = 'confirmWalletAddressExternal';
   res.locals.result = { id: true };
   next();

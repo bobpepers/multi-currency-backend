@@ -48,7 +48,7 @@ const walletNotifyTokel = async (
           if (address) {
             res.locals.detail[parseInt(i, 10)] = {};
             res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.id;
-            res.locals.detail[parseInt(i, 10)].transaction = await db.transaction.findOrCreate({
+            const newTransaction = await db.transaction.findOrCreate({
               where: {
                 txid: transaction.txid,
                 type: detail.category,
@@ -67,23 +67,40 @@ const walletNotifyTokel = async (
               lock: t.LOCK.UPDATE,
             });
 
-            if (res.locals.detail[parseInt(i, 10)].transaction[1]) {
+            if (newTransaction[1]) {
+              res.locals.detail[parseInt(i, 10)].transaction = await db.transaction.findOne({
+                where: {
+                  id: newTransaction[0].id,
+                },
+                include: [
+                  {
+                    model: db.wallet,
+                    as: 'wallet',
+                    include: [
+                      {
+                        model: db.coin,
+                        as: 'coin',
+                      },
+                    ],
+                  },
+                ],
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              });
               const activity = await db.activity.findOrCreate({
                 where: {
-                  transactionId: res.locals.detail[parseInt(i, 10)].transaction[0].id,
+                  transactionId: newTransaction[0].id,
                 },
                 defaults: {
                   earnerId: address.wallet.userId,
                   type: 'depositAccepted',
                   amount: detail.amount * 1e8,
-                  transactionId: res.locals.detail[parseInt(i, 10)].transaction[0].id,
+                  transactionId: newTransaction[0].id,
                 },
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               });
               res.locals.activity.unshift(activity[0]);
-              res.locals.detail[parseInt(i, 10)].amount = detail.amount;
-              logger.info(`deposit detected for addressid: ${res.locals.detail[parseInt(i, 10)].transaction[0].addressId} and txid: ${res.locals.detail[parseInt(i, 10)].transaction[0].txid}`);
             }
             i += 1;
           }

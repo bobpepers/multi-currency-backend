@@ -40,6 +40,12 @@ export const fetchUser = async (
               'name',
               'ticker',
             ],
+            include: [
+              {
+                model: db.withdrawalSetting,
+                as: 'withdrawalSetting',
+              },
+            ],
           },
           {
             model: db.WalletAddressExternal,

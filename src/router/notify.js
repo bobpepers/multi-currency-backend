@@ -37,14 +37,17 @@ export const notifyRouter = (
       console.log(req.body);
       if (req.body.ticker === 'RUNES') {
         startRunebaseSync(
+          io,
           queue,
         );
       } else if (req.body.ticker === 'ARRR') {
         startPirateSync(
+          io,
           queue,
         );
       } else if (req.body.ticker === 'TKL') {
         startTokelSync(
+          io,
           queue,
         );
       }
@@ -73,13 +76,15 @@ export const notifyRouter = (
         && res.locals.detail.length > 0
       ) {
         for await (const detail of res.locals.detail) {
-          if (detail.amount) {
-            // await incomingDepositMessageHandler(
-            //   discordClient,
-            //   telegramClient,
-            //   matrixClient,
-            //   detail,
-            // );
+          console.log(detail.transaction);
+          console.log('detail');
+          if (detail.transaction) {
+            io.to(detail.transaction.userId).emit(
+              'insertTransaction',
+              {
+                result: detail.transaction,
+              },
+            );
           }
         }
       }

@@ -20,10 +20,6 @@ export const fetchTransactions = async (
     ],
     include: [
       {
-        model: db.user,
-        as: 'user',
-      },
-      {
         model: db.address,
         as: 'address',
       },

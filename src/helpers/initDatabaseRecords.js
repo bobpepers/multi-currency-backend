@@ -19,44 +19,77 @@ export const initDatabaseRecords = async (
   });
 
   // Create Runebase Coin
-  const runebase = await db.coin.findOne({
+  let runebase = await db.coin.findOne({
     where: {
       name: 'runebase',
       ticker: `RUNES`,
     },
   });
   if (!runebase) {
-    await db.coin.create({
+    runebase = await db.coin.create({
       name: 'runebase',
       ticker: `RUNES`,
     });
   }
 
   // Create Pirate Coin
-  const pirate = await db.coin.findOne({
+  let pirate = await db.coin.findOne({
     where: {
       name: 'pirate',
       ticker: `ARRR`,
     },
   });
   if (!pirate) {
-    await db.coin.create({
+    pirate = await db.coin.create({
       name: 'pirate',
       ticker: `ARRR`,
     });
   }
 
   // Create Tokel Coin
-  const tokel = await db.coin.findOne({
+  let tokel = await db.coin.findOne({
     where: {
       name: 'tokel',
       ticker: `TKL`,
     },
   });
   if (!tokel) {
-    await db.coin.create({
+    tokel = await db.coin.create({
       name: 'tokel',
       ticker: `TKL`,
+    });
+  }
+
+  let runebaseFee = await db.withdrawalSetting.findOne({
+    where: {
+      coinId: runebase.id,
+    },
+  });
+  if (!runebaseFee) {
+    runebaseFee = await db.withdrawalSetting.create({
+      coinId: runebase.id,
+    });
+  }
+
+  let pirateFee = await db.withdrawalSetting.findOne({
+    where: {
+      coinId: pirate.id,
+    },
+  });
+  if (!pirateFee) {
+    pirateFee = await db.withdrawalSetting.create({
+      coinId: pirate.id,
+    });
+  }
+
+  let tokelFee = await db.withdrawalSetting.findOne({
+    where: {
+      coinId: tokel.id,
+    },
+  });
+  if (!tokelFee) {
+    tokelFee = await db.withdrawalSetting.create({
+      coinId: tokel.id,
     });
   }
 };

@@ -78,7 +78,7 @@ npx sequelize-cli migration:generate --name Sleet-table
 
 undo single migration
 ````
-npx sequelize-cli db:migrate:undo --name 20211208092519-Add-user-association-to-features.js
+npx sequelize-cli db:migrate:undo --name 20220525155707-add_withdrawalFee_table.js
 
 ````
 

@@ -1,9 +1,10 @@
 import { config } from "dotenv";
-import { getInstance } from "./rclient";
-import getCoinSettings from '../config/settings';
+import {
+  getRunebaseInstance,
+  getTokelInstance,
+  getPirateInstance,
+} from "./rclient";
 import { fromUtf8ToHex } from "../helpers/utils";
-
-const settings = getCoinSettings();
 
 config();
 
@@ -11,26 +12,26 @@ export const processWithdrawal = async (transaction) => {
   let response;
   let responseStatus;
   const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
-
+  console.log(transaction.wallet);
   // Add New Currency here (default fallback is Runebase)
-  if (settings.coin.setting === 'Runebase') {
+  if (transaction.wallet.coin.ticker === 'RUNES') {
     try {
-      response = await getInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
+      response = await getRunebaseInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
     } catch (e) {
       console.log(e);
       responseStatus = e.reponse.status;
     }
-  } else if (settings.coin.setting === 'Komodo') {
+  } else if (transaction.wallet.coin.ticker === 'TKL') {
     try {
-      response = await getInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
+      response = await getTokelInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
     } catch (e) {
       console.log(e);
       responseStatus = e.reponse.status;
     }
-  } else if (settings.coin.setting === 'Pirate') {
+  } else if (transaction.wallet.coin.ticker === 'ARRR') {
     try {
       const hexMemo = await fromUtf8ToHex(transaction.memo);
-      const preResponse = await getInstance().zSendMany(
+      const preResponse = await getPirateInstance().zSendMany(
         process.env.PIRATE_CONSOLIDATION_ADDRESS,
         [{
           address: transaction.to_from,
@@ -44,23 +45,17 @@ export const processWithdrawal = async (transaction) => {
         1,
         0.0001,
       );
-      let opStatus = await getInstance().zGetOperationStatus([preResponse]);
+      let opStatus = await getPirateInstance().zGetOperationStatus([preResponse]);
       while (!opStatus || opStatus[0].status === 'executing') {
         // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => setTimeout(resolve, 1000));
         // eslint-disable-next-line no-await-in-loop
-        opStatus = await getInstance().zGetOperationStatus([preResponse]);
+        opStatus = await getPirateInstance().zGetOperationStatus([preResponse]);
       }
       response = opStatus[0].result.txid;
     } catch (e) {
       console.log(e);
       responseStatus = e.response.status;
-    }
-  } else {
-    try {
-      response = await getInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
-    } catch (e) {
-      responseStatus = e.reponse.status;
     }
   }
 

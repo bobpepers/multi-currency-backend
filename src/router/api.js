@@ -33,6 +33,7 @@ import { fetchTransactions } from '../controllers/transactions';
 import { fetchUser } from '../controllers/user';
 import { verifyNewWithdrawalAddress } from '../controllers/user/verifyNewWithdrawalAddress';
 import { resendWithdrawalAddressVerification } from '../controllers/user/resendWithdrawalAddressVerification';
+import { createWithdrawal } from '../controllers/user/createWithdrawal';
 
 import {
   fetchWithdrawalAddress,
@@ -158,8 +159,8 @@ export const apiRouter = (
     res.locals.io = io;
     next();
   };
-  const attachResSocketsClient = (req, res, next) => {
-    res.locals.sockets = sockets;
+  const attachQueue = (req, res, next) => {
+    res.locals.queue = queue;
     next();
   };
   app.get(
@@ -318,7 +319,6 @@ export const apiRouter = (
     isUserBanned,
     use(insertIp),
     ensuretfa,
-    attachResSocketsClient,
     use(addNewWithdrawalAddress),
     respondResult,
   );
@@ -329,7 +329,6 @@ export const apiRouter = (
     isUserBanned,
     use(insertIp),
     ensuretfa,
-    attachResSocketsClient,
     use(removeWithdrawalAddress),
     respondResult,
   );
@@ -345,8 +344,18 @@ export const apiRouter = (
   );
 
   app.post(
+    '/api/withdraw/create',
+    IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(attachResIoClient),
+    use(createWithdrawal),
+    respondResult,
+  );
+  app.post(
     '/api/withdraw/address/verify',
-    attachResIoClient,
+    use(attachResIoClient),
     use(verifyNewWithdrawalAddress),
     respondResult,
   );

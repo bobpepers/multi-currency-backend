@@ -49,7 +49,8 @@ const sequentialLoop = async (iterations, process, exit) => {
   return loop;
 };
 
-const syncTransactions = async () => {
+const syncTransactions = async (io) => {
+  console.log('syncPirateTransactions');
   const transactions = await db.transaction.findAll({
     where: {
       phase: 'confirming',
@@ -58,9 +59,11 @@ const syncTransactions = async () => {
       {
         model: db.wallet,
         as: 'wallet',
+        required: true,
         include: [{
           model: db.coin,
           as: 'coin',
+          required: true,
           where: {
             ticker: 'ARRR',
           },
@@ -69,12 +72,16 @@ const syncTransactions = async () => {
       {
         model: db.address,
         as: 'address',
+        required: false,
       },
     ],
   });
+  console.log('syncPirateTransactions2');
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const trans of transactions) {
+    console.log('123');
+    console.log(trans);
     const transaction = await getPirateInstance().getTransaction(trans.txid);
     console.log(transaction);
     if (
@@ -190,6 +197,7 @@ const syncTransactions = async () => {
             }
 
             t.afterCommit(async () => {
+              console.log('syncPirateTransactionsDone');
               // await isDepositOrWithdrawalCompleteMessageHandler(
               //   isDepositComplete,
               //   isWithdrawalComplete,
@@ -352,6 +360,7 @@ const insertBlock = async (startBlock) => {
 };
 
 export const startPirateSync = async (
+  io,
   queue,
 ) => {
   try {
@@ -379,7 +388,7 @@ export const startPirateSync = async (
       const endBlock = Math.min((startBlock + 1) - 1, currentBlockCount);
 
       await queue.add(async () => {
-        const task = await syncTransactions();
+        const task = await syncTransactions(io);
       });
 
       await queue.add(async () => {

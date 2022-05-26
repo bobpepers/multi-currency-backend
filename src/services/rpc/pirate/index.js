@@ -103,6 +103,15 @@ class Pirate {
   }
 
   /**
+   * Get Balance of address
+   * @return {Promise} Amount of coins available in address
+   */
+  zGetBalance(address) {
+    console.log(address);
+    return this.provider.rawCall('z_getbalance', [address]);
+  }
+
+  /**
    * Lists all balances
    * @return {Promise} Array of unspent transaction outputs or Error
    */

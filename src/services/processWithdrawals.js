@@ -2,37 +2,47 @@ import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import db from '../models';
 import { processWithdrawal } from "./processWithdrawal";
+import { getPirateInstance } from "./rclient";
 
 config();
 
 export const processWithdrawals = async () => {
+  console.log('proc1');
+  const transaction = await db.transaction.findOne({
+    where: {
+      phase: 'review',
+    },
+    include: [
+      {
+        model: db.wallet,
+        as: 'wallet',
+        include: [
+          {
+            model: db.user,
+            as: 'user',
+          },
+          {
+            model: db.coin,
+            as: 'coin',
+          },
+        ],
+      },
+    ],
+  });
+
+  if (transaction && transaction.wallet.coin.ticker === 'ARRR') {
+    const amountOfPirateCoinsAvailable = await getPirateInstance().zGetBalance(process.env.PIRATE_CONSOLIDATION_ADDRESS);
+    if (amountOfPirateCoinsAvailable < (transaction.amount / 1e8)) {
+      console.log('not enough pirate coins available at the moment');
+      return;
+    }
+  }
+
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
     let updatedTrans;
-    const transaction = await db.transaction.findOne({
-      where: {
-        phase: 'review',
-      },
-      include: [
-        {
-          model: db.address,
-          as: 'address',
-          include: [
-            {
-              model: db.wallet,
-              as: 'wallet',
-              include: [{
-                model: db.user,
-                as: 'user',
-              }],
-            },
-          ],
-        },
-      ],
-      transaction: t,
-      lock: t.LOCK.UPDATE,
-    });
+
     if (!transaction) {
       console.log('No withdrawal to process');
       return;
@@ -83,7 +93,7 @@ export const processWithdrawals = async () => {
         );
         const activity = await db.activity.create(
           {
-            spenderId: transaction.address.wallet.userId,
+            spenderId: transaction.wallet.userId,
             type: 'withdrawAccepted',
             transactionId: transaction.id,
           },
@@ -96,68 +106,16 @@ export const processWithdrawals = async () => {
     }
 
     t.afterCommit(async () => {
-      // try {
-      //   if (transaction) {
-      //     if (transaction.address.wallet.user.user_id.startsWith('discord-')) {
-      //       const userDiscordId = transaction.address.wallet.user.user_id.replace('discord-', '');
-      //       const myClient = await discordClient.users.fetch(userDiscordId, false);
-      //       await myClient.send({ embeds: [discordWithdrawalAcceptedMessage(updatedTrans)] });
-      //     }
-      //     if (transaction.address.wallet.user.user_id.startsWith('telegram-')) {
-      //       const userTelegramId = transaction.address.wallet.user.user_id.replace('telegram-', '');
-      //       await telegramClient.telegram.sendMessage(
-      //         userTelegramId,
-      //         await withdrawalAcceptedMessage(
-      //           transaction,
-      //           updatedTrans,
-      //         ),
-      //         {
-      //           parse_mode: 'HTML',
-      //         },
-      //       );
-      //     }
-      //     if (transaction.address.wallet.user.user_id.startsWith('matrix-')) {
-      //       const userMatrixId = transaction.address.wallet.user.user_id.replace('matrix-', '');
-      //       const [
-      //         directUserMessageRoom,
-      //         isCurrentRoomDirectMessage,
-      //         userState,
-      //       ] = await findUserDirectMessageRoom(
-      //         matrixClient,
-      //         userMatrixId,
-      //       );
-      //       if (directUserMessageRoom) {
-      //         await matrixClient.sendEvent(
-      //           directUserMessageRoom.roomId,
-      //           "m.room.message",
-      //           matrixWithdrawalAcceptedMessage(updatedTrans),
-      //         );
-      //       }
-      //     }
-      //     await telegramClient.telegram.sendMessage(
-      //       Number(process.env.TELEGRAM_ADMIN_ID),
-      //       await withdrawalAcceptedAdminMessage(updatedTrans),
-      //       {
-      //         parse_mode: 'HTML',
-      //       },
-      //     );
-      //   }
-      // } catch (e) {
-      //   console.log(e);
-      // }
+      console.log('withdraw function complete');
     });
   }).catch(async (err) => {
     console.log(err);
-    // try {
-    //   await telegramClient.telegram.sendMessage(
-    //     Number(process.env.TELEGRAM_ADMIN_ID),
-    //     `Something went wrong with withdrawals`,
-    //     {
-    //       parse_mode: 'HTML',
-    //     },
-    //   );
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    await transaction.update(
+      {
+        // txid: response,
+        phase: 'failed',
+        type: 'send',
+      },
+    );
   });
 };

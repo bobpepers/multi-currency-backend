@@ -27,7 +27,7 @@ import { startPirateSync } from "./services/syncPirate";
 import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
 import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
-// import { processWithdrawals } from "./services/processWithdrawals";
+import { processWithdrawals } from "./services/processWithdrawals";
 
 config();
 
@@ -119,6 +119,7 @@ config();
   await initDatabaseRecords();
 
   await startRunebaseSync(
+    io,
     queue,
   );
 
@@ -129,6 +130,7 @@ config();
   });
 
   await startPirateSync(
+    io,
     queue,
   );
 
@@ -139,6 +141,7 @@ config();
   });
 
   await startTokelSync(
+    io,
     queue,
   );
 
@@ -169,17 +172,16 @@ config();
   //   updatePrice();
   // });
 
-  // const scheduleWithdrawal = schedule.scheduleJob('*/8 * * * *', async () => { // Process a withdrawal every 8 minutes
-  //   const autoWithdrawalSetting = await db.features.findOne({
-  //     where: {
-  //       name: 'autoWithdrawal',
-  //     },
-  //   });
-  //   if (autoWithdrawalSetting.enabled) {
-  //     processWithdrawals(
-  //     );
-  //   }
-  // });
+  const scheduleWithdrawal = schedule.scheduleJob('*/1 * * * *', async () => { // Process a withdrawal every minute
+    //   const autoWithdrawalSetting = await db.features.findOne({
+    //     where: {
+    //       name: 'autoWithdrawal',
+    //     },
+    //   });
+    //   if (autoWithdrawalSetting.enabled) {
+    processWithdrawals();
+    //   }
+  });
 
   app.use((err, req, res, next) => {
     if (err.message && err.message === "EMAIL_NOT_VERIFIED") {
