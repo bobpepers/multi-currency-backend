@@ -24,6 +24,16 @@ export async function patchRunebaseDeposits() {
             {
               model: db.wallet,
               as: 'wallet',
+              include: [
+                {
+                  model: db.coin,
+                  as: 'coin',
+                  required: true,
+                  where: {
+                    ticker: 'RUNES',
+                  },
+                },
+              ],
             },
           ],
         });
@@ -37,6 +47,7 @@ export async function patchRunebaseDeposits() {
                 txid: trans.txid,
                 type: trans.category,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               defaults: {
                 txid: trans.txid,

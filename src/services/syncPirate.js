@@ -6,7 +6,6 @@ import { config } from "dotenv";
 import db from '../models';
 import { getPirateInstance } from "./rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
-// import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import blockchainConfig from '../config/blockchain_config';
 
 config();
@@ -76,7 +75,6 @@ const syncTransactions = async (io) => {
       },
     ],
   });
-  console.log('syncPirateTransactions2');
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const trans of transactions) {
@@ -93,9 +91,6 @@ const syncTransactions = async (io) => {
         if (
           detail.address !== process.env.PIRATE_CONSOLIDATION_ADDRESS
         ) {
-          let isWithdrawalComplete = false;
-          const isDepositComplete = false;
-          let userToMessage;
           let updatedTransaction;
           let updatedWallet;
           await db.sequelize.transaction({
@@ -110,13 +105,15 @@ const syncTransactions = async (io) => {
                 {
                   model: db.wallet,
                   as: 'wallet',
-                  include: [{
-                    model: db.coin,
-                    as: 'coin',
-                    where: {
-                      ticker: 'ARRR',
+                  include: [
+                    {
+                      model: db.coin,
+                      as: 'coin',
+                      where: {
+                        ticker: 'ARRR',
+                      },
                     },
-                  }],
+                  ],
                 },
                 {
                   model: db.address,
@@ -128,6 +125,7 @@ const syncTransactions = async (io) => {
               const wallet = await db.wallet.findOne({
                 where: {
                   userId: processTransaction.wallet.userId,
+                  id: processTransaction.wallet.id,
                 },
                 transaction: t,
                 lock: t.LOCK.UPDATE,
@@ -135,7 +133,7 @@ const syncTransactions = async (io) => {
 
               if (transaction.confirmations < Number(blockchainConfig.pirate.confirmations)) {
                 updatedTransaction = await processTransaction.update({
-                  confirmations: transaction.confirmations,
+                  confirmations: transaction.rawconfirmations,
                 }, {
                   transaction: t,
                   lock: t.LOCK.UPDATE,
@@ -153,7 +151,7 @@ const syncTransactions = async (io) => {
                   lock: t.LOCK.UPDATE,
                 });
                 updatedTransaction = await processTransaction.update({
-                  confirmations: transaction.confirmations > 30000 ? 30000 : transaction.confirmations,
+                  confirmations: transaction.rawconfirmations > 30000 ? 30000 : transaction.rawconfirmations,
                   phase: 'confirmed',
                 }, {
                   transaction: t,
@@ -184,30 +182,26 @@ const syncTransactions = async (io) => {
                 //   Number(processTransaction.feeAmount),
                 //   faucetSetting,
                 // );
-
-                userToMessage = await db.user.findOne({
-                  where: {
-                    id: updatedWallet.userId,
-                  },
-                  transaction: t,
-                  lock: t.LOCK.UPDATE,
-                });
-                isWithdrawalComplete = true;
               }
             }
 
             t.afterCommit(async () => {
-              console.log('syncPirateTransactionsDone');
-              // await isDepositOrWithdrawalCompleteMessageHandler(
-              //   isDepositComplete,
-              //   isWithdrawalComplete,
-              //   discordClient,
-              //   telegramClient,
-              //   matrixClient,
-              //   userToMessage,
-              //   trans,
-              //   detail.value,
-              // );
+              if (updatedWallet) {
+                io.to(updatedWallet.userId).emit(
+                  'updateWallet',
+                  {
+                    result: updatedWallet,
+                  },
+                );
+              }
+              if (updatedTransaction) {
+                io.to(updatedTransaction.userId).emit(
+                  'updateTransaction',
+                  {
+                    result: updatedTransaction,
+                  },
+                );
+              }
             });
           });
         }
@@ -223,9 +217,6 @@ const syncTransactions = async (io) => {
           detail.address !== process.env.PIRATE_CONSOLIDATION_ADDRESS
           && detail.address === trans.address.address
         ) {
-          const isWithdrawalComplete = false;
-          let isDepositComplete = false;
-          let userToMessage;
           let updatedTransaction;
           let updatedWallet;
           await db.sequelize.transaction({
@@ -258,6 +249,7 @@ const syncTransactions = async (io) => {
               const wallet = await db.wallet.findOne({
                 where: {
                   userId: processTransaction.wallet.userId,
+                  id: processTransaction.wallet.id,
                 },
                 transaction: t,
                 lock: t.LOCK.UPDATE,
@@ -265,7 +257,7 @@ const syncTransactions = async (io) => {
 
               if (transaction.confirmations < Number(blockchainConfig.pirate.confirmations)) {
                 updatedTransaction = await processTransaction.update({
-                  confirmations: transaction.confirmations,
+                  confirmations: transaction.rawconfirmations,
                 }, {
                   transaction: t,
                   lock: t.LOCK.UPDATE,
@@ -280,7 +272,7 @@ const syncTransactions = async (io) => {
                   lock: t.LOCK.UPDATE,
                 });
                 updatedTransaction = await processTransaction.update({
-                  confirmations: transaction.confirmations > 30000 ? 30000 : transaction.confirmations,
+                  confirmations: transaction.rawconfirmations > 30000 ? 30000 : transaction.rawconfirmations,
                   phase: 'confirmed',
                 }, {
                   transaction: t,
@@ -296,35 +288,32 @@ const syncTransactions = async (io) => {
                   transaction: t,
                   lock: t.LOCK.UPDATE,
                 });
-                userToMessage = await db.user.findOne({
-                  where: {
-                    id: updatedWallet.userId,
-                  },
-                  transaction: t,
-                  lock: t.LOCK.UPDATE,
-                });
-                isDepositComplete = true;
               }
             }
 
             t.afterCommit(async () => {
-              // await isDepositOrWithdrawalCompleteMessageHandler(
-              //   isDepositComplete,
-              //   isWithdrawalComplete,
-              //   discordClient,
-              //   telegramClient,
-              //   matrixClient,
-              //   userToMessage,
-              //   trans,
-              //   detail.value,
-              // );
+              if (updatedWallet) {
+                io.to(updatedWallet.userId).emit(
+                  'updateWallet',
+                  {
+                    result: updatedWallet,
+                  },
+                );
+              }
+              if (updatedTransaction) {
+                io.to(updatedTransaction.userId).emit(
+                  'updateTransaction',
+                  {
+                    result: updatedTransaction,
+                  },
+                );
+              }
             });
           });
         }
       }
     }
   }
-  // return true;
 };
 
 const insertBlock = async (startBlock) => {

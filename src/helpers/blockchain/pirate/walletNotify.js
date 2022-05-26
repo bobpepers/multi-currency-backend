@@ -36,6 +36,14 @@ const walletNotifyPirate = async (
                 as: 'wallet',
                 include: [
                   {
+                    model: db.coin,
+                    as: 'coin',
+                    required: true,
+                    where: {
+                      ticker: req.body.ticker,
+                    },
+                  },
+                  {
                     model: db.user,
                     as: 'user',
                   },
@@ -53,6 +61,7 @@ const walletNotifyPirate = async (
                 txid: transaction.txid,
                 type: 'receive',
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               defaults: {
                 txid: txId,

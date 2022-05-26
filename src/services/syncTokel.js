@@ -7,7 +7,6 @@ import db from '../models';
 import blockchainConfig from '../config/blockchain_config';
 import { getTokelInstance } from "./rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
-// import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import logger from "../helpers/logger";
 
 const sequentialLoop = async (iterations, process, exit) => {
@@ -78,9 +77,6 @@ const syncTransactions = async (io) => {
     const transaction = await getTokelInstance().getTransaction(trans.txid);
 
     for await (const detail of transaction.details) {
-      let isWithdrawalComplete = false;
-      let isDepositComplete = false;
-      let userToMessage;
       let updatedTransaction;
       let updatedWallet;
 
@@ -101,10 +97,19 @@ const syncTransactions = async (io) => {
             {
               model: db.wallet,
               as: 'wallet',
+              include: [{
+                model: db.coin,
+                as: 'coin',
+                required: true,
+                where: {
+                  ticker: 'TKL',
+                },
+              }],
             },
             {
               model: db.address,
               as: 'address',
+              required: false,
             },
           ],
         });
@@ -113,18 +118,26 @@ const syncTransactions = async (io) => {
           const wallet = await db.wallet.findOne({
             where: {
               userId: processTransaction.wallet.userId,
+              id: processTransaction.wallet.id,
             },
             transaction: t,
             lock: t.LOCK.UPDATE,
           });
+          console.log(wallet);
+          console.log('process Transaction wallet');
 
           if (transaction.confirmations < Number(blockchainConfig.tokel.confirmations)) {
             updatedTransaction = await processTransaction.update({
-              confirmations: transaction.confirmations,
+              confirmations: transaction.rawconfirmations,
             }, {
               transaction: t,
               lock: t.LOCK.UPDATE,
             });
+            console.log(transaction);
+            console.log(processTransaction);
+            console.log(detail);
+            console.log(processTransaction.address.address);
+            console.log('add confirmation');
           }
           if (transaction.confirmations >= Number(blockchainConfig.tokel.confirmations)) {
             if (
@@ -145,7 +158,7 @@ const syncTransactions = async (io) => {
               });
 
               updatedTransaction = await processTransaction.update({
-                confirmations: transaction.confirmations > 30000 ? 30000 : transaction.confirmations,
+                confirmations: transaction.rawconfirmations > 30000 ? 30000 : transaction.rawconfirmations,
                 phase: 'confirmed',
               }, {
                 transaction: t,
@@ -177,29 +190,24 @@ const syncTransactions = async (io) => {
               //   Number(processTransaction.feeAmount),
               //   faucetSetting,
               // );
-
-              userToMessage = await db.user.findOne({
-                where: {
-                  id: updatedWallet.userId,
-                },
-                transaction: t,
-                lock: t.LOCK.UPDATE,
-              });
-              isWithdrawalComplete = true;
             }
             if (
               detail.category === 'receive'
               && processTransaction.type === 'receive'
               && detail.address === processTransaction.address.address
             ) {
+              console.log('final confirm receive');
+              console.log(detail.amount);
               updatedWallet = await wallet.update({
                 available: wallet.available + (detail.amount * 1e8),
               }, {
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               });
+              console.log('updatedWallet');
+              console.log(updatedWallet);
               updatedTransaction = await trans.update({
-                confirmations: transaction.confirmations > 30000 ? 30000 : transaction.confirmations,
+                confirmations: transaction.rawconfirmations > 30000 ? 30000 : transaction.rawconfirmations,
                 phase: 'confirmed',
               }, {
                 transaction: t,
@@ -215,29 +223,27 @@ const syncTransactions = async (io) => {
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               });
-              userToMessage = await db.user.findOne({
-                where: {
-                  id: updatedWallet.userId,
-                },
-                transaction: t,
-                lock: t.LOCK.UPDATE,
-              });
-              isDepositComplete = true;
             }
           }
         }
 
         t.afterCommit(async () => {
-          // await isDepositOrWithdrawalCompleteMessageHandler(
-          //   isDepositComplete,
-          //   isWithdrawalComplete,
-          //   discordClient,
-          //   telegramClient,
-          //   matrixClient,
-          //   userToMessage,
-          //   trans,
-          //   detail.amount,
-          // );
+          if (updatedWallet) {
+            io.to(updatedWallet.userId).emit(
+              'updateWallet',
+              {
+                result: updatedWallet,
+              },
+            );
+          }
+          if (updatedTransaction) {
+            io.to(updatedTransaction.userId).emit(
+              'updateTransaction',
+              {
+                result: updatedTransaction,
+              },
+            );
+          }
         });
       }).catch(async (err) => {
         try {

@@ -31,6 +31,16 @@ export async function patchPirateDeposits() {
                 {
                   model: db.wallet,
                   as: 'wallet',
+                  include: [
+                    {
+                      model: db.coin,
+                      as: 'coin',
+                      required: true,
+                      where: {
+                        ticker: 'ARRR',
+                      },
+                    },
+                  ],
                 },
               ],
             });
@@ -43,6 +53,7 @@ export async function patchPirateDeposits() {
                     txid: trans.txid,
                     type: 'receive',
                     userId: address.wallet.userId,
+                    walletId: address.wallet.id,
                   },
                   defaults: {
                     txid: trans.txid,

@@ -36,6 +36,14 @@ const walletNotifyTokel = async (
                 as: 'wallet',
                 include: [
                   {
+                    model: db.coin,
+                    as: 'coin',
+                    required: true,
+                    where: {
+                      ticker: req.body.ticker,
+                    },
+                  },
+                  {
                     model: db.user,
                     as: 'user',
                   },
@@ -45,6 +53,7 @@ const walletNotifyTokel = async (
             transaction: t,
             lock: t.LOCK.UPDATE,
           });
+          console.log(address);
           if (address) {
             res.locals.detail[parseInt(i, 10)] = {};
             res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.id;
@@ -53,6 +62,7 @@ const walletNotifyTokel = async (
                 txid: transaction.txid,
                 type: detail.category,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               defaults: {
                 txid: txId,

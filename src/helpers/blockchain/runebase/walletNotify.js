@@ -38,6 +38,10 @@ const walletNotifyRunebase = async (
                   {
                     model: db.coin,
                     as: 'coin',
+                    required: true,
+                    where: {
+                      ticker: req.body.ticker,
+                    },
                   },
                   {
                     model: db.user,
@@ -57,6 +61,7 @@ const walletNotifyRunebase = async (
                 txid: transaction.txid,
                 type: detail.category,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               defaults: {
                 txid: txId,

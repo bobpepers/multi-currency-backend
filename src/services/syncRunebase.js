@@ -6,7 +6,6 @@ import db from '../models';
 import blockchainConfig from '../config/blockchain_config';
 import { getRunebaseInstance } from "./rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
-// import { isDepositOrWithdrawalCompleteMessageHandler } from '../helpers/messageHandlers';
 import logger from "../helpers/logger";
 
 const sequentialLoop = async (
@@ -52,7 +51,6 @@ const sequentialLoop = async (
 };
 
 const syncTransactions = async (io) => {
-  console.log('syncRunebaseTransactions1');
   const transactions = await db.transaction.findAll({
     where: {
       phase: 'confirming',
@@ -62,14 +60,16 @@ const syncTransactions = async (io) => {
         model: db.wallet,
         as: 'wallet',
         required: true,
-        include: [{
-          model: db.coin,
-          as: 'coin',
-          required: true,
-          where: {
-            ticker: 'RUNES',
+        include: [
+          {
+            model: db.coin,
+            as: 'coin',
+            required: true,
+            where: {
+              ticker: 'RUNES',
+            },
           },
-        }],
+        ],
       },
       {
         model: db.address,
@@ -119,6 +119,7 @@ const syncTransactions = async (io) => {
           const wallet = await db.wallet.findOne({
             where: {
               userId: processTransaction.wallet.userId,
+              id: processTransaction.wallet.id,
             },
             transaction: t,
             lock: t.LOCK.UPDATE,
@@ -231,16 +232,22 @@ const syncTransactions = async (io) => {
         }
 
         t.afterCommit(async () => {
-          // await isDepositOrWithdrawalCompleteMessageHandler(
-          //   isDepositComplete,
-          //   isWithdrawalComplete,
-          //   discordClient,
-          //   telegramClient,
-          //   matrixClient,
-          //   userToMessage,
-          //   trans,
-          //   detail.amount,
-          // );
+          if (updatedWallet) {
+            io.to(updatedWallet.userId).emit(
+              'updateWallet',
+              {
+                result: updatedWallet,
+              },
+            );
+          }
+          if (updatedTransaction) {
+            io.to(updatedTransaction.userId).emit(
+              'updateTransaction',
+              {
+                result: updatedTransaction,
+              },
+            );
+          }
         });
       }).catch(async (err) => {
         try {

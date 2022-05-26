@@ -25,6 +25,16 @@ export async function patchTokelDeposits() {
             {
               model: db.wallet,
               as: 'wallet',
+              include: [
+                {
+                  model: db.coin,
+                  as: 'coin',
+                  required: true,
+                  where: {
+                    ticker: 'TKL',
+                  },
+                },
+              ],
             },
           ],
         });
@@ -38,6 +48,7 @@ export async function patchTokelDeposits() {
                 txid: trans.txid,
                 type: trans.category,
                 userId: address.wallet.userId,
+                walletId: address.wallet.id,
               },
               defaults: {
                 txid: trans.txid,
