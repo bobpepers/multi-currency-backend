@@ -142,4 +142,75 @@ export const initDatabaseRecords = async (
       coinId: dogeLumens.id,
     });
   }
+
+  // Faucets
+  let runebaseFaucet = await db.faucet.findOne({
+    where: {
+      coinId: runebase.id,
+    },
+  });
+  if (!runebaseFaucet) {
+    runebaseFaucet = await db.faucet.create({
+      amount: 0,
+      totalAmountClaimed: 0,
+      claims: 0,
+      coinId: runebase.id,
+    });
+  }
+
+  let pirateFaucet = await db.faucet.findOne({
+    where: {
+      coinId: pirate.id,
+    },
+  });
+  if (!pirateFaucet) {
+    pirateFaucet = await db.faucet.create({
+      amount: 0,
+      totalAmountClaimed: 0,
+      claims: 0,
+      coinId: pirate.id,
+    });
+  }
+
+  let tokelFaucet = await db.faucet.findOne({
+    where: {
+      coinId: tokel.id,
+    },
+  });
+  if (!tokelFaucet) {
+    tokelFaucet = await db.faucet.create({
+      amount: 0,
+      totalAmountClaimed: 0,
+      claims: 0,
+      coinId: tokel.id,
+    });
+  }
+
+  let lumensFaucet = await db.faucet.findOne({
+    where: {
+      coinId: lumens.id,
+    },
+  });
+  if (!lumensFaucet) {
+    lumensFaucet = await db.faucet.create({
+      amount: 0,
+      totalAmountClaimed: 0,
+      claims: 0,
+      coinId: lumens.id,
+    });
+  }
+
+  let dogeLumensFaucet = await db.faucet.findOne({
+    where: {
+      coinId: dogeLumens.id,
+    },
+  });
+  if (!dogeLumensFaucet) {
+    dogeLumensFaucet = await db.faucet.create({
+      amount: 0,
+      totalAmountClaimed: 0,
+      claims: 0,
+      coinId: dogeLumens.id,
+    });
+  }
 };

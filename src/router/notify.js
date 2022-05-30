@@ -18,13 +18,13 @@ const server = new StellarSdk.Server("https://horizon.stellar.org");
 const stellarPayments = server.payments().forAccount(process.env.STELLAR_PUBLIC);
 
 function savePagingToken(token) {
-  fs.writeFile('stellarPagingToken', token, (error) => {
+  fs.writeFile('.stellar/stellarPagingToken', token, (error) => {
     if (error) throw error;
   });
 }
 
 function loadLastPagingToken() {
-  fs.readFile('stellarPagingToken', (error, txtString) => {
+  fs.readFile('.stellar/stellarPagingToken', (error, txtString) => {
     if (error) throw error;
     return txtString.toString();
   });

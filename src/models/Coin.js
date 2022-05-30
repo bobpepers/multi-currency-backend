@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'transactions',
     });
     CoinModel.hasOne(model.withdrawalSetting);
+    CoinModel.hasOne(model.faucet);
   };
 
   return CoinModel;

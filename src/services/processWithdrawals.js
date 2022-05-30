@@ -18,7 +18,7 @@ export const processWithdrawals = async (
       {
         model: db.wallet,
         as: 'wallet',
-        attributes: [],
+        attributes: ['id'],
         include: [
           {
             model: db.coin,
@@ -28,6 +28,8 @@ export const processWithdrawals = async (
       },
     ],
   });
+  console.log(transaction);
+  console.log(transaction.wallet);
 
   if (transaction && transaction.wallet.coin.ticker === 'ARRR') {
     const amountOfPirateCoinsAvailable = await getPirateInstance().zGetBalance(process.env.PIRATE_CONSOLIDATION_ADDRESS);
@@ -52,7 +54,13 @@ export const processWithdrawals = async (
         responseStatus,
       ] = await processWithdrawal(transaction);
 
-      if (responseStatus && responseStatus === 500) {
+      if (
+        responseStatus
+        && (
+          responseStatus === 500
+          || responseStatus === 504
+        )
+      ) {
         updatedTrans = await transaction.update(
           {
             // txid: response,

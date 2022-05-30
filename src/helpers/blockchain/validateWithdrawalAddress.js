@@ -1,3 +1,4 @@
+import StellarSdk from 'stellar-sdk';
 import {
   getRunebaseInstance,
   getPirateInstance,
@@ -51,6 +52,15 @@ export const validateWithdrawalAddress = async (
     } catch (e) {
       isNodeOffline = true;
     }
+  } else if (ticker === 'XLM') {
+    try {
+      getAddressInfo = StellarSdk.StrKey.isValidEd25519PublicKey(address);
+    } catch (e) {
+      isNodeOffline = true;
+    }
+
+    console.log(getAddressInfo);
+    console.log('getAddressInfo');
   }
 
   if (!getAddressInfo) {

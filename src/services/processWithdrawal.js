@@ -1,3 +1,12 @@
+import {
+  Server,
+  Keypair,
+  Asset,
+  Operation,
+  TransactionBuilder,
+  Networks,
+  Memo,
+} from 'stellar-sdk';
 import { config } from "dotenv";
 import {
   getRunebaseInstance,
@@ -8,12 +17,17 @@ import { fromUtf8ToHex } from "../helpers/utils";
 
 config();
 
-export const processWithdrawal = async (transaction) => {
+const server = new Server('https://horizon.stellar.org');
+const sourceKeypair = Keypair.fromSecret(process.env.STELLAR_SECRET);
+const sourcePublicKey = sourceKeypair.publicKey();
+
+export const processWithdrawal = async (
+  transaction,
+) => {
   let response;
   let responseStatus;
   const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
-  console.log(transaction.wallet);
-  // Add New Currency here (default fallback is Runebase)
+
   if (transaction.wallet.coin.ticker === 'RUNES') {
     try {
       response = await getRunebaseInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
@@ -55,6 +69,32 @@ export const processWithdrawal = async (transaction) => {
       response = opStatus[0].result.txid;
     } catch (e) {
       console.log(e);
+      responseStatus = e.response.status;
+    }
+  } else if (transaction.wallet.coin.ticker === 'XLM') {
+    try {
+      const txOptions = {
+        fee: await server.fetchBaseFee(),
+        networkPassphrase: Networks.PUBLIC,
+      };
+      console.log(txOptions);
+      const account = await server.loadAccount(sourcePublicKey);
+      const stellarTransaction = new TransactionBuilder(account, txOptions)
+        .addOperation(Operation.payment({
+          destination: transaction.to_from,
+          asset: Asset.native(),
+          amount: (amount.toFixed(7)),
+        }))
+        .setTimeout(30)
+        .addMemo(Memo.text(transaction.memo))
+        .build();
+      stellarTransaction.sign(sourceKeypair);
+      const transactionResult = await server.submitTransaction(stellarTransaction);
+      console.log(JSON.stringify(transactionResult, null, 2));
+      console.log('\nSuccess! View the transaction at: ');
+      // console.log(transactionResult._links.transaction.href);
+    } catch (e) {
+      console.log(e.response.status);
       responseStatus = e.response.status;
     }
   }

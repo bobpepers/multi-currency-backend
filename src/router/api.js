@@ -18,8 +18,10 @@ import {
 
 import { isAdmin } from '../controllers/admin/admin';
 import { fetchUserInfo } from '../controllers/admin/userInfo';
-import { fetchLiability } from '../controllers/admin/liability';
-import { fetchBalance } from '../controllers/admin/balance';
+import { fetchAdminLiability } from '../controllers/admin/liability';
+import { fetchAdminBalance } from '../controllers/admin/balance';
+import { fetchAdminFaucetBalance } from '../controllers/admin/faucetBalance';
+
 import { healthCheck } from '../controllers/health';
 import { insertIp } from '../controllers/ip';
 import { fetchErrors } from '../controllers/admin/errors';
@@ -458,22 +460,32 @@ export const apiRouter = (
   );
 
   app.get(
-    '/api/balance',
+    '/api/admin/balance',
     IsAuthenticated,
     isAdmin,
     isUserBanned,
     ensuretfa,
-    use(fetchBalance),
+    use(fetchAdminBalance),
     respondResult,
   );
 
   app.get(
-    '/api/liability',
+    '/api/admin/faucet/balance',
     IsAuthenticated,
     isAdmin,
     isUserBanned,
     ensuretfa,
-    use(fetchLiability),
+    use(fetchAdminFaucetBalance),
+    respondResult,
+  );
+
+  app.get(
+    '/api/admin/liability',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    ensuretfa,
+    use(fetchAdminLiability),
     respondResult,
   );
 
