@@ -1,13 +1,34 @@
 /* eslint-disable no-restricted-syntax */
+import StellarSdk from 'stellar-sdk';
+import { config } from "dotenv";
+import fs from 'fs';
 import walletNotifyRunebase from '../helpers/blockchain/runebase/walletNotify';
 import walletNotifyPirate from '../helpers/blockchain/pirate/walletNotify';
 import walletNotifyTokel from '../helpers/blockchain/tokel/walletNotify';
+
+import walletNotifyLumens from '../helpers/blockchain/stellar/walletNotify';
 
 import { startRunebaseSync } from "../services/syncRunebase";
 import { startPirateSync } from "../services/syncPirate";
 import { startTokelSync } from "../services/syncTokel";
 
-// import { incomingDepositMessageHandler } from '../helpers/messageHandlers';
+config();
+
+const server = new StellarSdk.Server("https://horizon.stellar.org");
+const stellarPayments = server.payments().forAccount(process.env.STELLAR_PUBLIC);
+
+function savePagingToken(token) {
+  fs.writeFile('stellarPagingToken', token, (error) => {
+    if (error) throw error;
+  });
+}
+
+function loadLastPagingToken() {
+  fs.readFile('stellarPagingToken', (error, txtString) => {
+    if (error) throw error;
+    return txtString.toString();
+  });
+}
 
 const localhostOnly = (
   req,
@@ -30,6 +51,62 @@ export const notifyRouter = (
   sockets,
   queue,
 ) => {
+  const lastStellarToken = loadLastPagingToken();
+  if (lastStellarToken) {
+    stellarPayments.cursor(lastStellarToken);
+  }
+
+  stellarPayments.stream({
+    async onmessage(payment) {
+      savePagingToken(payment.paging_token);
+
+      if (payment.to !== process.env.STELLAR_PUBLIC) {
+        return;
+      }
+      if (payment.from === process.env.STELLAR_PUBLIC) {
+        return;
+      }
+
+      const transactionInfo = await payment.transaction();
+
+      if (!transactionInfo.successful) {
+        return;
+      }
+
+      let asset;
+      if (payment.asset_type === "native") {
+        asset = "XLM";
+        await queue.add(async () => {
+          const task = walletNotifyLumens(
+            payment,
+            transactionInfo,
+            io,
+            asset,
+          );
+        });
+      } else if (
+        payment.asset_code === 'DXLM'
+        && payment.asset_issuer === 'GAE6DWVMZDAOBU4IIPGDM2EJ65PWZQ5X7MI7PUURWKTEVZSEJHRYI247'
+      ) {
+        asset = "DXLM";
+        await queue.add(async () => {
+          const task = walletNotifyLumens(
+            payment,
+            transactionInfo,
+            io,
+            asset,
+          );
+        });
+      } else {
+        asset = `${payment.asset_code}:${payment.asset_issuer}`;
+      }
+    },
+    onerror(error) {
+      console.error("Error in payment stream");
+    },
+  });
+
+  // Traditional Blockchain RUNES/ARRR/TKL
   app.post(
     '/api/rpc/blocknotify',
     localhostOnly,

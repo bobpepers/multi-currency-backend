@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    memo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   };
 
   const modelOptions = {

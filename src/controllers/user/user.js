@@ -30,6 +30,7 @@ export const fetchUser = async (
             required: false,
             attributes: [
               'address',
+              'memo',
             ],
           },
           {

@@ -53,6 +53,12 @@ TOKEL_RPC_USER=xx
 TOKEL_RPC_PASS=xx
 TOKEL_RPC_PORT=29405
 
+
+## STELLAR
+STELLAR_PUBLIC=xx
+STELLAR_SECRET=xx
+
+
 ```
 ## Create database mysql terminal
 ```

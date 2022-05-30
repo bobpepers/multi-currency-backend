@@ -132,6 +132,50 @@ export const createWalletsForUser = async (
               }
             }
           }
+          if (coin.ticker === 'XLM') {
+            const addressAlreadyExist = await db.address.findOne(
+              {
+                where: {
+                  address: process.env.STELLAR_PUBLIC,
+                  memo: String(wallet.id),
+                },
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              },
+            );
+            if (!addressAlreadyExist) {
+              address = await db.address.create({
+                address: process.env.STELLAR_PUBLIC,
+                memo: String(wallet.id),
+                walletId: wallet.id,
+              }, {
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              });
+            }
+          }
+          if (coin.ticker === 'DXLM') {
+            const addressAlreadyExist = await db.address.findOne(
+              {
+                where: {
+                  address: process.env.STELLAR_PUBLIC,
+                  memo: String(wallet.id),
+                },
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              },
+            );
+            if (!addressAlreadyExist) {
+              address = await db.address.create({
+                address: process.env.STELLAR_PUBLIC,
+                memo: String(wallet.id),
+                walletId: wallet.id,
+              }, {
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              });
+            }
+          }
         }
       }
     }

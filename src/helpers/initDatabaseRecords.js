@@ -60,6 +60,34 @@ export const initDatabaseRecords = async (
     });
   }
 
+  // Create Stellar Lumens Coin
+  let lumens = await db.coin.findOne({
+    where: {
+      name: 'stellar lumens',
+      ticker: `XLM`,
+    },
+  });
+  if (!lumens) {
+    lumens = await db.coin.create({
+      name: 'stellar lumens',
+      ticker: `XLM`,
+    });
+  }
+
+  // Create Doge Lumens Coin
+  let dogeLumens = await db.coin.findOne({
+    where: {
+      name: 'doge lumens',
+      ticker: `DXLM`,
+    },
+  });
+  if (!dogeLumens) {
+    dogeLumens = await db.coin.create({
+      name: 'doge lumens',
+      ticker: `DXLM`,
+    });
+  }
+
   let runebaseFee = await db.withdrawalSetting.findOne({
     where: {
       coinId: runebase.id,
@@ -90,6 +118,28 @@ export const initDatabaseRecords = async (
   if (!tokelFee) {
     tokelFee = await db.withdrawalSetting.create({
       coinId: tokel.id,
+    });
+  }
+
+  let lumensFee = await db.withdrawalSetting.findOne({
+    where: {
+      coinId: lumens.id,
+    },
+  });
+  if (!lumensFee) {
+    lumensFee = await db.withdrawalSetting.create({
+      coinId: lumens.id,
+    });
+  }
+
+  let dogeLumensFee = await db.withdrawalSetting.findOne({
+    where: {
+      coinId: dogeLumens.id,
+    },
+  });
+  if (!dogeLumensFee) {
+    dogeLumensFee = await db.withdrawalSetting.create({
+      coinId: dogeLumens.id,
     });
   }
 };
