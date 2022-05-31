@@ -1,8 +1,12 @@
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import db from '../models';
-import { processWithdrawal } from "./processWithdrawal";
 import { getPirateInstance } from "./rclient";
+import { withdrawRUNES } from './processWithdrawal/runes';
+import { withdrawTKL } from './processWithdrawal/tkl';
+import { withdrawARRR } from './processWithdrawal/arrr';
+import { withdrawXLM } from './processWithdrawal/xlm';
+import { withdrawDXLM } from './processWithdrawal/dxlm';
 
 config();
 
@@ -27,6 +31,11 @@ export const processWithdrawals = async (
     ],
   });
 
+  if (!transaction) {
+    console.log('No withdrawal to process');
+    return;
+  }
+
   if (transaction && transaction.wallet.coin.ticker === 'ARRR') {
     const amountOfPirateCoinsAvailable = await getPirateInstance().zGetBalance(process.env.PIRATE_CONSOLIDATION_ADDRESS);
     if (amountOfPirateCoinsAvailable < (transaction.amount / 1e8)) {
@@ -39,36 +48,122 @@ export const processWithdrawals = async (
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
     let updatedTrans;
-    let updatedStellarWallet;
+    let updatedWallet;
+    let response;
+    let responseStatus;
+    const activity = [];
 
-    if (!transaction) {
-      console.log('No withdrawal to process');
-      return;
-    }
     if (transaction) {
-      const [
-        response,
-        responseStatus,
-        updatedWallet,
-      ] = await processWithdrawal(
-        transaction,
-        io,
-        t,
-      );
-      if (updatedWallet) {
-        updatedStellarWallet = updatedWallet;
+      const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
+      if (transaction.wallet.coin.ticker === 'RUNES') {
+        [
+          response,
+          responseStatus,
+        ] = await withdrawRUNES(
+          transaction,
+          amount,
+        );
+      }
+      if (transaction.wallet.coin.ticker === 'ARRR') {
+        [
+          response,
+          responseStatus,
+        ] = await withdrawARRR(
+          transaction,
+          amount,
+        );
+      }
+      if (transaction.wallet.coin.ticker === 'TKL') {
+        [
+          response,
+          responseStatus,
+        ] = await withdrawTKL(
+          transaction,
+          amount,
+        );
+      }
+      if (transaction.wallet.coin.ticker === 'XLM') {
+        [
+          response,
+          responseStatus,
+        ] = await withdrawXLM(
+          transaction,
+          amount,
+        );
+      }
+      if (transaction.wallet.coin.ticker === 'DXLM') {
+        [
+          response,
+          responseStatus,
+        ] = await withdrawDXLM(
+          transaction,
+          amount,
+        );
       }
 
-      if (
-        responseStatus
-        && (
-          responseStatus === 500
-          || responseStatus === 504
-        )
-      ) {
+      if (response) {
+        if (
+          transaction.wallet.coin.ticker === 'XLM'
+          || transaction.wallet.coin.ticker === 'DXLM'
+        ) {
+          updatedWallet = await transaction.wallet.update({
+            locked: transaction.wallet.locked - transaction.amount,
+          }, {
+            transaction: t,
+            lock: t.LOCK.UPDATE,
+          });
+          updatedTrans = await transaction.update(
+            {
+              txid: response.hash ? response.hash : '',
+              phase: 'confirmed',
+              type: 'send',
+              confirmations: 1,
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+          const newActivity = await db.activity.create(
+            {
+              spenderId: transaction.userId,
+              type: 'withdrawComplete',
+              transactionId: transaction.id,
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+          activity.unshift(newActivity);
+        } else {
+          updatedTrans = await transaction.update(
+            {
+              txid: response,
+              phase: 'confirming',
+              type: 'send',
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+          const newFailActivity = await db.activity.create(
+            {
+              spenderId: transaction.userId,
+              type: 'withdrawAccepted',
+              transactionId: transaction.id,
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+          activity.unshift(newFailActivity);
+        }
+      } else {
         updatedTrans = await transaction.update(
           {
-            // txid: response,
             phase: 'failed',
             type: 'send',
           },
@@ -88,70 +183,27 @@ export const processWithdrawals = async (
             lock: t.LOCK.UPDATE,
           },
         );
-        return;
+        activity.unshift(activityF);
       }
 
-      if (response) {
-        if (
-          transaction.wallet.coin.ticker === 'XLM'
-          || transaction.wallet.coin.ticker === 'DXLM'
-        ) {
-          updatedTrans = await transaction.update(
-            {
-              txid: response.hash ? response.hash : '',
-              phase: 'confirmed',
-              type: 'send',
-              confirmations: 1,
-            },
-            {
-              transaction: t,
-              lock: t.LOCK.UPDATE,
-            },
-          );
-          const activity = await db.activity.create(
-            {
-              spenderId: transaction.userId,
-              type: 'withdrawComplete',
-              transactionId: transaction.id,
-            },
-            {
-              transaction: t,
-              lock: t.LOCK.UPDATE,
-            },
-          );
-        } else {
-          updatedTrans = await transaction.update(
-            {
-              txid: response,
-              phase: 'confirming',
-              type: 'send',
-            },
-            {
-              transaction: t,
-              lock: t.LOCK.UPDATE,
-            },
-          );
-          const activity = await db.activity.create(
-            {
-              spenderId: transaction.userId,
-              type: 'withdrawAccepted',
-              transactionId: transaction.id,
-            },
-            {
-              transaction: t,
-              lock: t.LOCK.UPDATE,
-            },
-          );
-        }
+      if (
+        responseStatus
+        && (
+          responseStatus === 500
+          || responseStatus === 504
+        )
+      ) {
+        console.log('failed');
+        return;
       }
     }
 
     t.afterCommit(async () => {
-      if (updatedStellarWallet) {
-        io.to(updatedStellarWallet.userId).emit(
+      if (updatedWallet) {
+        io.to(updatedWallet.userId).emit(
           'updateWallet',
           {
-            result: updatedStellarWallet,
+            result: updatedWallet,
           },
         );
       }
@@ -168,7 +220,6 @@ export const processWithdrawals = async (
     console.log(err);
     await transaction.update(
       {
-        // txid: response,
         phase: 'failed',
         type: 'send',
       },

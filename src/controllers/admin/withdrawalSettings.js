@@ -73,8 +73,8 @@ export const updateAdminWithdrawalSetting = async (
       throw new Error("fee cannot be higher then 5%");
     }
   } else if (withdrawalSetting.coin.ticker === 'DXLM') {
-    if (actualMin < 15000000000) {
-      throw new Error("minumum cannot be lower then 150");
+    if (actualMin < 1500000000) {
+      throw new Error("minumum cannot be lower then 15");
     }
     if (actualMin > 100000000000) {
       throw new Error("minumum cannot be higher then 1000");

@@ -5,6 +5,8 @@ import {
   getTokelInstance,
 } from '../../services/rclient';
 
+const server = new StellarSdk.Server('https://horizon.stellar.org');
+
 export const validateWithdrawalAddress = async (
   ticker,
   address,
@@ -53,14 +55,39 @@ export const validateWithdrawalAddress = async (
       isNodeOffline = true;
     }
   } else if (ticker === 'XLM') {
+    console.log('XLM TICKER');
     try {
       getAddressInfo = StellarSdk.StrKey.isValidEd25519PublicKey(address);
     } catch (e) {
       isNodeOffline = true;
     }
-
-    console.log(getAddressInfo);
-    console.log('getAddressInfo');
+  } else if (ticker === 'DXLM') {
+    console.log('DXLM TICKER');
+    let hasTrustLine;
+    let isValidPubKey;
+    let account;
+    try {
+      isValidPubKey = StellarSdk.StrKey.isValidEd25519PublicKey(address);
+    } catch (e) {
+      isNodeOffline = true;
+    }
+    try {
+      account = await server.accounts().accountId(address).call();
+    } catch (e) {
+      isNodeOffline = true;
+    }
+    if (account) {
+      hasTrustLine = account.balances.find((balance, i) => (
+        balance.asset_code === 'DXLM'
+        && balance.asset_issuer === 'GAE6DWVMZDAOBU4IIPGDM2EJ65PWZQ5X7MI7PUURWKTEVZSEJHRYI247'
+      ));
+    }
+    if (!hasTrustLine) {
+      throw new Error(`Address has no DXLM trust-line`);
+    }
+    if (isValidPubKey && hasTrustLine) {
+      getAddressInfo = true;
+    }
   }
 
   if (!getAddressInfo) {

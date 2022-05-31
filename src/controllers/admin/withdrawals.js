@@ -1,7 +1,7 @@
 import { Transaction, Op } from "sequelize";
 import db from '../../models';
 
-import { processWithdrawal } from '../../services/processWithdrawal';
+// import { processWithdrawal } from '../../services/processWithdrawal';
 
 export const acceptWithdrawal = async (
   req,
@@ -50,61 +50,61 @@ export const acceptWithdrawal = async (
     if (!settings) {
       throw new Error("settings not found");
     }
-    if (transaction) {
-      const [
-        response,
-        responseStatus,
-      ] = await processWithdrawal(transaction);
-      if (responseStatus === 500) {
-        updatedTrans = await transaction.update(
-          {
-            // txid: response,
-            phase: 'failed',
-            type: 'send',
-          },
-          {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          },
-        );
-        const activityF = await db.activity.create(
-          {
-            spenderId: transaction.address.wallet.userId,
-            type: 'withdraw_f',
-            transactionId: transaction.id,
-          },
-          {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          },
-        );
-        return;
-      }
-      if (response) {
-        res.locals.withdrawal = await transaction.update(
-          {
-            txid: response,
-            phase: 'confirming',
-            type: 'send',
-          },
-          {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          },
-        );
-        const activity = await db.activity.create(
-          {
-            spenderId: transaction.address.wallet.userId,
-            type: 'withdrawAccepted',
-            transactionId: transaction.id,
-          },
-          {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          },
-        );
-      }
-    }
+    // if (transaction) {
+    //   const [
+    //     response,
+    //     responseStatus,
+    //   ] = await processWithdrawal(transaction);
+    //   if (responseStatus === 500) {
+    //     updatedTrans = await transaction.update(
+    //       {
+    //         // txid: response,
+    //         phase: 'failed',
+    //         type: 'send',
+    //       },
+    //       {
+    //         transaction: t,
+    //         lock: t.LOCK.UPDATE,
+    //       },
+    //     );
+    //     const activityF = await db.activity.create(
+    //       {
+    //         spenderId: transaction.address.wallet.userId,
+    //         type: 'withdraw_f',
+    //         transactionId: transaction.id,
+    //       },
+    //       {
+    //         transaction: t,
+    //         lock: t.LOCK.UPDATE,
+    //       },
+    //     );
+    //     return;
+    //   }
+    //   if (response) {
+    //     res.locals.withdrawal = await transaction.update(
+    //       {
+    //         txid: response,
+    //         phase: 'confirming',
+    //         type: 'send',
+    //       },
+    //       {
+    //         transaction: t,
+    //         lock: t.LOCK.UPDATE,
+    //       },
+    //     );
+    //     const activity = await db.activity.create(
+    //       {
+    //         spenderId: transaction.address.wallet.userId,
+    //         type: 'withdrawAccepted',
+    //         transactionId: transaction.id,
+    //       },
+    //       {
+    //         transaction: t,
+    //         lock: t.LOCK.UPDATE,
+    //       },
+    //     );
+    //   }
+    // }
 
     t.afterCommit(async () => {
 

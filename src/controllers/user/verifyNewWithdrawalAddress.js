@@ -13,6 +13,9 @@ export const verifyNewWithdrawalAddress = async (
     token,
   } = req.body;
   const WalletAddressExternal = await db.WalletAddressExternal.findOne({
+    where: {
+      token,
+    },
     include: [
       {
         model: db.addressExternal,

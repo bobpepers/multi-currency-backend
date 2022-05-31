@@ -45,6 +45,15 @@ export const addNewWithdrawalAddress = async (
       coinId: wallet.coin.id,
     },
   });
+  ///
+  const [
+    isInvalidAddress,
+    isNodeOffline,
+  ] = await validateWithdrawalAddress(
+    wallet.coin.ticker,
+    req.body.address,
+  );
+  //
   if (!addressExternal) {
     const [
       isInvalidAddress,
@@ -53,11 +62,12 @@ export const addNewWithdrawalAddress = async (
       wallet.coin.ticker,
       req.body.address,
     );
-    if (isNodeOffline) {
-      throw new Error(`${wallet.coin.name} node is offline`);
-    }
+
     if (isInvalidAddress) {
       throw new Error(`${wallet.coin.name} address is invalid`);
+    }
+    if (isNodeOffline) {
+      throw new Error(`${wallet.coin.name} node is offline`);
     }
 
     addressExternal = await db.addressExternal.create({
