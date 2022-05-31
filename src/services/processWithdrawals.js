@@ -9,7 +9,6 @@ config();
 export const processWithdrawals = async (
   io,
 ) => {
-  console.log('proc1');
   const transaction = await db.transaction.findOne({
     where: {
       phase: 'review',
@@ -18,7 +17,6 @@ export const processWithdrawals = async (
       {
         model: db.wallet,
         as: 'wallet',
-        attributes: ['id'],
         include: [
           {
             model: db.coin,
@@ -28,8 +26,6 @@ export const processWithdrawals = async (
       },
     ],
   });
-  console.log(transaction);
-  console.log(transaction.wallet);
 
   if (transaction && transaction.wallet.coin.ticker === 'ARRR') {
     const amountOfPirateCoinsAvailable = await getPirateInstance().zGetBalance(process.env.PIRATE_CONSOLIDATION_ADDRESS);
@@ -43,6 +39,7 @@ export const processWithdrawals = async (
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
     let updatedTrans;
+    let updatedStellarWallet;
 
     if (!transaction) {
       console.log('No withdrawal to process');
@@ -52,7 +49,15 @@ export const processWithdrawals = async (
       const [
         response,
         responseStatus,
-      ] = await processWithdrawal(transaction);
+        updatedWallet,
+      ] = await processWithdrawal(
+        transaction,
+        io,
+        t,
+      );
+      if (updatedWallet) {
+        updatedStellarWallet = updatedWallet;
+      }
 
       if (
         responseStatus
@@ -87,37 +92,74 @@ export const processWithdrawals = async (
       }
 
       if (response) {
-        updatedTrans = await transaction.update(
-          {
-            txid: response,
-            phase: 'confirming',
-            type: 'send',
-          },
-          {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          },
-        );
-        const activity = await db.activity.create(
-          {
-            spenderId: transaction.userId,
-            type: 'withdrawAccepted',
-            transactionId: transaction.id,
-          },
-          {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          },
-        );
+        if (
+          transaction.wallet.coin.ticker === 'XLM'
+          || transaction.wallet.coin.ticker === 'DXLM'
+        ) {
+          updatedTrans = await transaction.update(
+            {
+              txid: response.hash ? response.hash : '',
+              phase: 'confirmed',
+              type: 'send',
+              confirmations: 1,
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+          const activity = await db.activity.create(
+            {
+              spenderId: transaction.userId,
+              type: 'withdrawComplete',
+              transactionId: transaction.id,
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+        } else {
+          updatedTrans = await transaction.update(
+            {
+              txid: response,
+              phase: 'confirming',
+              type: 'send',
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+          const activity = await db.activity.create(
+            {
+              spenderId: transaction.userId,
+              type: 'withdrawAccepted',
+              transactionId: transaction.id,
+            },
+            {
+              transaction: t,
+              lock: t.LOCK.UPDATE,
+            },
+          );
+        }
       }
     }
 
     t.afterCommit(async () => {
-      if (transaction) {
-        io.to(transaction.userId).emit(
+      if (updatedStellarWallet) {
+        io.to(updatedStellarWallet.userId).emit(
+          'updateWallet',
+          {
+            result: updatedStellarWallet,
+          },
+        );
+      }
+      if (updatedTrans) {
+        io.to(updatedTrans.userId).emit(
           'updateTransaction',
           {
-            result: transaction,
+            result: updatedTrans,
           },
         );
       }

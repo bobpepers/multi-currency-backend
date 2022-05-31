@@ -1,3 +1,4 @@
+import { Transaction } from "sequelize";
 import {
   Server,
   Keypair,
@@ -23,9 +24,12 @@ const sourcePublicKey = sourceKeypair.publicKey();
 
 export const processWithdrawal = async (
   transaction,
+  io,
+  t,
 ) => {
   let response;
   let responseStatus;
+  let updatedWallet;
   const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
 
   if (transaction.wallet.coin.ticker === 'RUNES') {
@@ -72,6 +76,7 @@ export const processWithdrawal = async (
       responseStatus = e.response.status;
     }
   } else if (transaction.wallet.coin.ticker === 'XLM') {
+    let transactionResult;
     try {
       const txOptions = {
         fee: await server.fetchBaseFee(),
@@ -89,18 +94,27 @@ export const processWithdrawal = async (
         .addMemo(Memo.text(transaction.memo))
         .build();
       stellarTransaction.sign(sourceKeypair);
-      const transactionResult = await server.submitTransaction(stellarTransaction);
-      console.log(JSON.stringify(transactionResult, null, 2));
+      response = await server.submitTransaction(stellarTransaction);
+      // console.log(JSON.stringify(response, null, 2));
       console.log('\nSuccess! View the transaction at: ');
-      // console.log(transactionResult._links.transaction.href);
+      console.log(response._links.transaction.href);
     } catch (e) {
       console.log(e.response.status);
       responseStatus = e.response.status;
+    }
+    if (response) {
+      updatedWallet = await transaction.wallet.update({
+        locked: transaction.wallet.locked - transaction.amount,
+      }, {
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
     }
   }
 
   return [
     response,
     responseStatus,
+    updatedWallet,
   ];
 };

@@ -21,6 +21,10 @@ import { fetchUserInfo } from '../controllers/admin/userInfo';
 import { fetchAdminLiability } from '../controllers/admin/liability';
 import { fetchAdminBalance } from '../controllers/admin/balance';
 import { fetchAdminFaucetBalance } from '../controllers/admin/faucetBalance';
+import {
+  fetchAdminWithdrawalSettings,
+  updateAdminWithdrawalSetting,
+} from '../controllers/admin/withdrawalSettings';
 
 import { healthCheck } from '../controllers/health';
 import { insertIp } from '../controllers/ip';
@@ -456,6 +460,27 @@ export const apiRouter = (
     use(insertIp),
     ensuretfa,
     use(fetchNodeStatus),
+    respondResult,
+  );
+
+  app.get(
+    '/api/admin/withdrawal/settings',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    ensuretfa,
+    use(fetchAdminWithdrawalSettings),
+    respondResult,
+  );
+
+  app.post(
+    '/api/admin/withdrawal/setting/update',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(updateAdminWithdrawalSetting),
     respondResult,
   );
 

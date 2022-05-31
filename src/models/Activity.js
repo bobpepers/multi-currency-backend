@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         'login_s',
         'login_f',
         'logout_s',
+        'withdraw_f',
       ],
     },
     amount: {
@@ -66,6 +67,10 @@ module.exports = (sequelize, DataTypes) => {
     ActivityModel.belongsTo(model.transaction, {
       as: 'transaction',
       foreignKey: 'transactionId',
+    });
+    ActivityModel.belongsTo(model.faucetTip, {
+      as: 'faucetTip',
+      foreignKey: 'faucetTipId',
     });
   };
 
