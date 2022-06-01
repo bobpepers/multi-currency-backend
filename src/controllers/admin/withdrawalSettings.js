@@ -16,6 +16,10 @@ export const fetchAdminWithdrawalSettings = async (
         model: db.coin,
         as: 'coin',
       },
+      {
+        model: db.user,
+        as: 'user',
+      },
     ],
   };
 
@@ -34,6 +38,7 @@ export const updateAdminWithdrawalSetting = async (
     id,
     min,
     fee,
+    enabled,
   } = req.body;
   if (!id) {
     throw new Error("id is required");
@@ -142,6 +147,8 @@ export const updateAdminWithdrawalSetting = async (
   const updatedWithdrawalSetting = await withdrawalSetting.update({
     min: actualMin,
     fee: actualFee,
+    enabled: enabled === 'true',
+    userId: req.user.id,
   });
   res.locals.name = 'updateWithdrawalSetting';
   res.locals.result = await db.withdrawalSetting.findOne({
@@ -149,6 +156,10 @@ export const updateAdminWithdrawalSetting = async (
       id: updatedWithdrawalSetting.id,
     },
     include: [
+      {
+        model: db.user,
+        as: 'user',
+      },
       {
         model: db.coin,
         as: 'coin',

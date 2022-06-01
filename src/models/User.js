@@ -116,6 +116,7 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: 'ipId',
     });
     UserModel.hasMany(model.wallet);
+    UserModel.hasMany(model.withdrawalSetting);
     UserModel.hasMany(model.transaction);
     UserModel.hasMany(model.active, {
       foreignKey: 'userId',

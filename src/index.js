@@ -173,11 +173,9 @@ config();
   // });
 
   const scheduleWithdrawal = schedule.scheduleJob('*/2 * * * *', async () => { // Process a withdrawal 2 minutes
-    await queue.add(async () => {
-      const task = await processWithdrawals(
-        io,
-      );
-    });
+    await processWithdrawals(
+      io,
+    );
   });
 
   app.use((err, req, res, next) => {

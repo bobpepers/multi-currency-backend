@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 50,
     },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   };
 
   // 2: The model options.
@@ -29,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
 
   WithdrawalSettingsModel.associate = (model) => {
     WithdrawalSettingsModel.belongsTo(model.coin);
+    WithdrawalSettingsModel.belongsTo(model.user);
   };
 
   return WithdrawalSettingsModel;

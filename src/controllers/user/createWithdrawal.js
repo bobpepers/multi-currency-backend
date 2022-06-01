@@ -87,6 +87,7 @@ export const createWithdrawal = async (
     const fee = ((amount / 100) * (withdrawalSetting.fee / 1e2)).toFixed(0);
     const createTransaction = await db.transaction.create({
       walletId: wallet.id,
+      coinId: wallet.coinId,
       addressExternalId: walletAddressExternal.addressExternal.id,
       phase: 'review',
       type: 'send',

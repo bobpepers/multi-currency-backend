@@ -106,8 +106,15 @@ export const processWithdrawals = async (
           transaction.wallet.coin.ticker === 'XLM'
           || transaction.wallet.coin.ticker === 'DXLM'
         ) {
-          updatedWallet = await transaction.wallet.update({
-            locked: transaction.wallet.locked - transaction.amount,
+          const wallet = await db.wallet.findOne({
+            where: {
+              id: transaction.wallet.id,
+            },
+            transaction: t,
+            lock: t.LOCK.UPDATE,
+          });
+          updatedWallet = await wallet.update({
+            locked: wallet.locked - transaction.amount,
           }, {
             transaction: t,
             lock: t.LOCK.UPDATE,
