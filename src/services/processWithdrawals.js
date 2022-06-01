@@ -25,6 +25,15 @@ export const processWithdrawals = async (
           {
             model: db.coin,
             as: 'coin',
+            include: [
+              {
+                model: db.withdrawalSetting,
+                as: 'withdrawalSetting',
+                where: {
+                  enabled: true,
+                },
+              },
+            ],
           },
         ],
       },

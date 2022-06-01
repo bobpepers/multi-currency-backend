@@ -43,6 +43,12 @@ export const createWithdrawal = async (
           where: {
             userId: req.user.id,
           },
+          include: [
+            {
+              model: db.coin,
+              as: 'coin',
+            },
+          ],
         },
         {
           model: db.addressExternal,
@@ -62,6 +68,9 @@ export const createWithdrawal = async (
     });
     if (!withdrawalSetting) {
       throw new Error('FEE_SETTINGS_NOT_FOUND');
+    }
+    if (!withdrawalSetting.enabled) {
+      throw new Error(`${walletAddressExternal.wallet.coin.ticker}_WITHDRAWAL_DISABLED`);
     }
     if (amount < withdrawalSetting.min) { // smaller then 5 RUNES
       throw new Error(`MINIMUM_WITHDRAW_${(withdrawalSetting.min / 1e8)}_RUNES`);
