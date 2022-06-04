@@ -85,6 +85,7 @@ import { fetchWithdrawals } from '../controllers/admin/withdrawals';
 const requireSignin = passport.authenticate('local', {
   session: true,
   failWithError: true,
+  keepSessionInfo: true,
 });
 
 const IsAuthenticated = (req, res, next) => {

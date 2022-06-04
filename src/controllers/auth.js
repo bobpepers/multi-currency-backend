@@ -1,4 +1,5 @@
 import {
+  Sequelize,
   Transaction,
   Op,
 } from 'sequelize';
@@ -34,8 +35,6 @@ export const signin = async (
   res,
   next,
 ) => {
-  // req.session.tfa = req.user.tfa;
-  console.log(req.session);
   const ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const activity = await db.activity.create({
     earnerId: req.user.id,
@@ -118,23 +117,22 @@ export const signup = async (req, res, next) => {
     throw new Error("USERNAME_NO_SPACES_OR_SPECIAL_CHARACTERS_ALLOWED");
   }
 
-  const User = await db.user.findOne({
+  const user = await db.user.findOne({
     where: {
       [Op.or]: [
-        {
-          username,
-        },
-        {
-          email: email.toLowerCase(),
-        },
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), Sequelize.fn('lower', username)),
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), Sequelize.fn('lower', email)),
       ],
     },
   });
 
-  if (User && User.username.toLowerCase() === username.toLowerCase()) {
+  const isUserNameEqual = user && user.username.localeCompare(username, undefined, { sensitivity: 'accent' });
+  const isEmailEqual = user && user.email.localeCompare(email, undefined, { sensitivity: 'accent' });
+
+  if (isUserNameEqual === 0) {
     throw new Error("USERNAME_ALREADY_EXIST");
   }
-  if (User && User.email.toLowerCase() === email.toLowerCase()) {
+  if (isEmailEqual === 0) {
     throw new Error("EMAIL_ALREADY_EXIST");
   }
 
@@ -145,7 +143,7 @@ export const signup = async (req, res, next) => {
     const newUser = await db.user.create({
       username,
       password,
-      email: email.toLowerCase(),
+      email,
       authused: false,
       authexpires: verificationToken.expires,
       authtoken: verificationToken.token,
@@ -157,11 +155,11 @@ export const signup = async (req, res, next) => {
     t.afterCommit(() => {
       sendVerificationEmail(
         username,
-        email.toLowerCase(),
+        email,
         newUser.authtoken,
       );
       return res.json({
-        email: email.toLowerCase(),
+        email,
       });
       // next();
     });
@@ -176,14 +174,13 @@ export const resendVerification = async (
   res,
   next,
 ) => {
-  console.log('resend verification');
-  const { email } = req.body;
+  const {
+    email,
+  } = req.body;
   db.user.findOne({
     where: {
       [Op.or]: [
-        {
-          email: email.toLowerCase(),
-        },
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), Sequelize.fn('lower', email)),
       ],
     },
   }).then(async (user) => {
@@ -233,9 +230,7 @@ export const verifyEmail = (
   db.user.findOne({
     where: {
       [Op.or]: [
-        {
-          email: email.toLowerCase(),
-        },
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), Sequelize.fn('lower', email)),
       ],
     },
   }).then((user) => {

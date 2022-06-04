@@ -29,6 +29,8 @@ import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
 import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
 import { processWithdrawals } from "./services/processWithdrawals";
 
+Object.freeze(Object.prototype);
+
 config();
 
 (async function () {

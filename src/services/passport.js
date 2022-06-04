@@ -1,6 +1,9 @@
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
-import { Op } from 'sequelize';
+import {
+  Op,
+  Sequelize,
+} from 'sequelize';
 import { config } from "dotenv";
 import db from '../models';
 
@@ -42,9 +45,7 @@ const localLogin = new LocalStrategy(localOptions, async (
   const user = await db.user.findOne({
     where: {
       [Op.or]: [
-        {
-          email: email.toLowerCase(),
-        },
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), Sequelize.fn('lower', email)),
       ],
     },
   });
