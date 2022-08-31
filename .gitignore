@@ -11,4 +11,3 @@ logs/error.log
 logs/app.log
 .env
 
-.stellar/stellarPagingToken

@@ -62,9 +62,9 @@ STELLAR_SECRET=xx
 ```
 ## Create database mysql terminal
 ```
-CREATE DATABASE runebaseGames;
+CREATE DATABASE multiCurrency;
 
-GRANT ALL ON runebaseGames.* TO 'newuser'@'localhost';
+GRANT ALL ON multiCurrency.* TO 'newuser'@'localhost';
 
 FLUSH PRIVILEGES;
 ```
