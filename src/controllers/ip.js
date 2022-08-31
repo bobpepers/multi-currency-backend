@@ -34,17 +34,17 @@ export const isIpBanned = async (
  */
 
 function upsert(values) {
-  return db.IpUser
-    .findOne({ where: values })
-    .then((obj) => {
-      // update
-      if (obj) {
-        console.log('update IpUserModel');
-        obj.changed('updatedAt', true);
-        return obj.save();
-      }
-      return db.IpUser.create(values);
-    });
+  return db.IpUser.findOne({
+    where: values,
+  }).then((obj) => {
+    // update
+    if (obj) {
+      console.log('update IpUserModel');
+      obj.changed('updatedAt', true);
+      return obj.save();
+    }
+    return db.IpUser.create(values);
+  });
 }
 
 export const insertIp = async (req, res, next) => {
@@ -54,7 +54,6 @@ export const insertIp = async (req, res, next) => {
     || req.connection.remoteAddress
     || req.socket.remoteAddress
     || (req.connection.socket ? req.connection.socket.remoteAddress : null);
-  console.log(ip);
 
   storedIP = await db.ip.findOne({
     where: {
@@ -62,12 +61,16 @@ export const insertIp = async (req, res, next) => {
     },
   });
   if (!storedIP) {
-    storedIP = await db.ip.create({ address: ip });
+    storedIP = await db.ip.create({
+      address: ip,
+    });
   }
-  await upsert({
-    userId: req.user.id,
-    ipId: storedIP.id,
-  });
+  if (req.user && req.user.id) {
+    await upsert({
+      userId: req.user.id,
+      ipId: storedIP.id,
+    });
+  }
 
   res.locals.ip = ip;
   res.locals.ipId = storedIP.id;

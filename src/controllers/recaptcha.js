@@ -51,6 +51,21 @@ export const verifyMyCaptcha = (
 
   verifyRecaptcha(recaptchaData).then(() => {
     console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+    console.log('Captcha Verified');
+
     return next();
   }).catch((error) => {
     console.log('invalid captcha');

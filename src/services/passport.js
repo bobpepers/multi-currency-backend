@@ -6,8 +6,6 @@ import {
 } from 'sequelize';
 import { config } from "dotenv";
 import db from '../models';
-
-// import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { sendVerificationEmail } from '../helpers/email';
 import { generateVerificationToken } from '../helpers/generate';
 
@@ -100,9 +98,7 @@ const localLogin = new LocalStrategy(localOptions, async (
           false,
         );
       }
-      // req.session.tfa NOT ADOPTED INTO SESSION? possible solution: move to first line in signin function
       req.session.tfa = user.tfa;
-      console.log(req.session);
       done(null, user);
     });
   }
