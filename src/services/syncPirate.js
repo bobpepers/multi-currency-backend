@@ -3,6 +3,7 @@
 import _ from "lodash";
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
+import BigNumber from "bignumber.js";
 import db from '../models';
 import { getPirateInstance } from "./rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";

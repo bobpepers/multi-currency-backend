@@ -1,10 +1,10 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
+import BigNumber from "bignumber.js";
 import { getTokelInstance } from '../../../services/rclient';
-
 import db from '../../../models';
 
-import logger from "../../logger";
+// import logger from "../../logger";
 
 /**
  * Notify New Transaction From Tokel Node
@@ -69,7 +69,7 @@ const walletNotifyTokel = async (
                 addressId: address.id,
                 phase: 'confirming',
                 type: detail.category,
-                amount: detail.amount * 1e8,
+                amount: new BigNumber(detail.amount).times(1e8).toString(),
                 userId: address.wallet.userId,
                 walletId: address.wallet.id,
                 coinId: address.wallet.coinId,
@@ -105,7 +105,7 @@ const walletNotifyTokel = async (
                 defaults: {
                   earnerId: address.wallet.userId,
                   type: 'depositAccepted',
-                  amount: detail.amount * 1e8,
+                  amount: new BigNumber(detail.amount).times(1e8).toString(),
                   transactionId: newTransaction[0].id,
                 },
                 transaction: t,

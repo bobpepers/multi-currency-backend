@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
+import BigNumber from "bignumber.js";
 import db from '../../../models';
-
 import { getTokelInstance } from "../../../services/rclient";
 
 export async function patchTokelDeposits() {
@@ -55,7 +55,7 @@ export async function patchTokelDeposits() {
                 addressId: address.id,
                 phase: 'confirming',
                 type: trans.category,
-                amount: trans.amount * 1e8,
+                amount: new BigNumber(trans.amount).times(1e8).toString(),
                 userId: address.wallet.userId,
                 walletId: address.wallet.id,
                 coinId: address.wallet.coinId,
