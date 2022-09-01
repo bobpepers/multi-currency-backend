@@ -19,8 +19,7 @@ import socketIo from 'socket.io';
 import { router } from "./router";
 // import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
-import { initDatabaseRecords } from "./helpers/initDatabaseRecords";
-import db from "./models";
+// import db from "./models";
 import { startTokelSync } from "./services/syncTokel";
 import { startRunebaseSync } from "./services/syncRunebase";
 import { startPirateSync } from "./services/syncPirate";
@@ -117,8 +116,6 @@ config();
       // delete sockets[parseInt(userId, 10)];
     });
   });
-
-  await initDatabaseRecords();
 
   await startRunebaseSync(
     io,

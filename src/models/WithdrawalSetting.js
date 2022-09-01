@@ -8,9 +8,9 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     min: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 10000000,
+      defaultValue: '10000000',
     },
     fee: {
       type: DataTypes.SMALLINT,

@@ -7,15 +7,15 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     amount: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     totalAmountClaimed: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     claims: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   };

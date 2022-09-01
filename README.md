@@ -93,14 +93,26 @@ undo migration
 npx sequelize-cli db:migrate:undo
 ````
 
-deploy demo seeds (development only)
+## Seeds
+
+deploy seeds
 ````
 npx sequelize-cli db:seed:all
 ````
 
+deploy single seed
+```
+npx sequelize-cli db:seed --seed 20220901171424-add_default_usd_currency.js
+```
+
 generte empty seed file
 ````
 npx sequelize-cli seed:generate --name demo-jackpot
+````
+
+revert seed file
+````
+npx sequelize db:seed:undo --seed 20220901171424-add_default_usd_currency.js
 ````
 
 

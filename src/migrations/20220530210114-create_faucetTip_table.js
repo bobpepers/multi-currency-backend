@@ -8,7 +8,7 @@ module.exports = {
         autoIncrement: true,
       },
       amount: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       faucetId: {
