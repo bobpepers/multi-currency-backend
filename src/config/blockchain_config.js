@@ -1,14 +1,14 @@
 module.exports = {
   runebase: {
-    startSyncBlock: 628240,
+    startSyncBlock: 698754,
     confirmations: 6,
   },
   pirate: {
-    startSyncBlock: 1908630,
+    startSyncBlock: 2055237,
     confirmations: 6,
   },
   tokel: {
-    startSyncBlock: 383860,
+    startSyncBlock: 515779,
     confirmations: 6,
   },
 };

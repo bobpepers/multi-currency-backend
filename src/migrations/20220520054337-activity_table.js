@@ -22,7 +22,7 @@ module.exports = {
         ],
       },
       amount: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       spenderId: {
@@ -46,11 +46,11 @@ module.exports = {
         },
       },
       spender_balance: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       earner_balance: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       failedAmount: {

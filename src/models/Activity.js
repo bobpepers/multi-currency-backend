@@ -28,15 +28,15 @@ module.exports = (sequelize, DataTypes) => {
       ],
     },
     amount: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     spender_balance: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     earner_balance: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     failedAmount: {

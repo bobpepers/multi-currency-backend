@@ -30,7 +30,7 @@ export const createWithdrawal = async (
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
-    const amount = new BigNumber(req.body.amount).times(1e8).toNumber();
+    const amount = new BigNumber(req.body.amount).times(1e8);
     const walletAddressExternal = await db.WalletAddressExternal.findOne({
       where: {
         walletId,
@@ -72,13 +72,14 @@ export const createWithdrawal = async (
     if (!withdrawalSetting.enabled) {
       throw new Error(`${walletAddressExternal.wallet.coin.ticker}_WITHDRAWAL_DISABLED`);
     }
-    if (amount < withdrawalSetting.min) { // smaller then 5 RUNES
-      throw new Error(`MINIMUM_WITHDRAW_${(withdrawalSetting.min / 1e8)}_RUNES`);
+    if (amount < new BigNumber(withdrawalSetting.min)) { // smaller then 5 RUNES
+      const realWithdrawMin = new BigNumber(withdrawalSetting.min).dividedBy(1e8).toString();
+      throw new Error(`MINIMUM_WITHDRAW_${realWithdrawMin}_RUNES`);
     }
     if (amount % 1 !== 0) {
       throw new Error('MAX_8_DECIMALS');
     }
-    if (amount > walletAddressExternal.wallet.available) {
+    if (amount > new BigNumber(walletAddressExternal.wallet.available)) {
       throw new Error('NOT_ENOUGH_FUNDS');
     }
     if (String(memo).length > 512) {
@@ -86,14 +87,17 @@ export const createWithdrawal = async (
     }
 
     const wallet = await walletAddressExternal.wallet.update({
-      available: walletAddressExternal.wallet.available - amount,
-      locked: walletAddressExternal.wallet.locked + amount,
+      available: new BigNumber(walletAddressExternal.wallet.available).minus(amount).toString(),
+      locked: new BigNumber(walletAddressExternal.wallet.locked).plus(amount).toString(),
     }, {
       transaction: t,
       lock: t.LOCK.UPDATE,
     });
 
-    const fee = ((amount / 100) * (withdrawalSetting.fee / 1e2)).toFixed(0);
+    const feeAmount = amount.dividedBy(100).times(
+      new BigNumber(withdrawalSetting.fee).dividedBy(1e2),
+    ).toFixed(0);
+
     const createTransaction = await db.transaction.create({
       walletId: wallet.id,
       coinId: wallet.coinId,
@@ -101,8 +105,8 @@ export const createWithdrawal = async (
       phase: 'review',
       type: 'send',
       to_from: walletAddressExternal.addressExternal.address,
-      amount,
-      feeAmount: Number(fee),
+      amount: amount.toString(),
+      feeAmount,
       userId: walletAddressExternal.wallet.userId,
       memo,
     }, {

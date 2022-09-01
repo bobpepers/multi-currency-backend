@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
-/* eslint no-underscore-dangle: [2, { "allow": ["_eventName", "_address", "_time", "_orderId"] }] */
 import _ from "lodash";
 import { Transaction } from "sequelize";
+import BigNumber from "bignumber.js";
 import db from '../models';
 import blockchainConfig from '../config/blockchain_config';
 import { getRunebaseInstance } from "./rclient";
@@ -135,11 +135,10 @@ const syncTransactions = async (io) => {
               detail.category === 'send'
               && processTransaction.type === 'send'
             ) {
-              const prepareLockedAmount = ((detail.amount * 1e8) - Number(processTransaction.feeAmount));
-              const removeLockedAmount = Math.abs(prepareLockedAmount);
+              const removeLockedAmount = new BigNumber(detail.amount).times(1e8).minus(processTransaction.feeAmount).times('-1');
 
               updatedWallet = await wallet.update({
-                locked: wallet.locked - removeLockedAmount,
+                locked: new BigNumber(wallet.locked).minus(removeLockedAmount).toString(),
               }, {
                 transaction: t,
                 lock: t.LOCK.UPDATE,
@@ -156,8 +155,8 @@ const syncTransactions = async (io) => {
               const createActivity = await db.activity.create({
                 spenderId: updatedWallet.userId,
                 type: 'withdrawComplete',
-                amount: detail.amount * 1e8,
-                spender_balance: updatedWallet.available + updatedWallet.locked,
+                amount: new BigNumber(detail.amount).times(1e8).toString(),
+                spender_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked).toString(),
                 transactionId: updatedTransaction.id,
               }, {
                 transaction: t,
@@ -185,7 +184,7 @@ const syncTransactions = async (io) => {
               && detail.address === processTransaction.address.address
             ) {
               updatedWallet = await wallet.update({
-                available: wallet.available + (detail.amount * 1e8),
+                available: new BigNumber(wallet.available).plus(new BigNumber(detail.amount).times(1e8)).toString(),
               }, {
                 transaction: t,
                 lock: t.LOCK.UPDATE,
@@ -200,8 +199,8 @@ const syncTransactions = async (io) => {
               const createActivity = await db.activity.create({
                 earnerId: updatedWallet.userId,
                 type: 'depositComplete',
-                amount: detail.amount * 1e8,
-                earner_balance: updatedWallet.available + updatedWallet.locked,
+                amount: new BigNumber(detail.amount).times(1e8).toString(),
+                earner_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked).toString(),
                 transactionId: updatedTransaction.id,
               }, {
                 transaction: t,
