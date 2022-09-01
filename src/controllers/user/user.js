@@ -88,7 +88,6 @@ export const fetchUser = async (
       ],
     },
   });
-  console.log('fetch user');
   next();
 };
 
