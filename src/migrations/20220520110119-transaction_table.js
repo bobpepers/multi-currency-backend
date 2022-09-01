@@ -19,13 +19,13 @@ module.exports = {
         ],
       },
       amount: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       feeAmount: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: '0',
       },
       confirmations: {
         type: DataTypes.SMALLINT,

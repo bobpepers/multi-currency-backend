@@ -8,24 +8,24 @@ module.exports = {
         autoIncrement: true,
       },
       available: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: '0',
       },
       locked: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: '0',
       },
       earned: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: '0',
       },
       spend: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: '0',
       },
       coinId: {
         type: DataTypes.BIGINT,

@@ -7,24 +7,24 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     available: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: '0',
     },
     locked: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: '0',
     },
     earned: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: '0',
     },
     spend: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: '0',
     },
   };
 
