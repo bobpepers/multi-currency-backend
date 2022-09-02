@@ -142,11 +142,10 @@ const syncTransactions = async (io) => {
               }
 
               if (transaction.confirmations >= Number(blockchainConfig.pirate.confirmations)) {
-                const prepareLockedAmount = ((detail.value * 1e8) + Number(processTransaction.feeAmount));
-                const removeLockedAmount = Math.abs(prepareLockedAmount);
+                const removeLockedAmount = new BigNumber(detail.amount).times(1e8).plus(processTransaction.feeAmount).times('-1');
 
                 updatedWallet = await wallet.update({
-                  locked: wallet.locked - removeLockedAmount,
+                  locked: new BigNumber(wallet.locked).minus(removeLockedAmount).toString(),
                 }, {
                   transaction: t,
                   lock: t.LOCK.UPDATE,
@@ -161,8 +160,8 @@ const syncTransactions = async (io) => {
                 const createActivity = await db.activity.create({
                   spenderId: updatedWallet.userId,
                   type: 'withdrawComplete',
-                  amount: detail.value * 1e8,
-                  spender_balance: updatedWallet.available + updatedWallet.locked,
+                  amount: new BigNumber(detail.value).times(1e8).toString(),
+                  spender_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked).toString(),
                   transactionId: updatedTransaction.id,
                 }, {
                   transaction: t,
@@ -267,7 +266,7 @@ const syncTransactions = async (io) => {
               if (transaction.confirmations >= Number(blockchainConfig.pirate.confirmations)) {
                 console.log('updating balance');
                 updatedWallet = await wallet.update({
-                  available: wallet.available + (detail.value * 1e8),
+                  available: new BigNumber(wallet.available).plus(new BigNumber(detail.value).times(1e8)).toString(),
                 }, {
                   transaction: t,
                   lock: t.LOCK.UPDATE,
@@ -282,8 +281,8 @@ const syncTransactions = async (io) => {
                 const createActivity = await db.activity.create({
                   earnerId: updatedWallet.userId,
                   type: 'depositComplete',
-                  amount: detail.value * 1e8,
-                  earner_balance: updatedWallet.available + updatedWallet.locked,
+                  amount: new BigNumber(detail.value).times(1e8).toString(),
+                  earner_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked).toString(),
                   transactionId: updatedTransaction.id,
                 }, {
                   transaction: t,

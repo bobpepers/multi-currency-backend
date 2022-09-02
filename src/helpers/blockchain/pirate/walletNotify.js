@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
+import BigNumber from "bignumber.js";
 import { getPirateInstance } from '../../../services/rclient';
 import db from '../../../models';
 
@@ -68,7 +69,7 @@ const walletNotifyPirate = async (
                 addressId: address.id,
                 phase: 'confirming',
                 type: 'receive',
-                amount: detail.value * 1e8,
+                amount: new BigNumber(detail.value).times(1e8).toString(),
                 userId: address.wallet.userId,
                 walletId: address.wallet.id,
                 coinId: address.wallet.coinId,
@@ -104,7 +105,7 @@ const walletNotifyPirate = async (
                 defaults: {
                   earnerId: address.wallet.userId,
                   type: 'depositAccepted',
-                  amount: detail.value * 1e8,
+                  amount: new BigNumber(detail.value).times(1e8).toString(),
                   transactionId: newTransaction[0].id,
                 },
                 transaction: t,
