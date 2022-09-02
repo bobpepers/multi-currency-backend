@@ -33,9 +33,9 @@ export const withdrawDXLM = async (
       .addOperation(Operation.payment({
         destination: transaction.to_from,
         asset: new Asset('DXLM', 'GAE6DWVMZDAOBU4IIPGDM2EJ65PWZQ5X7MI7PUURWKTEVZSEJHRYI247'),
-        amount: (amount.toFixed(7)),
+        amount: (amount.toFixed(7).toString()),
       }))
-      .setTimeout(40)
+      .setTimeout(30)
       .addMemo(Memo.text(transaction.memo))
       .build();
     stellarTransaction.sign(sourceKeypair);

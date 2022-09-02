@@ -13,7 +13,7 @@ export const withdrawTKL = async (
   let responseStatus;
 
   try {
-    response = await getTokelInstance().sendToAddress(transaction.to_from, (amount.toFixed(8)).toString());
+    response = await getTokelInstance().sendToAddress(transaction.to_from, amount.toFixed(8).toString());
   } catch (e) {
     console.log(e);
     responseStatus = e.reponse.status;

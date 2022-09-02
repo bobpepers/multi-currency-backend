@@ -137,8 +137,17 @@ export const createWalletsForUser = async (
               {
                 where: {
                   address: process.env.STELLAR_PUBLIC,
-                  memo: String(wallet.id),
+                  memo: String(wallet.userId),
                 },
+                include: [
+                  {
+                    model: db.wallet,
+                    as: 'wallet',
+                    where: {
+                      coinId: coin.id,
+                    },
+                  },
+                ],
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               },
@@ -146,7 +155,7 @@ export const createWalletsForUser = async (
             if (!addressAlreadyExist) {
               address = await db.address.create({
                 address: process.env.STELLAR_PUBLIC,
-                memo: String(wallet.id),
+                memo: String(wallet.userId),
                 walletId: wallet.id,
               }, {
                 transaction: t,
@@ -159,8 +168,17 @@ export const createWalletsForUser = async (
               {
                 where: {
                   address: process.env.STELLAR_PUBLIC,
-                  memo: String(wallet.id),
+                  memo: String(wallet.userId),
                 },
+                include: [
+                  {
+                    model: db.wallet,
+                    as: 'wallet',
+                    where: {
+                      coinId: coin.id,
+                    },
+                  },
+                ],
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               },
@@ -168,7 +186,7 @@ export const createWalletsForUser = async (
             if (!addressAlreadyExist) {
               address = await db.address.create({
                 address: process.env.STELLAR_PUBLIC,
-                memo: String(wallet.id),
+                memo: String(wallet.userId),
                 walletId: wallet.id,
               }, {
                 transaction: t,

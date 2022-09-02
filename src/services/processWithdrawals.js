@@ -1,5 +1,6 @@
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
+import BigNumber from "bignumber.js";
 import db from '../models';
 import { getPirateInstance } from "./rclient";
 import { withdrawRUNES } from './processWithdrawal/runes';
@@ -47,7 +48,7 @@ export const processWithdrawals = async (
 
   if (transaction && transaction.wallet.coin.ticker === 'ARRR') {
     const amountOfPirateCoinsAvailable = await getPirateInstance().zGetBalance(process.env.PIRATE_CONSOLIDATION_ADDRESS);
-    if (amountOfPirateCoinsAvailable < (transaction.amount / 1e8)) {
+    if (amountOfPirateCoinsAvailable < new BigNumber(transaction.amount).dividedBy(1e8)) {
       console.log('not enough pirate coins available at the moment');
       return;
     }
@@ -63,7 +64,8 @@ export const processWithdrawals = async (
     const activity = [];
 
     if (transaction) {
-      const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
+      const amount = new BigNumber(transaction.amount).minus(transaction.feeAmount).dividedBy(1e8);
+      // const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
       if (transaction.wallet.coin.ticker === 'RUNES') {
         [
           response,
@@ -110,6 +112,22 @@ export const processWithdrawals = async (
         );
       }
 
+      if (
+        transaction.wallet.coin.ticker === 'XLM'
+        || transaction.wallet.coin.ticker === 'DXLM'
+      ) {
+        if (
+          responseStatus
+          && (
+            responseStatus === 504
+            // || responseStatus === 500
+          )
+        ) {
+          console.log('time-out');
+          return;
+        }
+      }
+
       if (response) {
         if (
           transaction.wallet.coin.ticker === 'XLM'
@@ -123,7 +141,7 @@ export const processWithdrawals = async (
             lock: t.LOCK.UPDATE,
           });
           updatedWallet = await wallet.update({
-            locked: wallet.locked - transaction.amount,
+            locked: new BigNumber(wallet.locked).minus(transaction.amount).toString(),
           }, {
             transaction: t,
             lock: t.LOCK.UPDATE,

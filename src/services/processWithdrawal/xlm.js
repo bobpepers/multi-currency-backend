@@ -33,9 +33,9 @@ export const withdrawXLM = async (
       .addOperation(Operation.payment({
         destination: transaction.to_from,
         asset: Asset.native(),
-        amount: (amount.toFixed(7)),
+        amount: amount.toFixed(7).toString(),
       }))
-      .setTimeout(40)
+      .setTimeout(30)
       .addMemo(Memo.text(transaction.memo))
       .build();
     stellarTransaction.sign(sourceKeypair);

@@ -1,6 +1,4 @@
 /* eslint-disable no-restricted-syntax */
-/* eslint-disable no-loop-func */
-/* eslint no-underscore-dangle: [2, { "allow": ["_eventName", "_address", "_time", "_orderId"] }] */
 import _ from "lodash";
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
@@ -137,7 +135,7 @@ const syncTransactions = async (io) => {
             console.log(transaction);
             console.log(processTransaction);
             console.log(detail);
-            console.log(processTransaction.address.address);
+            // console.log(processTransaction.address.address);
             console.log('add confirmation');
           }
           if (transaction.confirmations >= Number(blockchainConfig.tokel.confirmations)) {

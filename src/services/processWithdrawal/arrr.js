@@ -19,7 +19,7 @@ export const withdrawARRR = async (
       process.env.PIRATE_CONSOLIDATION_ADDRESS,
       [{
         address: transaction.to_from,
-        amount: amount.toFixed(8),
+        amount: amount.toFixed(8).toString(),
         ...(
           hexMemo && {
             memo: hexMemo,

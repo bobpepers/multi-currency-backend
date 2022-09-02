@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
+import BigNumber from "bignumber.js";
 import db from '../../../models';
 
 /**
@@ -18,7 +19,7 @@ const walletNotifyLumens = async (
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
-    const amountToCredit = payment.amount * 1e8;
+    const amountToCredit = new BigNumber(payment.amount).times(1e8);
     const address = await db.address.findOne({
       where: {
         address: process.env.STELLAR_PUBLIC,
@@ -55,6 +56,8 @@ const walletNotifyLumens = async (
       transaction: t,
       lock: t.LOCK.UPDATE,
     });
+    console.log(address);
+    console.log(findCoin);
     if (!address) {
       if (findCoin) {
         const unknownTransaction = await db.transaction.findOrCreate({
@@ -68,7 +71,7 @@ const walletNotifyLumens = async (
             phase: 'failed',
             type: 'receive',
             confirmations: 1,
-            amount: amountToCredit,
+            amount: amountToCredit.toString(),
             coinId: findCoin.id,
             memo: transactionInfo.memo ? transactionInfo.memo : 'missing memo',
           },
@@ -92,7 +95,7 @@ const walletNotifyLumens = async (
             phase: 'confirmed',
             type: 'receive',
             confirmations: 1,
-            amount: amountToCredit,
+            amount: amountToCredit.toString(),
             userId: address.wallet.userId,
             walletId: address.wallet.id,
             coinId: findCoin.id,
@@ -104,7 +107,7 @@ const walletNotifyLumens = async (
 
         if (newTransaction[1]) {
           updatedWallet = await address.wallet.update({
-            available: address.wallet.available + amountToCredit,
+            available: new BigNumber(address.wallet.available).plus(amountToCredit).toString(),
           }, {
             transaction: t,
             lock: t.LOCK.UPDATE,
@@ -135,7 +138,7 @@ const walletNotifyLumens = async (
             defaults: {
               earnerId: address.wallet.userId,
               type: 'depositComplete',
-              amount: amountToCredit,
+              amount: amountToCredit.toString(),
               transactionId: newTransaction[0].id,
             },
             transaction: t,
