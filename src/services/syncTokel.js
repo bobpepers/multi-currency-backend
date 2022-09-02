@@ -169,7 +169,7 @@ const syncTransactions = async (io) => {
                 spenderId: updatedWallet.userId,
                 type: 'withdrawComplete',
                 amount: new BigNumber(detail.amount).times(1e8).toString(),
-                spender_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked),
+                spender_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked).toString(),
                 transactionId: updatedTransaction.id,
               }, {
                 transaction: t,
@@ -217,7 +217,7 @@ const syncTransactions = async (io) => {
                 earnerId: updatedWallet.userId,
                 type: 'depositComplete',
                 amount: new BigNumber(detail.amount).times(1e8).toString(),
-                earner_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked),
+                earner_balance: new BigNumber(updatedWallet.available).plus(updatedWallet.locked).toString(),
                 transactionId: updatedTransaction.id,
               }, {
                 transaction: t,
