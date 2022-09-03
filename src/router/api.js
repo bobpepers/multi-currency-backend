@@ -47,13 +47,13 @@ import {
   fetchWithdrawalAddresses,
 } from '../controllers/admin/withdrawalAddresses';
 
-// import {
-//   fetchPriceCurrencies,
+import {
+  fetchPriceCurrencies,
 //   addPriceCurrency,
 //   removePriceCurrency,
 //   updatePriceCurrency,
 //   updatePriceCurrencyPrices,
-// } from '../controllers/priceCurrencies';
+} from '../controllers/admin/priceCurrencies';
 
 import {
   resetPassword,
@@ -211,16 +211,16 @@ export const apiRouter = (
   //   respondResult,
   // );
 
-  // app.post(
-  //   '/api/management/pricecurrencies',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(fetchPriceCurrencies),
-  //   respondCountAndResult,
-  // );
+  app.post(
+    '/api/admin/management/pricecurrencies',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchPriceCurrencies),
+    respondCountAndResult,
+  );
 
   // app.post(
   //   '/api/management/pricecurrencies/remove',

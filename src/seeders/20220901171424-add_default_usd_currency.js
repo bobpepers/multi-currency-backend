@@ -6,7 +6,7 @@ module.exports = {
       await queryInterface.bulkInsert('currency', [
         {
           id: 1,
-          currency_name: "USD",
+          name: "US Dollar",
           iso: 'USD',
           type: 'FIAT',
           createdAt: new Date(),
