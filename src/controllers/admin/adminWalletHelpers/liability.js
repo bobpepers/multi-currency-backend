@@ -2,13 +2,9 @@ import {
   Sequelize,
   Op,
 } from 'sequelize';
-import db from '../../models';
+import db from '../../../models';
 
-export const fetchAdminLiability = async (
-  req,
-  res,
-  next,
-) => {
+export const getLiability = async () => {
   // 1
   // Runebase init vars
   let availableRunebase = 0;
@@ -18,7 +14,6 @@ export const fetchAdminLiability = async (
   let faucetAmountRunebase = 0;
 
   // Pirate init vars
-
   let availablePirate = 0;
   let lockedPirate = 0;
   let unconfirmedDepositsPirate = 0;
@@ -26,7 +21,6 @@ export const fetchAdminLiability = async (
   let faucetAmountPirate = 0;
 
   // Tokel init vars
-
   let availableTokel = 0;
   let lockedTokel = 0;
   let unconfirmedDepositsTokel = 0;
@@ -34,7 +28,6 @@ export const fetchAdminLiability = async (
   let faucetAmountTokel = 0;
 
   // Lumens init vars
-
   let availableLumens = 0;
   let lockedLumens = 0;
   let unconfirmedDepositsLumens = 0;
@@ -42,7 +35,6 @@ export const fetchAdminLiability = async (
   let faucetAmountLumens = 0;
 
   // DogeLumens init vars
-
   let availableDogeLumens = 0;
   let lockedDogeLumens = 0;
   let unconfirmedDepositsDogeLumens = 0;
@@ -701,14 +693,17 @@ export const fetchAdminLiability = async (
   unconfirmedDepositsDogeLumens = sumUnconfirmedDepositsDogeLumens[0] && sumUnconfirmedDepositsDogeLumens[0].dataValues.total_amount ? sumUnconfirmedDepositsDogeLumens[0].dataValues.total_amount : 0;
   unconfirmledWithdrawalsDogeLumens = sumUnconfirmedWithdrawalsDogeLumens[0] && sumUnconfirmedWithdrawalsDogeLumens[0].dataValues.total_amount ? sumUnconfirmedWithdrawalsDogeLumens[0].dataValues.total_amount : 0;
 
-  res.locals.name = "liability";
-  res.locals.result = {
-    runebase: (((Number(availableRunebase) + Number(lockedRunebase)) + Number(unconfirmedDepositsRunebase)) - Number(unconfirmledWithdrawalsRunebase) + Number(faucetAmountRunebase)),
-    pirate: (((Number(availablePirate) + Number(lockedPirate)) + Number(unconfirmedDepositsPirate)) - Number(unconfirmledWithdrawalsPirate) + Number(faucetAmountPirate)),
-    tokel: (((Number(availableTokel) + Number(lockedTokel)) + Number(unconfirmedDepositsTokel)) - Number(unconfirmledWithdrawalsTokel) + Number(faucetAmountTokel)),
-    lumens: (((Number(availableLumens) + Number(lockedLumens)) + Number(unconfirmedDepositsLumens)) - Number(unconfirmledWithdrawalsLumens) + Number(faucetAmountLumens)),
-    dogeLumens: (((Number(availableDogeLumens) + Number(lockedDogeLumens)) + Number(unconfirmedDepositsDogeLumens)) - Number(unconfirmledWithdrawalsDogeLumens) + Number(faucetAmountDogeLumens)),
-  };
+  const runesLiability = (((Number(availableRunebase) + Number(lockedRunebase)) + Number(unconfirmedDepositsRunebase)) - Number(unconfirmledWithdrawalsRunebase) + Number(faucetAmountRunebase));
+  const arrrLiability = (((Number(availablePirate) + Number(lockedPirate)) + Number(unconfirmedDepositsPirate)) - Number(unconfirmledWithdrawalsPirate) + Number(faucetAmountPirate));
+  const tklLiability = (((Number(availableTokel) + Number(lockedTokel)) + Number(unconfirmedDepositsTokel)) - Number(unconfirmledWithdrawalsTokel) + Number(faucetAmountTokel));
+  const xlmLiability = (((Number(availableLumens) + Number(lockedLumens)) + Number(unconfirmedDepositsLumens)) - Number(unconfirmledWithdrawalsLumens) + Number(faucetAmountLumens));
+  const dxlmLiability = (((Number(availableDogeLumens) + Number(lockedDogeLumens)) + Number(unconfirmedDepositsDogeLumens)) - Number(unconfirmledWithdrawalsDogeLumens) + Number(faucetAmountDogeLumens));
 
-  next();
+  return [
+    runesLiability,
+    arrrLiability,
+    tklLiability,
+    xlmLiability,
+    dxlmLiability,
+  ];
 };

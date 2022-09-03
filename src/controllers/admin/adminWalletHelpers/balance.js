@@ -4,28 +4,23 @@ import {
   getRunebaseInstance,
   getPirateInstance,
   getTokelInstance,
-} from '../../services/rclient';
+} from '../../../services/rclient';
 
 config();
 
 const server = new StellarSdk.Server('https://horizon.stellar.org');
 const keypair = StellarSdk.Keypair.fromSecret(process.env.STELLAR_SECRET);
 
-export const fetchAdminBalance = async (
-  req,
-  res,
-  next,
-) => {
-  res.locals.name = 'balance';
+export const getBalance = async () => {
   let runebaseResponse;
   let pirateResponse;
   let tokelResponse;
   let lumensResponse;
-  let runebaseBalance;
-  let pirateBalance;
-  let tokelBalance;
-  let lumensBalance;
-  let dogeLumensBalance;
+  let runesBalance;
+  let arrrBalance;
+  let tklBalance;
+  let xlmBalance;
+  let dxlmBalance;
 
   try {
     runebaseResponse = await getRunebaseInstance().getWalletInfo();
@@ -49,25 +44,24 @@ export const fetchAdminBalance = async (
   }
 
   if (runebaseResponse) {
-    runebaseBalance = runebaseResponse.balance;
+    runesBalance = runebaseResponse.balance;
   }
   if (pirateResponse) {
-    pirateBalance = pirateResponse.reduce((n, { balance }) => n + balance, 0);
+    arrrBalance = pirateResponse.reduce((n, { balance }) => n + balance, 0);
   }
   if (tokelResponse) {
-    tokelBalance = tokelResponse.balance;
+    tklBalance = tokelResponse.balance;
   }
   if (lumensResponse) {
-    lumensBalance = Number.parseFloat(lumensResponse.balances.find((b) => b.asset_type === 'native').balance);
-    dogeLumensBalance = Number.parseFloat(lumensResponse.balances.find((b) => b.asset_code === 'DXLM').balance);
+    xlmBalance = Number.parseFloat(lumensResponse.balances.find((b) => b.asset_type === 'native').balance);
+    dxlmBalance = Number.parseFloat(lumensResponse.balances.find((b) => b.asset_code === 'DXLM').balance);
   }
 
-  res.locals.result = {
-    runebase: runebaseBalance,
-    pirate: pirateBalance,
-    tokel: tokelBalance,
-    lumens: lumensBalance,
-    dogeLumens: dogeLumensBalance,
-  };
-  next();
+  return [
+    runesBalance,
+    arrrBalance,
+    tklBalance,
+    xlmBalance,
+    dxlmBalance,
+  ];
 };

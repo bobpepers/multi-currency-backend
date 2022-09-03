@@ -18,9 +18,8 @@ import {
 
 import { isAdmin } from '../controllers/admin/admin';
 import { fetchUserInfo } from '../controllers/admin/userInfo';
-import { fetchAdminLiability } from '../controllers/admin/liability';
-import { fetchAdminBalance } from '../controllers/admin/balance';
-import { fetchAdminFaucetBalance } from '../controllers/admin/faucetBalance';
+import { fetchAdminWallet } from '../controllers/admin/wallet';
+
 import {
   fetchAdminWithdrawalSettings,
   updateAdminWithdrawalSetting,
@@ -493,32 +492,12 @@ export const apiRouter = (
   );
 
   app.get(
-    '/api/admin/balance',
+    '/api/admin/wallet',
     IsAuthenticated,
     isAdmin,
     isUserBanned,
     ensuretfa,
-    use(fetchAdminBalance),
-    respondResult,
-  );
-
-  app.get(
-    '/api/admin/faucet/balance',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
-    ensuretfa,
-    use(fetchAdminFaucetBalance),
-    respondResult,
-  );
-
-  app.get(
-    '/api/admin/liability',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
-    ensuretfa,
-    use(fetchAdminLiability),
+    use(fetchAdminWallet),
     respondResult,
   );
 

@@ -1,15 +1,7 @@
-import {
-  Sequelize,
-  Op,
-} from 'sequelize';
-import db from '../../models';
+import db from '../../../models';
 
-export const fetchAdminFaucetBalance = async (
-  req,
-  res,
-  next,
-) => {
-  const faucetRunebase = await db.faucet.findOne({
+export const getFaucets = async () => {
+  const runesFaucetBalance = await db.faucet.findOne({
     include: [
       {
         model: db.coin,
@@ -22,7 +14,7 @@ export const fetchAdminFaucetBalance = async (
       },
     ],
   });
-  const faucetPirate = await db.faucet.findOne({
+  const arrrFaucetBalance = await db.faucet.findOne({
     include: [
       {
         model: db.coin,
@@ -35,7 +27,7 @@ export const fetchAdminFaucetBalance = async (
       },
     ],
   });
-  const faucetTokel = await db.faucet.findOne({
+  const tklFaucetBalance = await db.faucet.findOne({
     include: [
       {
         model: db.coin,
@@ -48,7 +40,7 @@ export const fetchAdminFaucetBalance = async (
       },
     ],
   });
-  const faucetLumens = await db.faucet.findOne({
+  const xlmFaucetBalance = await db.faucet.findOne({
     include: [
       {
         model: db.coin,
@@ -61,7 +53,7 @@ export const fetchAdminFaucetBalance = async (
       },
     ],
   });
-  const faucetDogeLumens = await db.faucet.findOne({
+  const dxlmFaucetBalance = await db.faucet.findOne({
     include: [
       {
         model: db.coin,
@@ -75,14 +67,11 @@ export const fetchAdminFaucetBalance = async (
     ],
   });
 
-  res.locals.name = "liability";
-  res.locals.result = {
-    runebase: faucetRunebase.amount,
-    pirate: faucetPirate.amount,
-    tokel: faucetTokel.amount,
-    lumens: faucetLumens.amount,
-    dogeLumens: faucetDogeLumens.amount,
-  };
-
-  next();
+  return [
+    runesFaucetBalance,
+    arrrFaucetBalance,
+    tklFaucetBalance,
+    xlmFaucetBalance,
+    dxlmFaucetBalance,
+  ];
 };
