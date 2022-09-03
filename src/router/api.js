@@ -29,7 +29,8 @@ import { healthCheck } from '../controllers/health';
 import { insertIp } from '../controllers/ip';
 import { fetchErrors } from '../controllers/admin/errors';
 import { fetchNodeStatus } from '../controllers/admin/status';
-import { fetchActivity } from '../controllers/user/activity';
+import { fetchUserActivity } from '../controllers/user/activity';
+import { fetchAdminActivity } from '../controllers/admin/activity';
 import { addNewWithdrawalAddress } from '../controllers/user/newWithdrawalAddress';
 import { removeWithdrawalAddress } from '../controllers/user/removeWithdrawalAddress';
 import { createWalletsForUser } from '../controllers/user/wallet';
@@ -290,11 +291,21 @@ export const apiRouter = (
   app.post(
     '/api/activity',
     IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchUserActivity),
+    respondCountAndResult,
+  );
+
+  app.post(
+    '/api/admin/activity',
+    IsAuthenticated,
     isAdmin,
     isUserBanned,
     use(insertIp),
     ensuretfa,
-    use(fetchActivity),
+    use(fetchAdminActivity),
     respondCountAndResult,
   );
 

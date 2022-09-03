@@ -1,7 +1,7 @@
 import { Op, Sequelize } from 'sequelize';
 import db from '../../models';
 
-export const fetchUserActivity = async (
+export const fetchAdminActivity = async (
   req,
   res,
   next,
