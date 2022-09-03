@@ -46,8 +46,14 @@ export const updatePriceCurrencyPrices = async (
   await updateConversionRatesCrypto();
   await updateConversionRatesFiat();
   await updatePrice();
+  const options = {
+    order: [
+      ['id', 'ASC'],
+    ],
+  };
   res.locals.name = 'updatePriceCurrencyPrice';
-  res.locals.result = { success: true };
+  res.locals.count = await db.currency.count(options);
+  res.locals.result = await db.currency.findAll(options);
   next();
 };
 
@@ -74,7 +80,7 @@ export const fetchPriceCurrencies = async (
 ) => {
   const options = {
     order: [
-      ['id', 'DESC'],
+      ['id', 'ASC'],
     ],
   };
   res.locals.name = 'priceCurrencies';

@@ -6,6 +6,34 @@ import db from '../../models';
 config();
 
 export const updateConversionRatesFiat = async () => {
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+  console.log('update fiat rates called');
+
   try {
     const currencies = await db.currency.findAll({
       where: {

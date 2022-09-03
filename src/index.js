@@ -157,12 +157,12 @@ config();
     queue,
   );
 
-  const scheduleUpdateConversionRatesFiat = schedule.scheduleJob('0 */23 * * *', () => { // Update Fiat conversion rates every 8 hours
+  const scheduleUpdateConversionRatesFiat = schedule.scheduleJob('0 */23 * * *', () => { // Update Fiat conversion rates every 23 hours
     updateConversionRatesFiat();
   });
 
-  updateConversionRatesCrypto();
-  const scheduleUpdateConversionRatesCrypto = schedule.scheduleJob('*/10 * * * *', () => { // Update price every 10 minutes
+  // updateConversionRatesCrypto();
+  const scheduleUpdateConversionRatesCrypto = schedule.scheduleJob('*/20 * * * *', () => { // Update price every 20 minutes
     updateConversionRatesCrypto();
   });
 

@@ -48,12 +48,15 @@ import {
 } from '../controllers/admin/withdrawalAddresses';
 
 import {
-  fetchPriceCurrencies,
-//   addPriceCurrency,
-//   removePriceCurrency,
-//   updatePriceCurrency,
-//   updatePriceCurrencyPrices,
-} from '../controllers/admin/priceCurrencies';
+  addPriceCurrency,
+  removePriceCurrency,
+  updatePriceCurrency,
+  updatePriceCurrencyPrices,
+} from '../controllers/admin/currencies';
+
+import {
+  fetchCurrencies,
+} from '../controllers/user/currencies';
 
 import {
   resetPassword,
@@ -212,59 +215,59 @@ export const apiRouter = (
   // );
 
   app.post(
-    '/api/admin/management/pricecurrencies',
+    '/api/currencies',
     IsAuthenticated,
     isAdmin,
     isUserBanned,
     use(insertIp),
     ensuretfa,
-    use(fetchPriceCurrencies),
+    use(fetchCurrencies),
     respondCountAndResult,
   );
 
-  // app.post(
-  //   '/api/management/pricecurrencies/remove',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(removePriceCurrency),
-  //   respondResult,
-  // );
+  app.post(
+    '/api/admin/management/currencies/remove',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(removePriceCurrency),
+    respondResult,
+  );
 
-  // app.post(
-  //   '/api/management/pricecurrencies/update',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(updatePriceCurrency),
-  //   respondResult,
-  // );
+  app.post(
+    '/api/admin/management/currencies/update',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(updatePriceCurrency),
+    respondResult,
+  );
 
-  // app.post(
-  //   '/api/management/pricecurrencies/add',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(addPriceCurrency),
-  //   respondResult,
-  // );
+  app.post(
+    '/api/admin/management/currencies/add',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(addPriceCurrency),
+    respondResult,
+  );
 
-  // app.post(
-  //   '/api/management/pricecurrencies/updateprice',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(updatePriceCurrencyPrices),
-  //   respondResult,
-  // );
+  app.post(
+    '/api/admin/management/currencies/updateprice',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(updatePriceCurrencyPrices),
+    respondResult,
+  );
 
   // app.get(
   //   '/api/sync/blocks',
