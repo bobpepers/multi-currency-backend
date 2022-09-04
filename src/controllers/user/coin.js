@@ -13,10 +13,47 @@ export const fetchCoinInfo = async (
     where: {
       ticker,
     },
+    attributes: {
+      exclude: [
+        'id',
+        'createdAt',
+      ],
+    },
     include: [
       {
         model: db.withdrawalSetting,
         as: 'withdrawalSetting',
+        attributes: {
+          exclude: [
+            'createdAt',
+            'id',
+            'coinId',
+          ],
+        },
+      },
+      {
+        model: db.CoinPriceSource,
+        as: 'CoinPriceSources',
+        attributes: {
+          exclude: [
+            'createdAt',
+            'coinId',
+            'enabled',
+            'id',
+          ],
+        },
+        include: [
+          {
+            model: db.priceSource,
+            as: 'priceSource',
+            attributes: {
+              exclude: [
+                'createdAt',
+                'id',
+              ],
+            },
+          },
+        ],
       },
     ],
   };

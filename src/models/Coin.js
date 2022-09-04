@@ -39,6 +39,8 @@ module.exports = (sequelize, DataTypes) => {
       model.priceSource,
       { through: 'CoinPriceSource' },
     );
+
+    CoinModel.hasMany(model.CoinPriceSource);
   };
 
   return CoinModel;
