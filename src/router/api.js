@@ -57,6 +57,16 @@ import {
 } from '../controllers/admin/currencies';
 
 import {
+  addCoinPriceSource,
+  removeCoinPriceSource,
+  updateCoinPriceSource,
+} from '../controllers/admin/coinPriceSources';
+
+import {
+  fetchCoinPriceSources,
+} from '../controllers/user/coinPriceSources';
+
+import {
   fetchCurrencies,
 } from '../controllers/user/currencies';
 
@@ -269,6 +279,49 @@ export const apiRouter = (
     ensuretfa,
     use(updatePriceCurrencyPrices),
     respondResult,
+  );
+
+  app.post(
+    '/api/admin/management/coinpricesource/add',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(addCoinPriceSource),
+    respondResult,
+  );
+
+  app.post(
+    '/api/admin/management/coinpricesource/remove',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(removeCoinPriceSource),
+    respondResult,
+  );
+
+  app.post(
+    '/api/admin/management/coinpricesource/update',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(updateCoinPriceSource),
+    respondResult,
+  );
+
+  app.get(
+    '/api/coinpricesources',
+    IsAuthenticated,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchCoinPriceSources),
+    respondCountAndResult,
   );
 
   // app.get(

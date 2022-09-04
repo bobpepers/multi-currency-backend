@@ -73,22 +73,6 @@ export const removePriceCurrency = async (
   next();
 };
 
-export const fetchPriceCurrencies = async (
-  req,
-  res,
-  next,
-) => {
-  const options = {
-    order: [
-      ['id', 'ASC'],
-    ],
-  };
-  res.locals.name = 'priceCurrencies';
-  res.locals.count = await db.currency.count(options);
-  res.locals.result = await db.currency.findAll(options);
-  next();
-};
-
 export const addPriceCurrency = async (
   req,
   res,
