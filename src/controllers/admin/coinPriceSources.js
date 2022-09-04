@@ -1,4 +1,6 @@
 import db from '../../models';
+import { fetchNomicsPrice } from '../../helpers/price/services/nomics';
+import { fetchCoinPaprikaPrice } from '../../helpers/price/services/coinpaprika';
 
 export const updateCoinPriceSource = async (
   req,
@@ -24,9 +26,33 @@ export const updateCoinPriceSource = async (
     where: {
       id: req.body.id,
     },
+    include: [
+      {
+        model: db.coin,
+        as: 'coin',
+      },
+      {
+        model: db.priceSource,
+        as: 'priceSource',
+      },
+    ],
   });
+
+  let price = null;
+  if (coinPriceSource.priceSource.name === 'coinpaprika') {
+    price = await fetchCoinPaprikaPrice(req.body.coinPriceSourceId);
+  }
+  if (coinPriceSource.priceSource.name === 'nomics') {
+    price = await fetchNomicsPrice(req.body.coinPriceSourceId);
+  }
+
   const updatedCoinPriceSource = await coinPriceSource.update({
     coinPriceSourceId: req.body.coinPriceSourceId,
+    ...(
+      price && {
+        price,
+      }
+    ),
     enabled: req.body.enabled === 'enabled',
   });
   res.locals.name = 'updateCoinPriceSource';
@@ -45,6 +71,7 @@ export const updateCoinPriceSource = async (
       },
     ],
   });
+
   next();
 };
 
@@ -94,8 +121,27 @@ export const addCoinPriceSource = async (
     throw new Error("Already Exists");
   }
 
+  const priceSource = await db.priceSource.findOne({
+    where: {
+      id: req.body.priceSource,
+    },
+  });
+
+  let price = null;
+  if (priceSource.name === 'coinpaprika') {
+    price = await fetchCoinPaprikaPrice(req.body.coinPriceSourceId);
+  }
+  if (priceSource.name === 'nomics') {
+    price = await fetchNomicsPrice(req.body.coinPriceSourceId);
+  }
+
   const createCoinPriceSource = await db.CoinPriceSource.create({
     coinId: req.body.coin,
+    ...(
+      price && {
+        price,
+      }
+    ),
     priceSourceId: req.body.priceSource,
     coinPriceSourceId: req.body.coinPriceSourceId,
     enabled: req.body.enabled === 'enabled',
