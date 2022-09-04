@@ -178,16 +178,23 @@ config();
   });
 
   app.use((err, req, res, next) => {
-    if (err.message && err.message === "EMAIL_NOT_VERIFIED") {
+    if (err && err.message && err.message === "EMAIL_NOT_VERIFIED") {
       res.status(401).json({
         error: err.message,
         email: err.email,
       });
     } else if (
-      (err.message && err === 'LOGIN_FAIL')
-      || (err.message && err === 'AUTH_TOKEN_USED')
+      (err && err.message && err.message === 'LOGIN_FAIL')
+      || (err && err.message && err.message === 'AUTH_TOKEN_USED')
     ) {
       res.status(401).json({
+        error: err.message,
+      });
+    } else if (
+      (err && err.message && err.message === 'NOT_FOUND')
+    ) {
+      console.log('NOT FOUND MIDDLEWARE');
+      res.status(404).json({
         error: err.message,
       });
     } else {

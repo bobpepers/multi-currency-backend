@@ -1,6 +1,5 @@
 // import { Transaction } from 'sequelize';
 import db from '../../models';
-import timingSafeEqual from '../../helpers/timingSafeEqual';
 
 export const fetchCoinInfo = async (
   req,
@@ -21,8 +20,10 @@ export const fetchCoinInfo = async (
       },
     ],
   };
-
   res.locals.name = 'coinInfo';
   res.locals.result = await db.coin.findOne(options);
+  if (!res.locals.result) {
+    throw new Error("NOT_FOUND");
+  }
   next();
 };
