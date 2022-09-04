@@ -41,6 +41,7 @@ import { verifyNewWithdrawalAddress } from '../controllers/user/verifyNewWithdra
 import { resendWithdrawalAddressVerification } from '../controllers/user/resendWithdrawalAddressVerification';
 import { createWithdrawal } from '../controllers/user/createWithdrawal';
 import { fetchCoinInfo } from '../controllers/user/coin';
+import { fetchAllCoins } from '../controllers/user/coins';
 
 import {
   fetchWithdrawalAddress,
@@ -326,6 +327,12 @@ export const apiRouter = (
   app.get(
     '/api/coin/:ticker',
     use(fetchCoinInfo),
+    respondResult,
+  );
+
+  app.get(
+    '/api/coins',
+    use(fetchAllCoins),
     respondResult,
   );
 

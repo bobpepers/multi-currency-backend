@@ -14,11 +14,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    price: {
-      type: DataTypes.STRING,
-      defaultValue: '0',
-      allowNull: true,
-    },
   };
 
   const modelOptions = {
