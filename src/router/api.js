@@ -42,6 +42,7 @@ import { resendWithdrawalAddressVerification } from '../controllers/user/resendW
 import { createWithdrawal } from '../controllers/user/createWithdrawal';
 import { fetchCoinInfo } from '../controllers/user/coin';
 import { fetchAllCoins } from '../controllers/user/coins';
+import { fetchAllPriceSources } from '../controllers/user/priceSource';
 
 import {
   fetchWithdrawalAddress,
@@ -333,6 +334,12 @@ export const apiRouter = (
   app.get(
     '/api/coins',
     use(fetchAllCoins),
+    respondResult,
+  );
+
+  app.get(
+    '/api/pricesources',
+    use(fetchAllPriceSources),
     respondResult,
   );
 
