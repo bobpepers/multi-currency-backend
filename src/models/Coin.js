@@ -39,6 +39,11 @@ module.exports = (sequelize, DataTypes) => {
     });
     CoinModel.hasOne(model.withdrawalSetting);
     CoinModel.hasOne(model.faucet);
+
+    CoinModel.belongsToMany(
+      model.priceSource,
+      { through: 'CoinPriceSource' },
+    );
   };
 
   return CoinModel;

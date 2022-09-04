@@ -193,7 +193,6 @@ config();
     } else if (
       (err && err.message && err.message === 'NOT_FOUND')
     ) {
-      console.log('NOT FOUND MIDDLEWARE');
       res.status(404).json({
         error: err.message,
       });
