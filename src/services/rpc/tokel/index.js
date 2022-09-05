@@ -1,6 +1,6 @@
 const HttpProvider = require('../httpprovider');
 
-class Komodo {
+class Tokel {
   constructor(url) {
     this.provider = new HttpProvider(url);
   }
@@ -102,6 +102,23 @@ class Komodo {
     return this.provider.rawCall('z_getbalances');
   }
 
+  getBalance() {
+    return this.provider.rawCall('getbalance');
+  }
+
+  zMergeToAddress(
+    fromAddresses,
+    toAddress,
+  ) {
+    return this.provider.rawCall(
+      'z_mergetoaddress',
+      [
+        fromAddresses,
+        toAddress,
+      ],
+    );
+  }
+
   /**
    * Send ARRR to many
    * @param {string} address The Pirate address to send ARRR from.
@@ -159,6 +176,14 @@ class Komodo {
   }
 
   /**
+   * Gets a list of unspent transactions
+   * @return {Promise} Promise containing result object or Error
+   */
+  listUnspent() {
+    return this.provider.rawCall('listunspent');
+  }
+
+  /**
    * Lists unspent transaction outputs.
    * @param {string} address Address to send Pirate to.
    * @param {number} amount Amount of Pirate to send.
@@ -204,4 +229,4 @@ class Komodo {
   }
 }
 
-module.exports = Komodo;
+module.exports = Tokel;

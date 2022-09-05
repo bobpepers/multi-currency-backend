@@ -27,6 +27,7 @@ import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
 import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
 import { processWithdrawals } from "./services/processWithdrawals";
+import { consolidateFunds } from "./helpers/blockchain/consolidate";
 
 Object.freeze(Object.prototype);
 
@@ -170,6 +171,11 @@ config();
   // const schedulePriceUpdate = schedule.scheduleJob('*/5 * * * *', () => { // Update price every 5 minutes
   //   updatePrice();
   // });
+
+  await consolidateFunds(
+    schedule,
+    queue,
+  );
 
   const scheduleWithdrawal = schedule.scheduleJob('*/2 * * * *', async () => { // Process a withdrawal 2 minutes
     await processWithdrawals(
