@@ -89,10 +89,10 @@ import {
 //   startSyncBlocks,
 // } from '../controllers/sync';
 
-// import {
-//   fetchUsers,
-//   banUser,
-// } from './controllers/users';
+import {
+  fetchUsers,
+  banUser,
+} from '../controllers/admin/users';
 
 import passportService from '../services/passport';
 import { fetchWithdrawals } from '../controllers/admin/withdrawals';
@@ -214,17 +214,6 @@ export const apiRouter = (
     use(insertIp),
     signup,
   );
-
-  // app.post(
-  //   '/api/management/user/ban',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(banUser),
-  //   respondResult,
-  // );
 
   app.post(
     '/api/currencies',
@@ -453,16 +442,27 @@ export const apiRouter = (
     respondResult,
   );
 
-  // app.post(
-  //   '/api/management/users',
-  //   IsAuthenticated,
-  //   isAdmin,
-  //   isUserBanned,
-  //   use(insertIp),
-  //   ensuretfa,
-  //   use(fetchUsers),
-  //   respondCountAndResult,
-  // );
+  app.post(
+    '/api/admin/management/users',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(fetchUsers),
+    respondCountAndResult,
+  );
+
+  app.post(
+    '/api/admin/management/user/ban',
+    IsAuthenticated,
+    isAdmin,
+    isUserBanned,
+    use(insertIp),
+    ensuretfa,
+    use(banUser),
+    respondResult,
+  );
 
   app.post(
     '/api/admin/withdrawals',
