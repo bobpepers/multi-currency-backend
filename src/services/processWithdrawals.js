@@ -65,7 +65,7 @@ export const processWithdrawals = async (
 
     if (transaction) {
       const amount = new BigNumber(transaction.amount).minus(transaction.feeAmount).dividedBy(1e8);
-      // const amount = ((transaction.amount - Number(transaction.feeAmount)) / 1e8);
+
       if (transaction.wallet.coin.ticker === 'RUNES') {
         [
           response,
