@@ -17,7 +17,7 @@ import cookieParser from 'cookie-parser';
 import { createClient as createRedisClient } from 'redis';
 import socketIo from 'socket.io';
 import { router } from "./router";
-// import { updatePrice } from "./helpers/price/updatePrice";
+import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
 // import db from "./models";
 import { startTokelSync } from "./services/syncTokel";
@@ -168,9 +168,9 @@ config();
   });
 
   // updatePrice();
-  // const schedulePriceUpdate = schedule.scheduleJob('*/5 * * * *', () => { // Update price every 5 minutes
-  //   updatePrice();
-  // });
+  const schedulePriceUpdate = schedule.scheduleJob('*/20 * * * *', () => { // Update price every 20 minutes
+    updatePrice();
+  });
 
   await consolidateFunds(
     schedule,
