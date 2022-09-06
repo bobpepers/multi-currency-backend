@@ -30,9 +30,6 @@ export const fetchUsers = async (req, res, next) => {
   if (req.body.id !== '') {
     userWhereOptions.id = { [Op.like]: `%${Number(req.body.id)}%` };
   }
-  if (req.body.userId !== '') {
-    userWhereOptions.user_id = { [Op.like]: `%${req.body.userId}%` };
-  }
   if (req.body.username !== '') {
     userWhereOptions.username = { [Op.like]: `%${req.body.username}%` };
   }
