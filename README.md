@@ -64,6 +64,15 @@ STELLAR_PUBLIC=xx
 STELLAR_SECRET=xx
 
 
+## Secret Network
+### CHAIND - pulsar-2 (testnet) - secret-4 (mainnet)
+SECRET_RPC_URL=https://api.pulsar.scrttestnet.com
+SECRET_WS_URL=wss://rpc.pulsar.scrttestnet.com/websocket
+SECRET_GRPC_WEB_URL=https://grpc.testnet.secretsaturn.net
+SECRET_CHAINID=secret-4
+SECRET_MNEMONIC=xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx
+SECRET_ADDRESS=xx
+
 ```
 ## Create database mysql terminal
 ```

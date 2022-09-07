@@ -30,6 +30,7 @@ export const createWithdrawal = async (
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
+    // DO BIGNUMBER VALUE CHECKING WITH .isGreaterThan .isSmallerThan in amount validations (safer) (TEMP DISABLE FRONTEND VALIDATION FOR TESTING)
     const amount = new BigNumber(req.body.amount).times(1e8);
     const walletAddressExternal = await db.WalletAddressExternal.findOne({
       where: {

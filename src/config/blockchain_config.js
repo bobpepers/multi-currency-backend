@@ -11,4 +11,7 @@ module.exports = {
     startSyncBlock: 515779,
     confirmations: 6,
   },
+  secret: {
+    confirmations: 100,
+  },
 };

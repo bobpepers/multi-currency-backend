@@ -13,6 +13,7 @@ export const fetchAdminWallet = async (
     tklFaucetBalance,
     xlmFaucetBalance,
     dxlmFaucetBalance,
+    scrtFaucetBalance,
   ] = await getFaucets();
 
   const [
@@ -21,6 +22,7 @@ export const fetchAdminWallet = async (
     tklLiability,
     xlmLiability,
     dxlmLiability,
+    scrtLiability,
   ] = await getLiability();
 
   const [
@@ -29,6 +31,7 @@ export const fetchAdminWallet = async (
     tklBalance,
     xlmBalance,
     dxlmBalance,
+    scrtBalance,
   ] = await getBalance();
 
   res.locals.name = "adminWallet";
@@ -67,6 +70,13 @@ export const fetchAdminWallet = async (
       faucetBalance: dxlmFaucetBalance,
       liability: dxlmLiability,
       balance: dxlmBalance,
+    },
+    {
+      name: 'Secret Network',
+      ticker: 'SCRT',
+      faucetBalance: scrtFaucetBalance,
+      liability: scrtLiability,
+      balance: scrtBalance,
     },
   ];
   console.log(res.locals.result);

@@ -5,7 +5,7 @@ import fs from 'fs';
 import walletNotifyRunebase from '../helpers/blockchain/runebase/walletNotify';
 import walletNotifyPirate from '../helpers/blockchain/pirate/walletNotify';
 import walletNotifyTokel from '../helpers/blockchain/tokel/walletNotify';
-
+import walletNotifySecret from '../helpers/blockchain/secret/walletNotify';
 import walletNotifyLumens from '../helpers/blockchain/stellar/walletNotify';
 
 import { startRunebaseSync } from "../services/syncRunebase";
@@ -122,6 +122,7 @@ export const notifyRouter = (
     },
   );
 
+  // Stellar blockchain
   const lastStellarToken = loadLastPagingToken();
   if (lastStellarToken) {
     stellarPayments.cursor(lastStellarToken);
@@ -174,4 +175,10 @@ export const notifyRouter = (
       console.error("Error in payment stream");
     },
   });
+
+  // Secret network
+  walletNotifySecret(
+    io,
+    queue,
+  );
 };

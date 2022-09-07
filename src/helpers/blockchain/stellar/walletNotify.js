@@ -56,8 +56,8 @@ const walletNotifyLumens = async (
       transaction: t,
       lock: t.LOCK.UPDATE,
     });
-    console.log(address);
-    console.log(findCoin);
+    // console.log(address);
+    // console.log(findCoin);
     if (!address) {
       if (findCoin) {
         const unknownTransaction = await db.transaction.findOrCreate({

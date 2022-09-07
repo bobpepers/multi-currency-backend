@@ -67,11 +67,26 @@ export const getFaucets = async () => {
     ],
   });
 
+  const scrtFaucetBalance = await db.faucet.findOne({
+    include: [
+      {
+        model: db.coin,
+        as: 'coin',
+        required: true,
+        attributes: [],
+        where: {
+          ticker: 'SCRT',
+        },
+      },
+    ],
+  });
+
   return [
     runesFaucetBalance,
     arrrFaucetBalance,
     tklFaucetBalance,
     xlmFaucetBalance,
     dxlmFaucetBalance,
+    scrtFaucetBalance,
   ];
 };

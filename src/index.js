@@ -23,9 +23,12 @@ import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helper
 import { startTokelSync } from "./services/syncTokel";
 import { startRunebaseSync } from "./services/syncRunebase";
 import { startPirateSync } from "./services/syncPirate";
+
 import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
 import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
+import { patchSecretDeposits } from './helpers/blockchain/secret/patcher';
+
 import { processWithdrawals } from "./services/processWithdrawals";
 import { consolidateFunds } from "./helpers/blockchain/consolidate";
 
@@ -118,6 +121,8 @@ config();
     });
   });
 
+  // Runebase
+
   await startRunebaseSync(
     io,
     queue,
@@ -128,6 +133,8 @@ config();
   const schedulePatchRunebaseDeposits = schedule.scheduleJob('10 */1 * * *', () => {
     patchRunebaseDeposits();
   });
+
+  // Pirate
 
   await startPirateSync(
     io,
@@ -140,6 +147,8 @@ config();
     patchPirateDeposits();
   });
 
+  // Tokel
+
   await startTokelSync(
     io,
     queue,
@@ -147,8 +156,13 @@ config();
 
   await patchTokelDeposits();
 
-  const schedulePatchDeposits = schedule.scheduleJob('10 */1 * * *', () => {
+  const schedulePatchTokelDeposits = schedule.scheduleJob('10 */1 * * *', () => {
     patchTokelDeposits();
+  });
+
+  // Secret
+  const schedulePatchSecretDeposits = schedule.scheduleJob('*/1 * * * *', () => {
+    patchSecretDeposits();
   });
 
   router(

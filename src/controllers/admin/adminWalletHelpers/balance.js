@@ -1,9 +1,11 @@
 import StellarSdk from 'stellar-sdk';
+import BigNumber from 'bignumber.js';
 import { config } from "dotenv";
 import {
   getRunebaseInstance,
   getPirateInstance,
   getTokelInstance,
+  getSecretjsInstance,
 } from '../../../services/rclient';
 
 config();
@@ -16,11 +18,13 @@ export const getBalance = async () => {
   let pirateResponse;
   let tokelResponse;
   let lumensResponse;
+  let secretResponse;
   let runesBalance;
   let arrrBalance;
   let tklBalance;
   let xlmBalance;
   let dxlmBalance;
+  let scrtBalance;
 
   try {
     runebaseResponse = await getRunebaseInstance().getWalletInfo();
@@ -56,6 +60,18 @@ export const getBalance = async () => {
     xlmBalance = Number.parseFloat(lumensResponse.balances.find((b) => b.asset_type === 'native').balance);
     dxlmBalance = Number.parseFloat(lumensResponse.balances.find((b) => b.asset_code === 'DXLM').balance);
   }
+  try {
+    const secretjs = await getSecretjsInstance();
+    console.log(secretjs.wallet.address);
+    const secretResponse = await secretjs.query.bank.balance({
+      address: secretjs.wallet.address,
+      denom: "uscrt",
+    });
+
+    scrtBalance = new BigNumber(secretResponse.balance.amount).dividedBy(1e6).toString();
+  } catch (e) {
+    console.log(e);
+  }
 
   return [
     runesBalance,
@@ -63,5 +79,6 @@ export const getBalance = async () => {
     tklBalance,
     xlmBalance,
     dxlmBalance,
+    scrtBalance,
   ];
 };

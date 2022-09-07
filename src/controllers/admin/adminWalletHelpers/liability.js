@@ -4,6 +4,139 @@ import {
 } from 'sequelize';
 import db from '../../../models';
 
+const fetchDbValues = async (
+  ticker,
+) => {
+  const sumAvailable = await db.wallet.findAll({
+    attributes: [
+      [Sequelize.fn('sum', Sequelize.col('available')), 'total_available'],
+    ],
+    group: 'coin.id',
+    include: [
+      {
+        model: db.coin,
+        as: 'coin',
+        required: true,
+        attributes: ['id'],
+        where: {
+          ticker,
+        },
+      },
+    ],
+  });
+
+  const sumLocked = await db.wallet.findAll({
+    attributes: [
+      [Sequelize.fn('sum', Sequelize.col('locked')), 'total_locked'],
+    ],
+    group: 'coin.id',
+    include: [
+      {
+        model: db.coin,
+        as: 'coin',
+        required: true,
+        attributes: ['id'],
+        where: {
+          ticker,
+        },
+      },
+    ],
+  });
+
+  const sumUnconfirmedDeposits = await db.transaction.findAll({
+    attributes: [
+      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
+    ],
+    group: 'wallet.coin.id',
+    include: [
+      {
+        model: db.wallet,
+        as: 'wallet',
+        required: true,
+        attributes: [],
+        include: [
+          {
+            model: db.coin,
+            as: 'coin',
+            required: true,
+            attributes: ['id'],
+            where: {
+              ticker,
+            },
+          },
+        ],
+      },
+    ],
+    where: {
+      [Op.and]: [
+        {
+          type: 'receive',
+        },
+        {
+          phase: 'confirming',
+        },
+      ],
+    },
+  });
+
+  const sumUnconfirmedWithdrawals = await db.transaction.findAll({
+    attributes: [
+      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
+    ],
+    group: 'wallet.id',
+    include: [
+      {
+        model: db.wallet,
+        as: 'wallet',
+        required: true,
+        attributes: [],
+        include: [
+          {
+            model: db.coin,
+            as: 'coin',
+            required: true,
+            attributes: ['id'],
+            where: {
+              ticker,
+            },
+          },
+        ],
+      },
+    ],
+    where: {
+      [Op.and]: [
+        {
+          type: 'send',
+        },
+        {
+          phase: 'confirming',
+        },
+      ],
+    },
+  });
+
+  const faucet = await db.faucet.findOne({
+    include: [
+      {
+        model: db.coin,
+        as: 'coin',
+        required: true,
+        attributes: [],
+        where: {
+          ticker,
+        },
+      },
+    ],
+  });
+  return [
+    sumAvailable,
+    sumLocked,
+    sumUnconfirmedDeposits,
+    sumUnconfirmedWithdrawals,
+    faucet,
+  ];
+};
+
 export const getLiability = async () => {
   // 1
   // Runebase init vars
@@ -41,622 +174,80 @@ export const getLiability = async () => {
   let unconfirmledWithdrawalsDogeLumens = 0;
   let faucetAmountDogeLumens = 0;
 
+  // Secret Network init vars
+  let availableSecret = 0;
+  let lockedSecret = 0;
+  let unconfirmedDepositsSecret = 0;
+  let unconfirmledWithdrawalsSecret = 0;
+  let faucetAmountSecret = 0;
+
   // 2
   // Runebase FetchDB
-  const sumAvailableRunebase = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('available')), 'total_available'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'RUNES',
-        },
-      },
-    ],
-  });
-
-  const sumLockedRunebase = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('locked')), 'total_locked'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'RUNES',
-        },
-      },
-    ],
-  });
-
-  const sumUnconfirmedDepositsRunebase = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.coin.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'RUNES',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'receive',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const sumUnconfirmedWithdrawalsRunebase = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'RUNES',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'send',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const faucetRunebase = await db.faucet.findOne({
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: [],
-        where: {
-          ticker: 'RUNES',
-        },
-      },
-    ],
-  });
+  const [
+    sumAvailableRunebase,
+    sumLockedRunebase,
+    sumUnconfirmedDepositsRunebase,
+    sumUnconfirmedWithdrawalsRunebase,
+    faucetRunebase,
+  ] = await fetchDbValues(
+    'RUNES',
+  );
 
   // Pirate FetchDB
-
-  const sumAvailablePirate = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('available')), 'total_available'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'ARRR',
-        },
-      },
-    ],
-  });
-
-  const sumLockedPirate = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('locked')), 'total_locked'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'ARRR',
-        },
-      },
-    ],
-  });
-
-  const sumUnconfirmedDepositsPirate = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.coin.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'ARRR',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'receive',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const sumUnconfirmedWithdrawalsPirate = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'ARRR',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'send',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const faucetPirate = await db.faucet.findOne({
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: [],
-        where: {
-          ticker: 'ARRR',
-        },
-      },
-    ],
-  });
+  const [
+    sumAvailablePirate,
+    sumLockedPirate,
+    sumUnconfirmedDepositsPirate,
+    sumUnconfirmedWithdrawalsPirate,
+    faucetPirate,
+  ] = await fetchDbValues(
+    'ARRR',
+  );
 
   // Tokel FetchDB
+  const [
+    sumAvailableTokel,
+    sumLockedTokel,
+    sumUnconfirmedDepositsTokel,
+    sumUnconfirmedWithdrawalsTokel,
+    faucetTokel,
+  ] = await fetchDbValues(
+    'TKL',
+  );
 
-  const sumAvailableTokel = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('available')), 'total_available'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'TKL',
-        },
-      },
-    ],
-  });
-
-  const sumLockedTokel = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('locked')), 'total_locked'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'TKL',
-        },
-      },
-    ],
-  });
-
-  const sumUnconfirmedDepositsTokel = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.coin.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'TKL',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'receive',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const sumUnconfirmedWithdrawalsTokel = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'TKL',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'send',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const faucetTokel = await db.faucet.findOne({
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: [],
-        where: {
-          ticker: 'TKL',
-        },
-      },
-    ],
-  });
   // Lumens FetchDB
+  const [
+    sumAvailableLumens,
+    sumLockedLumens,
+    sumUnconfirmedDepositsLumens,
+    sumUnconfirmedWithdrawalsLumens,
+    faucetLumens,
+  ] = await fetchDbValues(
+    'DXLM',
+  );
 
-  const sumAvailableLumens = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('available')), 'total_available'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'XLM',
-        },
-      },
-    ],
-  });
-
-  const sumLockedLumens = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('locked')), 'total_locked'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'XLM',
-        },
-      },
-    ],
-  });
-
-  const sumUnconfirmedDepositsLumens = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.coin.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'XLM',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'receive',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const sumUnconfirmedWithdrawalsLumens = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'XLM',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'send',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const faucetLumens = await db.faucet.findOne({
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: [],
-        where: {
-          ticker: 'XLM',
-        },
-      },
-    ],
-  });
   // DogeLumens FetchDB
-  const sumAvailableDogeLumens = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('available')), 'total_available'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'DXLM',
-        },
-      },
-    ],
-  });
+  const [
+    sumAvailableDogeLumens,
+    sumLockedDogeLumens,
+    sumUnconfirmedDepositsDogeLumens,
+    sumUnconfirmedWithdrawalsDogeLumens,
+    faucetDogeLumens,
+  ] = await fetchDbValues(
+    'DXLM',
+  );
 
-  const sumLockedDogeLumens = await db.wallet.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('locked')), 'total_locked'],
-    ],
-    group: 'coin.id',
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: ['id'],
-        where: {
-          ticker: 'DXLM',
-        },
-      },
-    ],
-  });
+  // Secret FetchDB
+  const [
+    sumAvailableSecret,
+    sumLockedSecret,
+    sumUnconfirmedDepositsSecret,
+    sumUnconfirmedWithdrawalsSecret,
+    faucetSecret,
+  ] = await fetchDbValues(
+    'SCRT',
+  );
 
-  const sumUnconfirmedDepositsDogeLumens = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.coin.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'DXLM',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'receive',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const sumUnconfirmedWithdrawalsDogeLumens = await db.transaction.findAll({
-    attributes: [
-      [Sequelize.fn('sum', Sequelize.col('amount')), 'total_amount'],
-    ],
-    group: 'wallet.id',
-    include: [
-      {
-        model: db.wallet,
-        as: 'wallet',
-        required: true,
-        attributes: [],
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            attributes: ['id'],
-            where: {
-              ticker: 'DXLM',
-            },
-          },
-        ],
-      },
-    ],
-    where: {
-      [Op.and]: [
-        {
-          type: 'send',
-        },
-        {
-          phase: 'confirming',
-        },
-      ],
-    },
-  });
-
-  const faucetDogeLumens = await db.faucet.findOne({
-    include: [
-      {
-        model: db.coin,
-        as: 'coin',
-        required: true,
-        attributes: [],
-        where: {
-          ticker: 'DXLM',
-        },
-      },
-    ],
-  });
   // 3
   // Runebase Totals
   faucetAmountRunebase = faucetRunebase.amount ? faucetRunebase.amount : 0;
@@ -693,11 +284,19 @@ export const getLiability = async () => {
   unconfirmedDepositsDogeLumens = sumUnconfirmedDepositsDogeLumens[0] && sumUnconfirmedDepositsDogeLumens[0].dataValues.total_amount ? sumUnconfirmedDepositsDogeLumens[0].dataValues.total_amount : 0;
   unconfirmledWithdrawalsDogeLumens = sumUnconfirmedWithdrawalsDogeLumens[0] && sumUnconfirmedWithdrawalsDogeLumens[0].dataValues.total_amount ? sumUnconfirmedWithdrawalsDogeLumens[0].dataValues.total_amount : 0;
 
+  // Secret Totals
+  faucetAmountSecret = faucetSecret.amount ? faucetSecret.amount : 0;
+  availableSecret = sumAvailableSecret[0].dataValues.total_available ? sumAvailableSecret[0].dataValues.total_available : 0;
+  lockedSecret = sumLockedSecret[0].dataValues.total_locked ? sumLockedSecret[0].dataValues.total_locked : 0;
+  unconfirmedDepositsSecret = sumUnconfirmedDepositsSecret[0] && sumUnconfirmedDepositsSecret[0].dataValues.total_amount ? sumUnconfirmedDepositsSecret[0].dataValues.total_amount : 0;
+  unconfirmledWithdrawalsSecret = sumUnconfirmedWithdrawalsSecret[0] && sumUnconfirmedWithdrawalsSecret[0].dataValues.total_amount ? sumUnconfirmedWithdrawalsSecret[0].dataValues.total_amount : 0;
+
   const runesLiability = (((Number(availableRunebase) + Number(lockedRunebase)) + Number(unconfirmedDepositsRunebase)) - Number(unconfirmledWithdrawalsRunebase) + Number(faucetAmountRunebase));
   const arrrLiability = (((Number(availablePirate) + Number(lockedPirate)) + Number(unconfirmedDepositsPirate)) - Number(unconfirmledWithdrawalsPirate) + Number(faucetAmountPirate));
   const tklLiability = (((Number(availableTokel) + Number(lockedTokel)) + Number(unconfirmedDepositsTokel)) - Number(unconfirmledWithdrawalsTokel) + Number(faucetAmountTokel));
   const xlmLiability = (((Number(availableLumens) + Number(lockedLumens)) + Number(unconfirmedDepositsLumens)) - Number(unconfirmledWithdrawalsLumens) + Number(faucetAmountLumens));
   const dxlmLiability = (((Number(availableDogeLumens) + Number(lockedDogeLumens)) + Number(unconfirmedDepositsDogeLumens)) - Number(unconfirmledWithdrawalsDogeLumens) + Number(faucetAmountDogeLumens));
+  const scrtLiability = (((Number(availableSecret) + Number(lockedSecret)) + Number(unconfirmedDepositsSecret)) - Number(unconfirmledWithdrawalsSecret) + Number(faucetAmountSecret));
 
   return [
     runesLiability,
@@ -705,5 +304,6 @@ export const getLiability = async () => {
     tklLiability,
     xlmLiability,
     dxlmLiability,
+    scrtLiability,
   ];
 };

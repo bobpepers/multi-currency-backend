@@ -3,6 +3,7 @@ import {
   getRunebaseInstance,
   getPirateInstance,
   getTokelInstance,
+  getSecretjsInstance,
 } from '../../services/rclient';
 
 const server = new StellarSdk.Server('https://horizon.stellar.org');
@@ -52,6 +53,20 @@ export const validateWithdrawalAddress = async (
         isInvalidAddress = false;
       }
     } catch (e) {
+      isNodeOffline = true;
+    }
+  } else if (ticker === 'SCRT') {
+    try {
+      const secretjs = await getSecretjsInstance();
+      getAddressInfo = await secretjs.query.auth.account({
+        address,
+      });
+      isInvalidAddress = true;
+      if (getAddressInfo && getAddressInfo.type === 'BaseAccount') {
+        isInvalidAddress = false;
+      }
+    } catch (e) {
+      console.log(e);
       isNodeOffline = true;
     }
   } else if (ticker === 'XLM') {

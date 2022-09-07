@@ -194,6 +194,37 @@ export const createWalletsForUser = async (
               });
             }
           }
+          if (coin.ticker === 'SCRT') {
+            const addressAlreadyExist = await db.address.findOne(
+              {
+                where: {
+                  address: process.env.SECRET_ADDRESS,
+                  memo: String(wallet.userId),
+                },
+                include: [
+                  {
+                    model: db.wallet,
+                    as: 'wallet',
+                    where: {
+                      coinId: coin.id,
+                    },
+                  },
+                ],
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              },
+            );
+            if (!addressAlreadyExist) {
+              address = await db.address.create({
+                address: process.env.SECRET_ADDRESS,
+                memo: String(wallet.userId),
+                walletId: wallet.id,
+              }, {
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+              });
+            }
+          }
         }
       }
     }

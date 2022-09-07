@@ -8,6 +8,7 @@ import { withdrawTKL } from './processWithdrawal/tkl';
 import { withdrawARRR } from './processWithdrawal/arrr';
 import { withdrawXLM } from './processWithdrawal/xlm';
 import { withdrawDXLM } from './processWithdrawal/dxlm';
+import { withdrawSCRT } from './processWithdrawal/scrt';
 
 config();
 
@@ -93,6 +94,15 @@ export const processWithdrawals = async (
           amount,
         );
       }
+      if (transaction.wallet.coin.ticker === 'SCRT') {
+        [
+          response,
+          responseStatus,
+        ] = await withdrawSCRT(
+          transaction,
+          amount,
+        );
+      }
       if (transaction.wallet.coin.ticker === 'XLM') {
         [
           response,
@@ -110,6 +120,18 @@ export const processWithdrawals = async (
           transaction,
           amount,
         );
+      }
+
+      if (transaction.wallet.coin.ticker === 'SCRT') {
+        if (
+          responseStatus
+          && (
+            responseStatus === 'NO_CONNECTION'
+          )
+        ) {
+          console.log('NO_CONNECTION');
+          return;
+        }
       }
 
       if (
@@ -242,6 +264,7 @@ export const processWithdrawals = async (
         );
       }
       if (updatedTrans) {
+        console.log(updatedTrans);
         io.to(updatedTrans.userId).emit(
           'updateTransaction',
           {
