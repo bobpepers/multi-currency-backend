@@ -1,26 +1,24 @@
-import WebSocket from 'ws';
-import axios from 'axios';
-import { Transaction } from "sequelize";
+import WS from 'ws';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import BigNumber from "bignumber.js";
 import { getSecretjsInstance } from '../../../services/rclient';
 import db from '../../../models';
 import { startSecretSync } from '../../../services/syncSecret';
-// import logger from "../../logger";
 
 /**
- * Patch Transaction From Secret
- */
+* WalletNotify for Secret Network
+*/
+
 const walletNotifySecret = async (
   io,
   queue,
 ) => {
-  const ws = new WebSocket(process.env.SECRET_WS_URL);
+  const ws = new ReconnectingWebSocket(process.env.SECRET_WS_URL, [], {
+    WebSocket: WS,
+  });
   const secretjs = await getSecretjsInstance();
 
-  ws.onopen = function (e) {
-    console.log("[open] Connection established");
-
-    // consume all events for the compute module
+  ws.addEventListener('open', (e) => {
     const newBlockQuery = `tm.event='NewBlock'`;
     const newDepositQuery = `tm.event='Tx' AND transfer.recipient='${process.env.SECRET_ADDRESS}'`;
 
@@ -45,9 +43,9 @@ const walletNotifySecret = async (
         id: "newDeposit", // jsonrpc id
       }),
     );
-  };
+  });
 
-  ws.onmessage = async function (event) {
+  ws.addEventListener('message', async (event) => {
     const myData = JSON.parse(event.data);
     if (myData.id === 'newBlock') {
       if (myData.result.data) {
@@ -60,6 +58,7 @@ const walletNotifySecret = async (
             queue,
             height,
           );
+          console.log('New Secret Network BlockHeight: ', height);
         }
       }
     }
@@ -224,26 +223,26 @@ const walletNotifySecret = async (
           }
         }
       }
-      console.log('newDeposit');
     }
-    // console.log(myData.id);
-  };
+  });
 
-  ws.onclose = function (event) {
-    if (event.wasClean) {
-      console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-    } else {
-      // e.g. server process killed or network down
-      // event.code is usually 1006 in this case
-      console.log('Implement ws reconnection here?');
-      console.log('[close] Connection died');
-    }
-  };
+  ws.addEventListener('close', async (event) => {
+    console.log(event);
+    await db.error.create({
+      type: 'Secret Network Websocket',
+      error: `${event.code && event.code}: ${event.reason && event.reason}`,
+    });
+    ws.reconnect();
+  });
 
-  ws.onerror = function (error) {
-    console.log(`Log the websocket error to database here`);
+  ws.addEventListener('error', async (error) => {
+    await db.error.create({
+      type: 'Secret Network Websocket',
+      error: `${error.code && error.code}: ${error.message && error.message}`,
+    });
     console.log(`[error] ${error.message}`);
-  };
+    ws.close();
+  });
 };
 
 export default walletNotifySecret;
