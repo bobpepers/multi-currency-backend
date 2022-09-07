@@ -251,7 +251,5 @@ export const startSecretSync = async (
         Number(latestBlock),
       );
     });
-    console.log(latestBlock);
-    console.log('newBlock');
   }
 };

@@ -241,7 +241,7 @@ const walletNotifySecret = async (
       error: `${error.code && error.code}: ${error.message && error.message}`,
     });
     console.log(`[error] ${error.message}`);
-    ws.close();
+    ws.reconnect();
   });
 };
 

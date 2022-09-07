@@ -162,7 +162,7 @@ config();
 
   // Secret
   const schedulePatchSecretDeposits = schedule.scheduleJob('*/1 * * * *', () => {
-    patchSecretDeposits();
+    patchSecretDeposits(io);
   });
 
   router(
