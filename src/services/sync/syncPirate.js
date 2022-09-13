@@ -9,8 +9,11 @@ import { getPirateInstance } from "../rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
 import blockchainConfig from '../../config/blockchain_config';
 import { sequentialLoop } from './sequentialLoop';
+import logger from "../../helpers/logger";
 
 config();
+
+let isSyncing = false;
 
 const syncTransactions = async (io) => {
   console.log('syncPirateTransactions');
@@ -280,7 +283,10 @@ const syncTransactions = async (io) => {
 };
 
 const insertBlock = async (startBlock) => {
-  try {
+  let success = false;
+  await db.sequelize.transaction({
+    isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+  }, async (t) => {
     const blockHash = await getPirateInstance().getBlockHash(startBlock);
     if (blockHash) {
       const block = getPirateInstance().getBlock(blockHash, 2);
@@ -289,32 +295,59 @@ const insertBlock = async (startBlock) => {
           where: {
             id: Number(startBlock),
           },
+          transaction: t,
+          lock: t.LOCK.UPDATE,
         });
         if (dbBlock) {
           await dbBlock.update({
             id: Number(startBlock),
             blockTime: block.time,
+          }, {
+            transaction: t,
+            lock: t.LOCK.UPDATE,
           });
         }
         if (!dbBlock) {
           await db.pirateBlock.create({
             id: startBlock,
             blockTime: block.time,
+          }, {
+            transaction: t,
+            lock: t.LOCK.UPDATE,
           });
         }
+        success = true;
       }
     }
     return true;
-  } catch (e) {
-    console.log(e);
-    return false;
+  }).catch(async (err) => {
+    success = false;
+    try {
+      await db.error.create({
+        type: 'sync block',
+        error: `${err}`,
+      });
+    } catch (e) {
+      logger.error(`Error sync: ${e}`);
+    }
+    console.log(err);
+    logger.error(`sync block: ${err}`);
+  });
+
+  if (success === true) {
+    return true;
   }
+  return false;
 };
 
 export const startPirateSync = async (
   io,
   queue,
 ) => {
+  if (isSyncing) {
+    console.log('Pirate Is Already Syncing');
+    return;
+  }
   try {
     await getPirateInstance().getBlockchainInfo();
   } catch (e) {
@@ -325,7 +358,12 @@ export const startPirateSync = async (
   let startBlock = Number(blockchainConfig.pirate.startSyncBlock);
   const blocks = await db.pirateBlock.findAll({
     limit: 1,
-    order: [['id', 'DESC']],
+    order: [
+      [
+        'id',
+        'DESC',
+      ],
+    ],
   });
 
   if (blocks.length > 0) {
@@ -337,22 +375,20 @@ export const startPirateSync = async (
   await sequentialLoop(
     numOfIterations,
     async (loop) => {
+      isSyncing = true;
       const endBlock = Math.min((startBlock + 1) - 1, currentBlockCount);
-
+      const successBlockSync = await insertBlock(startBlock);
       await queue.add(async () => {
         const task = await syncTransactions(io);
       });
-
-      await queue.add(async () => {
-        const task = await insertBlock(startBlock);
-      });
-
-      startBlock = endBlock + 1;
+      console.log('Inserted block: ', endBlock);
+      if (successBlockSync) {
+        startBlock = endBlock + 1;
+      }
       await loop.next();
     },
     async () => {
-      console.log('Synced block');
-      // setTimeout(startSync, 5000);
+      isSyncing = false;
     },
   );
 };

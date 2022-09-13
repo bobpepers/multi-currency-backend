@@ -9,6 +9,8 @@ import { getRunebaseInstance } from "../rclient";
 import logger from "../../helpers/logger";
 import { sequentialLoop } from './sequentialLoop';
 
+let isSyncing = false;
+
 const syncTransactions = async (io) => {
   const transactions = await db.transaction.findAll({
     where: {
@@ -205,7 +207,10 @@ const syncTransactions = async (io) => {
 };
 
 const insertBlock = async (startBlock) => {
-  try {
+  let success = false;
+  await db.sequelize.transaction({
+    isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+  }, async (t) => {
     const blockHash = await getRunebaseInstance().getBlockHash(startBlock);
     if (blockHash) {
       const block = getRunebaseInstance().getBlock(blockHash, 2);
@@ -214,32 +219,59 @@ const insertBlock = async (startBlock) => {
           where: {
             id: Number(startBlock),
           },
+          transaction: t,
+          lock: t.LOCK.UPDATE,
         });
         if (dbBlock) {
           await dbBlock.update({
             id: Number(startBlock),
             blockTime: block.time,
+          }, {
+            transaction: t,
+            lock: t.LOCK.UPDATE,
           });
         }
         if (!dbBlock) {
           await db.runebaseBlock.create({
             id: startBlock,
             blockTime: block.time,
+          }, {
+            transaction: t,
+            lock: t.LOCK.UPDATE,
           });
         }
+        success = true;
       }
     }
     return true;
-  } catch (e) {
-    console.log(e);
-    return false;
+  }).catch(async (err) => {
+    success = false;
+    try {
+      await db.error.create({
+        type: 'sync block',
+        error: `${err}`,
+      });
+    } catch (e) {
+      logger.error(`Error sync: ${e}`);
+    }
+    console.log(err);
+    logger.error(`sync block: ${err}`);
+  });
+
+  if (success === true) {
+    return true;
   }
+  return false;
 };
 
 export const startRunebaseSync = async (
   io,
   queue,
 ) => {
+  if (isSyncing) {
+    console.log('Runebase Is Already Syncing');
+    return;
+  }
   try {
     await getRunebaseInstance().getBlockchainInfo();
   } catch (e) {
@@ -251,7 +283,12 @@ export const startRunebaseSync = async (
 
   const blocks = await db.runebaseBlock.findAll({
     limit: 1,
-    order: [['id', 'DESC']],
+    order: [
+      [
+        'id',
+        'DESC',
+      ],
+    ],
   });
 
   if (blocks.length > 0) {
@@ -263,21 +300,20 @@ export const startRunebaseSync = async (
   await sequentialLoop(
     numOfIterations,
     async (loop) => {
+      isSyncing = true;
       const endBlock = Math.min((startBlock + 1) - 1, currentBlockCount);
-
+      const successBlockSync = await insertBlock(startBlock);
       await queue.add(async () => {
         const task = await syncTransactions(io);
       });
-
-      await queue.add(async () => {
-        const task = await insertBlock(startBlock);
-      });
-
-      startBlock = endBlock + 1;
+      console.log('Inserted block: ', endBlock);
+      if (successBlockSync) {
+        startBlock = endBlock + 1;
+      }
       await loop.next();
     },
     async () => {
-      console.log('Synced block');
+      isSyncing = false;
     },
   );
 };

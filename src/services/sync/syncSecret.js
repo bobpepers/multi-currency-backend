@@ -235,7 +235,6 @@ export const startSecretSync = async (
   latestBlock,
 ) => {
   let secretjs;
-
   try {
     secretjs = await getSecretjsInstance();
   } catch (e) {
