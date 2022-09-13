@@ -21,5 +21,5 @@ require("dotenv").config();
 
   console.log("mnemonic:", wallet.mnemonic);
   console.log("address:", wallet.address);
-  console.log("balance:", `${accountBalance.balance.amount / 10e6} SCRT`); // 1,000,00 uscrt = 1 SCRT
+  console.log("balance:", `${accountBalance.balance.amount / 1e6} SCRT`); // 1,000,000 uscrt = 1 SCRT
 })();

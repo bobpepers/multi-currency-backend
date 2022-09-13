@@ -2,53 +2,12 @@
 import _ from "lodash";
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
-import db from '../models';
-import blockchainConfig from '../config/blockchain_config';
-import { getRunebaseInstance } from "./rclient";
+import db from '../../models';
+import blockchainConfig from '../../config/blockchain_config';
+import { getRunebaseInstance } from "../rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
-import logger from "../helpers/logger";
-
-const sequentialLoop = async (
-  iterations,
-  process,
-  exit,
-) => {
-  let index = 0;
-  let done = false;
-  let shouldExit = false;
-
-  const loop = {
-    async next() {
-      if (done) {
-        if (shouldExit && exit) {
-          return exit();
-        }
-      }
-
-      if (index < iterations) {
-        index += 1;
-        await process(loop);
-      } else {
-        done = true;
-
-        if (exit) {
-          exit();
-        }
-      }
-    },
-
-    iteration() {
-      return index - 1; // Return the loop number we're on
-    },
-
-    break(end) {
-      done = true;
-      shouldExit = end;
-    },
-  };
-  await loop.next();
-  return loop;
-};
+import logger from "../../helpers/logger";
+import { sequentialLoop } from './sequentialLoop';
 
 const syncTransactions = async (io) => {
   const transactions = await db.transaction.findAll({

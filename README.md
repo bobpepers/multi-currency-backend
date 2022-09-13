@@ -68,7 +68,7 @@ STELLAR_SECRET=xx
 ### CHAIND - pulsar-2 (testnet) - secret-4 (mainnet)
 SECRET_WS_URL=wss://rpc.pulsar.scrttestnet.com/websocket
 SECRET_GRPC_WEB_URL=https://grpc.testnet.secretsaturn.net
-SECRET_CHAINID=secret-4
+SECRET_CHAINID=pulsar-2
 SECRET_MNEMONIC=xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx
 SECRET_ADDRESS=xx
 

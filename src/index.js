@@ -20,9 +20,9 @@ import { router } from "./router";
 import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
 // import db from "./models";
-import { startTokelSync } from "./services/syncTokel";
-import { startRunebaseSync } from "./services/syncRunebase";
-import { startPirateSync } from "./services/syncPirate";
+import { startTokelSync } from "./services/sync/syncTokel";
+import { startRunebaseSync } from "./services/sync/syncRunebase";
+import { startPirateSync } from "./services/sync/syncPirate";
 
 import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
