@@ -2,12 +2,12 @@
 import _ from "lodash";
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
-import db from '../../models';
-import blockchainConfig from '../../config/blockchain_config';
-import { getRunebaseInstance } from "../rclient";
+import db from '../../../models';
+import blockchainConfig from '../../../config/blockchain_config';
+import { getTokelInstance } from "../../rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
-import logger from "../../helpers/logger";
-import { sequentialLoop } from './sequentialLoop';
+import logger from "../../../helpers/logger";
+import { sequentialLoop } from '../sequentialLoop';
 
 let isSyncing = false;
 
@@ -21,16 +21,14 @@ const syncTransactions = async (io) => {
         model: db.wallet,
         as: 'wallet',
         required: true,
-        include: [
-          {
-            model: db.coin,
-            as: 'coin',
-            required: true,
-            where: {
-              ticker: 'RUNES',
-            },
+        include: [{
+          model: db.coin,
+          as: 'coin',
+          required: true,
+          where: {
+            ticker: 'TKL',
           },
-        ],
+        }],
       },
       {
         model: db.address,
@@ -40,7 +38,7 @@ const syncTransactions = async (io) => {
   });
 
   for await (const trans of transactions) {
-    const transaction = await getRunebaseInstance().getTransaction(trans.txid);
+    const transaction = await getTokelInstance().getTransaction(trans.txid);
 
     for await (const detail of transaction.details) {
       let updatedTransaction;
@@ -56,13 +54,19 @@ const syncTransactions = async (io) => {
           },
           include: [
             {
+              model: db.addressExternal,
+              as: 'addressExternal',
+              required: false,
+            },
+            {
               model: db.wallet,
               as: 'wallet',
               include: [{
                 model: db.coin,
                 as: 'coin',
+                required: true,
                 where: {
-                  ticker: 'RUNES',
+                  ticker: 'TKL',
                 },
               }],
             },
@@ -73,6 +77,7 @@ const syncTransactions = async (io) => {
             },
           ],
         });
+
         if (processTransaction) {
           const wallet = await db.wallet.findOne({
             where: {
@@ -82,19 +87,29 @@ const syncTransactions = async (io) => {
             transaction: t,
             lock: t.LOCK.UPDATE,
           });
+          console.log(wallet);
+          console.log('process Transaction wallet');
 
-          if (transaction.confirmations < Number(blockchainConfig.runebase.confirmations)) {
+          if (transaction.confirmations < Number(blockchainConfig.tokel.confirmations)) {
             updatedTransaction = await processTransaction.update({
-              confirmations: transaction.confirmations,
+              confirmations: transaction.rawconfirmations,
             }, {
               transaction: t,
               lock: t.LOCK.UPDATE,
             });
+            console.log(transaction);
+            console.log(processTransaction);
+            console.log(detail);
+            // console.log(processTransaction.address.address);
+            console.log('add confirmation');
           }
-          if (transaction.confirmations >= Number(blockchainConfig.runebase.confirmations)) {
+          if (transaction.confirmations >= Number(blockchainConfig.tokel.confirmations)) {
             if (
               detail.category === 'send'
               && processTransaction.type === 'send'
+              && processTransaction.addressExternal
+              && processTransaction.addressExternal.address
+              && processTransaction.addressExternal.address === detail.address
             ) {
               const removeLockedAmount = new BigNumber(detail.amount).times(1e8).minus(processTransaction.feeAmount).times('-1');
 
@@ -106,7 +121,7 @@ const syncTransactions = async (io) => {
               });
 
               updatedTransaction = await processTransaction.update({
-                confirmations: transaction.confirmations > 30000 ? 30000 : transaction.confirmations,
+                confirmations: transaction.rawconfirmations > 30000 ? 30000 : transaction.rawconfirmations,
                 phase: 'confirmed',
               }, {
                 transaction: t,
@@ -144,14 +159,18 @@ const syncTransactions = async (io) => {
               && processTransaction.type === 'receive'
               && detail.address === processTransaction.address.address
             ) {
+              console.log('final confirm receive');
+              console.log(detail.amount);
               updatedWallet = await wallet.update({
                 available: new BigNumber(wallet.available).plus(new BigNumber(detail.amount).times(1e8)).toString(),
               }, {
                 transaction: t,
                 lock: t.LOCK.UPDATE,
               });
+              console.log('updatedWallet');
+              console.log(updatedWallet);
               updatedTransaction = await trans.update({
-                confirmations: transaction.confirmations > 30000 ? 30000 : transaction.confirmations,
+                confirmations: transaction.rawconfirmations > 30000 ? 30000 : transaction.rawconfirmations,
                 phase: 'confirmed',
               }, {
                 transaction: t,
@@ -203,7 +222,7 @@ const syncTransactions = async (io) => {
       });
     }
   }
-  // return true;
+  return true;
 };
 
 const insertBlock = async (startBlock) => {
@@ -211,11 +230,11 @@ const insertBlock = async (startBlock) => {
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
   }, async (t) => {
-    const blockHash = await getRunebaseInstance().getBlockHash(startBlock);
+    const blockHash = await getTokelInstance().getBlockHash(startBlock);
     if (blockHash) {
-      const block = getRunebaseInstance().getBlock(blockHash, 2);
+      const block = getTokelInstance().getBlock(blockHash, 2);
       if (block) {
-        const dbBlock = await db.runebaseBlock.findOne({
+        const dbBlock = await db.tokelBlock.findOne({
           where: {
             id: Number(startBlock),
           },
@@ -232,7 +251,7 @@ const insertBlock = async (startBlock) => {
           });
         }
         if (!dbBlock) {
-          await db.runebaseBlock.create({
+          await db.tokelBlock.create({
             id: startBlock,
             blockTime: block.time,
           }, {
@@ -264,24 +283,24 @@ const insertBlock = async (startBlock) => {
   return false;
 };
 
-export const startRunebaseSync = async (
+export const startTokelSync = async (
   io,
   queue,
 ) => {
   if (isSyncing) {
-    console.log('Runebase Is Already Syncing');
+    console.log('Tokel Is Already Syncing');
     return;
   }
   try {
-    await getRunebaseInstance().getBlockchainInfo();
+    await getTokelInstance().getBlockchainInfo();
   } catch (e) {
     console.log(e);
     return;
   }
-  const currentBlockCount = Math.max(0, await getRunebaseInstance().getBlockCount());
-  let startBlock = Number(blockchainConfig.runebase.startSyncBlock);
+  const currentBlockCount = Math.max(0, await getTokelInstance().getBlockCount());
+  let startBlock = Number(blockchainConfig.tokel.startSyncBlock);
 
-  const blocks = await db.runebaseBlock.findAll({
+  const blocks = await db.tokelBlock.findAll({
     limit: 1,
     order: [
       [

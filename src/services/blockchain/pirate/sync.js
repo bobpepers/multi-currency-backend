@@ -4,12 +4,12 @@ import _ from "lodash";
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import BigNumber from "bignumber.js";
-import db from '../../models';
-import { getPirateInstance } from "../rclient";
+import db from '../../../models';
+import { getPirateInstance } from "../../rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
-import blockchainConfig from '../../config/blockchain_config';
-import { sequentialLoop } from './sequentialLoop';
-import logger from "../../helpers/logger";
+import blockchainConfig from '../../../config/blockchain_config';
+import { sequentialLoop } from '../sequentialLoop';
+import logger from "../../../helpers/logger";
 
 config();
 

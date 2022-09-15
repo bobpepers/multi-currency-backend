@@ -3,7 +3,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import BigNumber from "bignumber.js";
 import { getSecretjsInstance } from '../../rclient';
 import db from '../../../models';
-import { startSecretSync } from '../../sync/syncSecret';
+import { startSecretSync } from './sync';
 
 /**
 * WalletNotify for Secret Network

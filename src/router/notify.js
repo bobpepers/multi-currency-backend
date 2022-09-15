@@ -8,9 +8,9 @@ import walletNotifyTokel from '../services/blockchain/tokel/walletNotify';
 import walletNotifySecret from '../services/blockchain/secret/walletNotify';
 import walletNotifyLumens from '../services/blockchain/stellar/walletNotify';
 
-import { startRunebaseSync } from "../services/sync/syncRunebase";
-import { startPirateSync } from "../services/sync/syncPirate";
-import { startTokelSync } from "../services/sync/syncTokel";
+import { startRunebaseSync } from "../services/blockchain/runebase/sync";
+import { startPirateSync } from "../services/blockchain/pirate/sync";
+import { startTokelSync } from "../services/blockchain/tokel/sync";
 
 config();
 

@@ -19,9 +19,9 @@ import socketIo from 'socket.io';
 import { router } from "./router";
 import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
-import { startTokelSync } from "./services/sync/syncTokel";
-import { startRunebaseSync } from "./services/sync/syncRunebase";
-import { startPirateSync } from "./services/sync/syncPirate";
+import { startTokelSync } from "./services/blockchain/tokel/sync";
+import { startRunebaseSync } from "./services/blockchain/runebase/sync";
+import { startPirateSync } from "./services/blockchain/pirate/sync";
 
 import { patchRunebaseDeposits } from "./services/blockchain/runebase/patcher";
 import { patchPirateDeposits } from "./services/blockchain/pirate/patcher";
