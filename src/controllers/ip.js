@@ -10,7 +10,7 @@ export const isIpBanned = async (
   next,
 ) => {
   const ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  const banned = await db.ip.find({
+  const banned = await db.ip.findOne({
     where: {
       address: ip,
       banned: true,
