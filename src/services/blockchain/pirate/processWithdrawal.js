@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import {
   getPirateInstance,
 } from "../rclient";
-import { fromUtf8ToHex } from "../../helpers/utils";
+import { fromUtf8ToHex } from "../../../helpers/utils";
 
 config();
 
