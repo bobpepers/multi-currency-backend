@@ -28,7 +28,7 @@ import { patchPirateDeposits } from "./services/blockchain/pirate/patcher";
 import { patchTokelDeposits } from "./services/blockchain/tokel/patcher";
 import { patchSecretDeposits } from './services/blockchain/secret/patcher';
 
-import { processWithdrawals } from "./services/processWithdrawals";
+import { processWithdrawals } from "./services/blockchain/processWithdrawals";
 import { consolidateFunds } from "./services/blockchain/consolidate";
 
 Object.freeze(Object.prototype);

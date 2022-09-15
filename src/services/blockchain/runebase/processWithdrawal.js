@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import BigNumber from "bignumber.js";
 import {
   getRunebaseInstance,
-} from "../rclient";
+} from "../../rclient";
 
 config();
 

@@ -1,14 +1,14 @@
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import BigNumber from "bignumber.js";
-import db from '../models';
-import { getPirateInstance } from "./rclient";
-import { withdrawRUNES } from './processWithdrawal/runes';
-import { withdrawTKL } from './processWithdrawal/tkl';
-import { withdrawARRR } from './processWithdrawal/arrr';
-import { withdrawXLM } from './processWithdrawal/xlm';
-import { withdrawDXLM } from './processWithdrawal/dxlm';
-import { withdrawSCRT } from './processWithdrawal/scrt';
+import db from '../../models';
+import { getPirateInstance } from "../rclient";
+import { withdrawRUNES } from './runebase/processWithdrawal';
+import { withdrawTKL } from './tokel/processWithdrawal';
+import { withdrawARRR } from './pirate/processWithdrawal';
+import { withdrawXLM } from './stellar/processWithdrawal_xlm';
+import { withdrawDXLM } from './stellar/processWithdrawal_dxlm';
+import { withdrawSCRT } from './secret/processWithdrawal';
 
 config();
 

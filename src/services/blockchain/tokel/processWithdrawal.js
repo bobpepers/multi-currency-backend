@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import {
   getTokelInstance,
-} from "../rclient";
+} from "../../rclient";
 
 config();
 
