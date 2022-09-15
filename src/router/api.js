@@ -213,7 +213,7 @@ export const apiRouter = (
 
   app.post(
     '/api/signup',
-    verifyMyCaptcha,
+    use(verifyMyCaptcha),
     use(insertIp),
     use(isIpBanned),
     signup,
@@ -221,107 +221,107 @@ export const apiRouter = (
 
   app.post(
     '/api/currencies',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchCurrencies),
     respondCountAndResult,
   );
 
   app.post(
     '/api/admin/management/currencies/remove',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(removePriceCurrency),
     respondResult,
   );
 
   app.post(
     '/api/admin/management/currencies/update',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(updatePriceCurrency),
     respondResult,
   );
 
   app.post(
     '/api/admin/management/currencies/add',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(addPriceCurrency),
     respondResult,
   );
 
   app.post(
     '/api/admin/management/currencies/updateprice',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(updatePriceCurrencyPrices),
     respondResult,
   );
 
   app.post(
     '/api/admin/management/coinpricesource/add',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(addCoinPriceSource),
     respondResult,
   );
 
   app.post(
     '/api/admin/management/coinpricesource/remove',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(removeCoinPriceSource),
     respondResult,
   );
 
   app.post(
     '/api/admin/management/coinpricesource/update',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(updateCoinPriceSource),
     respondResult,
   );
 
   app.get(
     '/api/coinpricesources',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchCoinPriceSources),
     respondCountAndResult,
   );
@@ -350,23 +350,23 @@ export const apiRouter = (
 
   app.post(
     '/api/activity',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchUserActivity),
     respondCountAndResult,
   );
 
   app.post(
     '/api/admin/activity',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchAdminActivity),
     respondCountAndResult,
   );
@@ -408,55 +408,55 @@ export const apiRouter = (
 
   app.post(
     '/api/user',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchUser),
     respondResult,
   );
 
   app.post(
     '/api/withdraw/address/add',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(addNewWithdrawalAddress),
     respondResult,
   );
 
   app.post(
     '/api/withdraw/address/remove',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(removeWithdrawalAddress),
     respondResult,
   );
 
   app.post(
     '/api/withdraw/address/verify/resend',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(resendWithdrawalAddressVerification),
     respondResult,
   );
 
   app.post(
     '/api/withdraw/create',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(attachResIoClient),
     use(createWithdrawal),
     respondResult,
@@ -472,155 +472,155 @@ export const apiRouter = (
 
   app.post(
     '/api/admin/management/users',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchUsers),
     respondCountAndResult,
   );
 
   app.post(
     '/api/admin/management/user/ban',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(banUser),
     respondResult,
   );
 
   app.post(
     '/api/admin/withdrawals',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchWithdrawals),
     respondCountAndResult,
   );
 
   app.post(
     '/api/admin/deposits',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchDeposits),
     respondCountAndResult,
   );
 
   app.post(
     '/api/transactions',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchTransactions),
     respondCountAndResult,
   );
 
   app.post(
     '/api/admin/errors',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchErrors),
     respondCountAndResult,
   );
 
   app.post(
     '/api/management/withdrawaladdresses',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchWithdrawalAddresses),
     respondCountAndResult,
   );
 
   app.post(
     '/api/management/withdrawaladdress',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchWithdrawalAddress),
     respondResult,
   );
 
   app.post(
     '/api/management/userinfo',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchUserInfo),
     respondResult,
   );
 
   app.get(
     '/api/status',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchNodeStatus),
     respondResult,
   );
 
   app.get(
     '/api/admin/withdrawal/settings',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchAdminWithdrawalSettings),
     respondResult,
   );
 
   app.post(
     '/api/admin/withdrawal/setting/update',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(updateAdminWithdrawalSetting),
     respondResult,
   );
 
   app.get(
     '/api/admin/wallet',
-    IsAuthenticated,
-    isAdmin,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isAdmin),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     use(fetchAdminWallet),
     respondResult,
   );
@@ -672,11 +672,11 @@ export const apiRouter = (
     '/api/signin',
     use(insertIp),
     use(isIpBanned),
-    verifyMyCaptcha,
+    use(verifyMyCaptcha),
     requireSignin,
-    isUserBanned,
+    use(isUserBanned),
     use(signin),
-    createWalletsForUser,
+    use(createWalletsForUser),
     respondResult,
   );
 
@@ -684,7 +684,7 @@ export const apiRouter = (
     '/api/reset-password',
     use(insertIp),
     use(isIpBanned),
-    verifyMyCaptcha,
+    use(verifyMyCaptcha),
     use(resetPassword),
     respondResult,
   );
@@ -707,8 +707,8 @@ export const apiRouter = (
 
   app.post(
     '/api/2fa/enable',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
     ensuretfa,
@@ -719,10 +719,10 @@ export const apiRouter = (
 
   app.post(
     '/api/2fa/disable',
-    IsAuthenticated,
+    use(IsAuthenticated),
     use(insertIp),
     use(isIpBanned),
-    ensuretfa,
+    use(ensuretfa),
     // updateLastSeen,
     use(disabletfa),
     respondResult,
@@ -730,8 +730,8 @@ export const apiRouter = (
 
   app.post(
     '/api/2fa/unlock',
-    IsAuthenticated,
-    isUserBanned,
+    use(IsAuthenticated),
+    use(isUserBanned),
     use(insertIp),
     use(isIpBanned),
     use(unlocktfa),
