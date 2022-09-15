@@ -1,6 +1,6 @@
-const HttpProvider = require('../httpprovider');
+const HttpProvider = require('../../httpprovider');
 
-class Pirate {
+class Tokel {
   constructor(url) {
     this.provider = new HttpProvider(url);
   }
@@ -73,22 +73,14 @@ class Pirate {
     return this.provider.rawCall('getpeerinfo');
   }
 
-  /**
-   * Returns data about each connected network node as a json array of objects.
-   * @return {Promise} Node info object or Error
-   */
-  getMiningInfo() {
-    return this.provider.rawCall('getmininginfo');
-  }
-
   /** ******** UTIL ********* */
   /**
    * Validates if a valid Pirate address.
    * @param {string} address Pirate address to validate.
    * @return {Promise} Object with validation info or Error.
    */
-  zValidateAddress(address) {
-    return this.provider.rawCall('z_validateaddress', [address]);
+  validateAddress(address) {
+    return this.provider.rawCall('validateaddress', [address]);
   }
 
   /** ******** WALLET ********* */
@@ -99,16 +91,7 @@ class Pirate {
    * @return {Promise} Success or Error.
    */
   listTransactions(mostRecent) {
-    return this.provider.rawCall('zs_listtransactions', [0, 0, 0, mostRecent]);
-  }
-
-  /**
-   * Get Balance of address
-   * @return {Promise} Amount of coins available in address
-   */
-  zGetBalance(address) {
-    console.log(address);
-    return this.provider.rawCall('z_getbalance', [address]);
+    return this.provider.rawCall('listtransactions', ['*', mostRecent]);
   }
 
   /**
@@ -117,6 +100,23 @@ class Pirate {
    */
   zGetBalances() {
     return this.provider.rawCall('z_getbalances');
+  }
+
+  getBalance() {
+    return this.provider.rawCall('getbalance');
+  }
+
+  zMergeToAddress(
+    fromAddresses,
+    toAddress,
+  ) {
+    return this.provider.rawCall(
+      'z_mergetoaddress',
+      [
+        fromAddresses,
+        toAddress,
+      ],
+    );
   }
 
   /**
@@ -155,7 +155,7 @@ class Pirate {
    * @return {Promise} Pirate address or Error.
    */
   getNewAddress() {
-    return this.provider.rawCall('z_getnewaddress');
+    return this.provider.rawCall('getnewaddress');
   }
 
   /**
@@ -164,7 +164,7 @@ class Pirate {
    * @return {Promise} Promise containing result object or Error
    */
   getTransaction(txid) {
-    return this.provider.rawCall('zs_gettransaction', [txid]);
+    return this.provider.rawCall('gettransaction', [txid]);
   }
 
   /**
@@ -173,6 +173,40 @@ class Pirate {
    */
   getWalletInfo() {
     return this.provider.rawCall('getwalletinfo');
+  }
+
+  /**
+   * Gets a list of unspent transactions
+   * @return {Promise} Promise containing result object or Error
+   */
+  listUnspent() {
+    return this.provider.rawCall('listunspent');
+  }
+
+  /**
+   * Lists unspent transaction outputs.
+   * @param {string} address Address to send Pirate to.
+   * @param {number} amount Amount of Pirate to send.
+   * @param {number} minconf (numeric, optional, default=1) Only use funds with at least this many confirmations.
+   * @param {string} comment Comment used to store what the transaction is for.
+   * @param {string} commentTo Comment to store name/organization to which you're sending the transaction.
+   * @param {string} subtractFeeFromAmount (boolean, optional, default=false) The fee will be deducted from the amount being sent.The recipient will receive less KOMODO than you enter in the amount field.
+   * @return {Promise} Transaction ID or Error
+   */
+  sendToAddress(
+    address,
+    amount,
+    comment = '',
+    commentTo = '',
+    subtractFeeFromAmount = false,
+  ) {
+    return this.provider.rawCall('sendtoaddress', [
+      address,
+      amount,
+      comment,
+      commentTo,
+      subtractFeeFromAmount,
+    ]);
   }
 
   /**
@@ -195,4 +229,4 @@ class Pirate {
   }
 }
 
-module.exports = Pirate;
+module.exports = Tokel;

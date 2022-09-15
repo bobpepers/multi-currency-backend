@@ -1,6 +1,7 @@
-const HttpProvider = require('../httpprovider');
+/* eslint-disable default-param-last */
+const HttpProvider = require('../../httpprovider');
 
-class Tokel {
+class Runebase {
   constructor(url) {
     this.provider = new HttpProvider(url);
   }
@@ -17,6 +18,57 @@ class Tokel {
     } catch (err) {
       return false;
     }
+  }
+
+  walletCreateFundedPsbt(
+    inputs,
+    outputs,
+    lockTime,
+    options,
+  ) {
+    return this.provider.rawCall(
+      'walletcreatefundedpsbt',
+      [
+        inputs,
+        outputs,
+        lockTime,
+        options,
+      ],
+    );
+  }
+
+  walletProcessPsbt(psbt) {
+    return this.provider.rawCall('walletprocesspsbt', [psbt]);
+  }
+
+  finalizePsbt(psbt) {
+    return this.provider.rawCall('finalizepsbt', [psbt]);
+  }
+
+  listUnspent() {
+    return this.provider.rawCall('listunspent');
+  }
+
+  getHexAddress(address) {
+    return this.provider.rawCall('gethexaddress', [address]);
+  }
+
+  createRawTransaction(
+    inputs,
+    outputs,
+  ) {
+    return this.provider.rawCall('createrawtransaction', [
+      inputs,
+      outputs,
+    ]);
+  }
+
+  signRawTransactionWithWallet(raw) {
+    return this.provider.rawCall('signrawtransactionwithwallet', [raw]);
+  }
+
+  sendRawTransaction(raw) {
+    return this.provider.rawCall('sendrawtransaction', [raw]);
   }
 
   /** ******** BLOCKCHAIN ********* */
@@ -55,13 +107,13 @@ class Tokel {
     return this.provider.rawCall('getblockhash', [blockNum]);
   }
 
-  /** ******** CONTROL ********* */
   /**
-   * Get the blockchain info.
-   * @return {Promise} Blockchain info object or Error
+   * Returns the transaction receipt given the txid.
+   * @param {string} txid The transaction id to look up.
+   * @return {Promise} Transaction receipt or Error.
    */
-  getInfo() {
-    return this.provider.rawCall('getinfo');
+  listTransactions(mostRecent) {
+    return this.provider.rawCall('listtransactions', ["*", mostRecent]);
   }
 
   /** ******** NETWORK ********* */
@@ -75,87 +127,21 @@ class Tokel {
 
   /** ******** UTIL ********* */
   /**
-   * Validates if a valid Pirate address.
-   * @param {string} address Pirate address to validate.
+   * Validates if a valid Runebase address.
+   * @param {string} address Runebase address to validate.
    * @return {Promise} Object with validation info or Error.
    */
   validateAddress(address) {
     return this.provider.rawCall('validateaddress', [address]);
   }
 
-  /** ******** WALLET ********* */
   /**
-   * Lists transactions
-   * @param {string} * All accounts
-   * @param {string} mostRecent Number of most recent transactions
-   * @return {Promise} Success or Error.
-   */
-  listTransactions(mostRecent) {
-    return this.provider.rawCall('listtransactions', ['*', mostRecent]);
-  }
-
-  /**
-   * Lists all balances
-   * @return {Promise} Array of unspent transaction outputs or Error
-   */
-  zGetBalances() {
-    return this.provider.rawCall('z_getbalances');
-  }
-
-  getBalance() {
-    return this.provider.rawCall('getbalance');
-  }
-
-  zMergeToAddress(
-    fromAddresses,
-    toAddress,
-  ) {
-    return this.provider.rawCall(
-      'z_mergetoaddress',
-      [
-        fromAddresses,
-        toAddress,
-      ],
-    );
-  }
-
-  /**
-   * Send ARRR to many
-   * @param {string} address The Pirate address to send ARRR from.
-   * @param {object} object Object with receiver information. [{"address": "zs127z2s66v207g7t3myxklafv28ecffpxmphv5pdx3he79dr8yaqwze47hy29f4l68kx7fsp5cms2", "amount": 0.1}]
-   * @param {number} (numeric, optional, default=1) Only use funds confirmed at least this many times.
-   * @param {number} (numeric, optional, default=0.0001) The fee amount to attach to this transaction.
-   * @return {Promise} Array of unspent transaction outputs or Error
-   */
-  zSendMany(address, object, minconf = 1, fee = 0.0001) {
-    return this.provider.rawCall('z_sendmany', [address, object, minconf, fee]);
-  }
-
-  /**
-   * Get operation status
-   * @param {array} Array Array with opration Id. ["zs127z2s66v207g7t3myxklafv28ecffpxmphv5pdx3he79dr8yaqwze47hy29f4l68kx7fsp5cms2"]
-   * @return {Promise} Array of operation statusses
-   */
-  zGetOperationStatus(arrr = []) {
-    return this.provider.rawCall('z_getoperationstatus', [arrr]);
-  }
-
-  /**
-   * Reveals the private key corresponding to the z_address.
-   * @param {string} address The Pirate z_address for the private key.
-   * @return {Promise} Private key or Error.
-   */
-  zExportKey(address) {
-    return this.provider.rawCall('z_exportkey', [address]);
-  }
-
-  /**
-   * Gets a new Pirate address for receiving payments.
+   * Gets a new Runebase address for receiving payments.
    * @param {string} acctName The account name for the address to be linked to ("" for default).
-   * @return {Promise} Pirate address or Error.
+   * @return {Promise} Runebase address or Error.
    */
-  getNewAddress() {
-    return this.provider.rawCall('getnewaddress');
+  getNewAddress(acctName = '') {
+    return this.provider.rawCall('getnewaddress', [acctName]);
   }
 
   /**
@@ -176,21 +162,17 @@ class Tokel {
   }
 
   /**
-   * Gets a list of unspent transactions
-   * @return {Promise} Promise containing result object or Error
-   */
-  listUnspent() {
-    return this.provider.rawCall('listunspent');
-  }
-
-  /**
    * Lists unspent transaction outputs.
-   * @param {string} address Address to send Pirate to.
-   * @param {number} amount Amount of Pirate to send.
-   * @param {number} minconf (numeric, optional, default=1) Only use funds with at least this many confirmations.
+   * @param {string} address Address to send RUNEBASE to.
+   * @param {number} amount Amount of RUNEBASE to send.
    * @param {string} comment Comment used to store what the transaction is for.
    * @param {string} commentTo Comment to store name/organization to which you're sending the transaction.
-   * @param {string} subtractFeeFromAmount (boolean, optional, default=false) The fee will be deducted from the amount being sent.The recipient will receive less KOMODO than you enter in the amount field.
+   * @param {boolean} subtractFeeFromAmount The fee will be deducted from the amount being sent.
+   * @param {boolean} replaceable Allow this transaction to be replaced by a transaction with higher fees via BIP 125.
+   * @param {number} confTarget Confirmation target (in blocks).
+   * @param {string} estimateMode The fee estimate mode, must be one of: "UNSET", "ECONOMICAL", "CONSERVATIVE"
+   * @param {string} senderAddress The RUNEBASE address that will be used to send money from.
+   * @param {boolean} changeToSender Return the change to the sender.
    * @return {Promise} Transaction ID or Error
    */
   sendToAddress(
@@ -199,6 +181,11 @@ class Tokel {
     comment = '',
     commentTo = '',
     subtractFeeFromAmount = false,
+    replaceable = true,
+    confTarget = 6,
+    estimateMode = 'UNSET',
+    senderAddress,
+    changeToSender = false,
   ) {
     return this.provider.rawCall('sendtoaddress', [
       address,
@@ -206,6 +193,11 @@ class Tokel {
       comment,
       commentTo,
       subtractFeeFromAmount,
+      replaceable,
+      confTarget,
+      estimateMode,
+      senderAddress,
+      changeToSender,
     ]);
   }
 
@@ -229,4 +221,4 @@ class Tokel {
   }
 }
 
-module.exports = Tokel;
+module.exports = Runebase;

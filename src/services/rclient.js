@@ -3,9 +3,9 @@ import {
   Wallet,
 } from 'secretjs';
 import { config } from "dotenv";
-import Runebase from "./rpc/runebase";
-import Pirate from "./rpc/pirate";
-import Tokel from "./rpc/tokel";
+import Runebase from "./blockchain/runebase/rpc";
+import Pirate from "./blockchain/pirate/rpc";
+import Tokel from "./blockchain/tokel/rpc";
 
 config();
 
