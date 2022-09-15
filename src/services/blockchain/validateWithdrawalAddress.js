@@ -4,7 +4,7 @@ import {
   getPirateInstance,
   getTokelInstance,
   getSecretjsInstance,
-} from '../../services/rclient';
+} from '../rclient';
 
 const server = new StellarSdk.Server('https://horizon.stellar.org');
 

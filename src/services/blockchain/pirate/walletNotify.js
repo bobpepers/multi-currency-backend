@@ -2,7 +2,7 @@
 import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import BigNumber from "bignumber.js";
-import { getPirateInstance } from '../../../services/rclient';
+import { getPirateInstance } from '../../rclient';
 import db from '../../../models';
 
 config();

@@ -2,11 +2,11 @@
 import StellarSdk from 'stellar-sdk';
 import { config } from "dotenv";
 import fs from 'fs';
-import walletNotifyRunebase from '../helpers/blockchain/runebase/walletNotify';
-import walletNotifyPirate from '../helpers/blockchain/pirate/walletNotify';
-import walletNotifyTokel from '../helpers/blockchain/tokel/walletNotify';
-import walletNotifySecret from '../helpers/blockchain/secret/walletNotify';
-import walletNotifyLumens from '../helpers/blockchain/stellar/walletNotify';
+import walletNotifyRunebase from '../services/blockchain/runebase/walletNotify';
+import walletNotifyPirate from '../services/blockchain/pirate/walletNotify';
+import walletNotifyTokel from '../services/blockchain/tokel/walletNotify';
+import walletNotifySecret from '../services/blockchain/secret/walletNotify';
+import walletNotifyLumens from '../services/blockchain/stellar/walletNotify';
 
 import { startRunebaseSync } from "../services/sync/syncRunebase";
 import { startPirateSync } from "../services/sync/syncPirate";

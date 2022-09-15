@@ -1,5 +1,3 @@
-// var appRoot = require('app-root-path');
-// import winston from "winston";
 const winston = require('winston');
 
 const options = {

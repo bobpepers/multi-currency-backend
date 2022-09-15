@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import db from '../../models';
-import { patchPirateDeposits } from "../../helpers/blockchain/pirate/patcher";
-import { patchRunebaseDeposits } from "../../helpers/blockchain/runebase/patcher";
-import { patchTokelDeposits } from "../../helpers/blockchain/tokel/patcher";
+import { patchPirateDeposits } from "../../services/blockchain/pirate/patcher";
+import { patchRunebaseDeposits } from "../../services/blockchain/runebase/patcher";
+import { patchTokelDeposits } from "../../services/blockchain/tokel/patcher";
 
 export const patchDeposits = async (
   req,

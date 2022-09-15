@@ -1,23 +1,22 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
-import { getRunebaseInstance } from '../../../services/rclient';
-
+import { getTokelInstance } from '../../rclient';
 import db from '../../../models';
 
 // import logger from "../../logger";
 
 /**
- * Notify New Transaction From Runebase Node
+ * Notify New Transaction From Tokel Node
  */
-const walletNotifyRunebase = async (
+const walletNotifyTokel = async (
   req,
   res,
   next,
 ) => {
   res.locals.activity = [];
   const txId = req.body.payload;
-  const transaction = await getRunebaseInstance().getTransaction(txId);
+  const transaction = await getTokelInstance().getTransaction(txId);
 
   await db.sequelize.transaction({
     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
@@ -54,6 +53,7 @@ const walletNotifyRunebase = async (
             transaction: t,
             lock: t.LOCK.UPDATE,
           });
+          console.log(address);
           if (address) {
             res.locals.detail[parseInt(i, 10)] = {};
             res.locals.detail[parseInt(i, 10)].userId = address.wallet.user.id;
@@ -77,7 +77,6 @@ const walletNotifyRunebase = async (
               transaction: t,
               lock: t.LOCK.UPDATE,
             });
-            // res.locals.detail[parseInt(i, 10)].transaction[0].coin = address.wallet.coin;
 
             if (newTransaction[1]) {
               res.locals.detail[parseInt(i, 10)].transaction = await db.transaction.findOne({
@@ -113,7 +112,6 @@ const walletNotifyRunebase = async (
                 lock: t.LOCK.UPDATE,
               });
               res.locals.activity.unshift(activity[0]);
-              // res.locals.detail[parseInt(i, 10)].amount = detail.amount;
             }
             i += 1;
           }
@@ -122,10 +120,10 @@ const walletNotifyRunebase = async (
     }
 
     t.afterCommit(() => {
-      console.log('commited');
       next();
+      console.log('commited');
     });
   });
 };
 
-export default walletNotifyRunebase;
+export default walletNotifyTokel;

@@ -19,18 +19,17 @@ import socketIo from 'socket.io';
 import { router } from "./router";
 import { updatePrice } from "./helpers/price/updatePrice";
 import { updateConversionRatesFiat, updateConversionRatesCrypto } from "./helpers/price/updateConversionRates";
-// import db from "./models";
 import { startTokelSync } from "./services/sync/syncTokel";
 import { startRunebaseSync } from "./services/sync/syncRunebase";
 import { startPirateSync } from "./services/sync/syncPirate";
 
-import { patchRunebaseDeposits } from "./helpers/blockchain/runebase/patcher";
-import { patchPirateDeposits } from "./helpers/blockchain/pirate/patcher";
-import { patchTokelDeposits } from "./helpers/blockchain/tokel/patcher";
-import { patchSecretDeposits } from './helpers/blockchain/secret/patcher';
+import { patchRunebaseDeposits } from "./services/blockchain/runebase/patcher";
+import { patchPirateDeposits } from "./services/blockchain/pirate/patcher";
+import { patchTokelDeposits } from "./services/blockchain/tokel/patcher";
+import { patchSecretDeposits } from './services/blockchain/secret/patcher';
 
 import { processWithdrawals } from "./services/processWithdrawals";
-import { consolidateFunds } from "./helpers/blockchain/consolidate";
+import { consolidateFunds } from "./services/blockchain/consolidate";
 
 Object.freeze(Object.prototype);
 

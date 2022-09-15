@@ -2,7 +2,7 @@
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
 import db from '../../../models';
-import { getTokelInstance } from "../../../services/rclient";
+import { getTokelInstance } from "../../rclient";
 
 export async function patchTokelDeposits() {
   try {

@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { config } from "dotenv";
-import { getTokelInstance } from "../../../services/rclient";
+import { getTokelInstance } from "../../rclient";
 
 config();
 

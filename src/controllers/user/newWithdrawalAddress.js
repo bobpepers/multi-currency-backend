@@ -2,7 +2,7 @@
 import db from '../../models';
 import {
   validateWithdrawalAddress,
-} from '../../helpers/blockchain/validateWithdrawalAddress';
+} from '../../services/blockchain/validateWithdrawalAddress';
 import { generateVerificationToken } from '../../helpers/generate';
 import { sendVerifyAddressEmail } from '../../helpers/email';
 
