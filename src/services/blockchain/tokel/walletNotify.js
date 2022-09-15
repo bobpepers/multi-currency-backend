@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
-import { getTokelInstance } from '../../rclient';
+import { getTokelInstance } from '../rclient';
 import db from '../../../models';
 
 // import logger from "../../logger";

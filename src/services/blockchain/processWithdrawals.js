@@ -2,7 +2,7 @@ import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import BigNumber from "bignumber.js";
 import db from '../../models';
-import { getPirateInstance } from "../rclient";
+import { getPirateInstance } from "./rclient";
 import { withdrawRUNES } from './runebase/processWithdrawal';
 import { withdrawTKL } from './tokel/processWithdrawal';
 import { withdrawARRR } from './pirate/processWithdrawal';

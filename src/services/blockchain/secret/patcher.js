@@ -3,7 +3,7 @@ import axios from 'axios';
 /* eslint-disable no-restricted-syntax */
 import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
-import { getSecretjsInstance } from '../../rclient';
+import { getSecretjsInstance } from '../rclient';
 import db from '../../../models';
 
 // import logger from "../../logger";

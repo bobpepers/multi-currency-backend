@@ -1,4 +1,4 @@
-import { getRunebaseInstance } from '../../services/rclient';
+import { getRunebaseInstance } from '../../services/blockchain/rclient';
 
 export const fetchNodeStatus = async (
   req,

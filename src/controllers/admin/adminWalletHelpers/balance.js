@@ -6,7 +6,7 @@ import {
   getPirateInstance,
   getTokelInstance,
   getSecretjsInstance,
-} from '../../../services/rclient';
+} from '../../../services/blockchain/rclient';
 
 config();
 

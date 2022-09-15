@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import db from '../../../models';
 import blockchainConfig from '../../../config/blockchain_config';
 // import { waterFaucet } from "../helpers/waterFaucet";
-import { getSecretjsInstance } from '../../rclient';
+import { getSecretjsInstance } from '../rclient';
 import logger from "../../../helpers/logger";
 import { sequentialLoop } from '../sequentialLoop';
 

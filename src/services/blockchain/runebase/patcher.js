@@ -3,7 +3,7 @@ import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
 import db from '../../../models';
 
-import { getRunebaseInstance } from "../../rclient";
+import { getRunebaseInstance } from "../rclient";
 
 export async function patchRunebaseDeposits() {
   try {

@@ -4,7 +4,7 @@ import { Transaction } from "sequelize";
 import BigNumber from "bignumber.js";
 import db from '../../../models';
 import blockchainConfig from '../../../config/blockchain_config';
-import { getRunebaseInstance } from "../../rclient";
+import { getRunebaseInstance } from "../rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
 import logger from "../../../helpers/logger";
 import { sequentialLoop } from '../sequentialLoop';

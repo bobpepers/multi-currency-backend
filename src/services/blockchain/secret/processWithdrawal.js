@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import BigNumber from "bignumber.js";
 import {
   getSecretjsInstance,
-} from "../../rclient";
+} from "../rclient";
 
 config();
 

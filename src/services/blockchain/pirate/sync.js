@@ -5,7 +5,7 @@ import { Transaction } from "sequelize";
 import { config } from "dotenv";
 import BigNumber from "bignumber.js";
 import db from '../../../models';
-import { getPirateInstance } from "../../rclient";
+import { getPirateInstance } from "../rclient";
 // import { waterFaucet } from "../helpers/waterFaucet";
 import blockchainConfig from '../../../config/blockchain_config';
 import { sequentialLoop } from '../sequentialLoop';

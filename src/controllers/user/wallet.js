@@ -6,7 +6,7 @@ import {
   getRunebaseInstance,
   getPirateInstance,
   getTokelInstance,
-} from '../../services/rclient';
+} from '../../services/blockchain/rclient';
 
 export const createWalletsForUser = async (
   req,
